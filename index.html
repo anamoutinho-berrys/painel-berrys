@@ -9,12 +9,10 @@
     :root {
       --b1:#45B9E6; --b2:#83D4F1; --b3:#A3DDF0; --b4:#A7DDE9; --b5:#CEEBF1;
       --dark:#0D2E3F; --white:#fff; --gray:#f4f8fb; --text:#1a3a4a;
-      --green:#27ae60; --red:#e94560; --orange:#f5a623; --purple:#7c4dff;
+      --green:#27ae60; --red:#e94560; --orange:#f5a623;
     }
     *{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:'Nunito',sans-serif;background:var(--gray);color:var(--text);min-height:100vh;}
-
-    /* ═══ TOPBAR ═══ */
     .topbar{background:var(--dark);padding:0 28px;display:flex;align-items:stretch;height:60px;box-shadow:0 4px 20px rgba(0,0,0,.3);}
     .brand{display:flex;align-items:center;gap:10px;padding-right:24px;border-right:1px solid rgba(255,255,255,.1);margin-right:8px;flex-shrink:0;}
     .brand-b{width:34px;height:34px;background:var(--b1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:20px;color:var(--dark);}
@@ -27,17 +25,15 @@
     .tab-btn:hover{color:#fff;background:rgba(255,255,255,.05);}
     .tab-btn.active{color:var(--b1);border-bottom-color:var(--b1);background:rgba(69,185,230,.08);}
     .badge{background:var(--b1);color:var(--dark);font-size:9px;font-weight:900;padding:1px 5px;border-radius:10px;}
-    .badge-new{background:var(--green);color:#fff;}
-
-    /* ═══ LAYOUT ═══ */
+    .srv-status{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,.4);font-weight:700;padding-left:16px;flex-shrink:0;}
+    .srv-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
     .tab-page{display:none;}
     .tab-page.active{display:block;}
     .subheader{background:linear-gradient(135deg,var(--b1) 0%,#2292c4 100%);padding:18px 28px;display:flex;align-items:center;justify-content:space-between;}
     .sh-title{font-family:'Bebas Neue',cursive;font-size:26px;color:#fff;letter-spacing:1px;}
     .sh-sub{font-size:12px;color:rgba(255,255,255,.8);margin-top:2px;font-weight:600;}
     .sh-right{font-size:12px;color:rgba(255,255,255,.7);text-align:right;font-weight:600;}
-
-    /* ═══ BOTÕES ═══ */
     .btn{padding:8px 18px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:800;font-family:'Nunito',sans-serif;transition:.2s;white-space:nowrap;}
     .btn-blue{background:var(--b1);color:var(--dark);}
     .btn-blue:hover{background:#2fa8d8;}
@@ -45,17 +41,6 @@
     .btn-dark:hover{background:#1a4a60;}
     .btn-ghost{background:var(--b5);color:var(--text);}
     .btn-ghost:hover{background:var(--b4);}
-
-    /* ═══ TOKEN BAR ═══ */
-    .token-bar{background:#fff;border-bottom:2px solid var(--b5);padding:10px 28px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-    .token-bar label{font-size:13px;font-weight:800;color:var(--text);white-space:nowrap;}
-    .token-bar input{flex:1;min-width:220px;border:1.5px solid var(--b4);border-radius:8px;padding:7px 12px;font-size:13px;color:var(--text);font-family:monospace;background:var(--gray);}
-    .token-bar input:focus{outline:none;border-color:var(--b1);background:#fff;}
-    .dot{width:9px;height:9px;border-radius:50%;background:#ccc;flex-shrink:0;}
-    .dot.on{background:var(--green);animation:pulse 2s infinite;}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-
-    /* ═══ CONTROLES ═══ */
     .controls{background:#fff;border-bottom:1px solid var(--b5);padding:12px 28px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
     .controls label{font-size:13px;font-weight:800;}
     select.sel{padding:7px 12px;border:1.5px solid var(--b4);border-radius:8px;font-size:13px;background:var(--gray);font-family:'Nunito',sans-serif;font-weight:700;cursor:pointer;color:var(--text);}
@@ -69,13 +54,8 @@
     .prog-bar{height:4px;background:var(--b5);border-radius:3px;overflow:hidden;}
     .prog-fill{height:100%;background:linear-gradient(90deg,var(--b1),#2292c4);width:0%;transition:.3s;border-radius:3px;}
     .prog-lbl{font-size:11px;color:#aaa;margin-top:4px;font-weight:700;}
-
-    /* ═══ INFO BOX ═══ */
-    .info-box{margin:14px 28px 0;background:#e8f6fd;border:1.5px solid var(--b3);border-radius:10px;padding:11px 16px;font-size:13px;color:var(--dark);display:none;gap:10px;font-weight:600;}
-    .info-box.show{display:flex;}
-    .info-box a{color:var(--b1);}
-
-    /* ═══ CARDS RESUMO ═══ */
+    .err-banner{margin:12px 28px 0;background:#fff5f5;border:1.5px solid #fc8181;border-radius:10px;padding:11px 16px;font-size:13px;color:#c53030;display:none;gap:10px;font-weight:700;align-items:center;}
+    .err-banner.show{display:flex;}
     .cards-grid{padding:18px 28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;}
     .card{background:#fff;border-radius:14px;padding:16px 20px;box-shadow:0 2px 10px rgba(69,185,230,.1);border-top:4px solid var(--b1);transition:.2s;}
     .card:hover{transform:translateY(-2px);}
@@ -85,8 +65,6 @@
     .card .lbl{font-size:10px;color:#999;font-weight:800;text-transform:uppercase;letter-spacing:.8px;}
     .card .val{font-family:'Bebas Neue',cursive;font-size:26px;color:var(--dark);margin-top:4px;letter-spacing:1px;}
     .card .sub{font-size:11px;color:#bbb;margin-top:2px;font-weight:700;}
-
-    /* ═══ TABELA ═══ */
     .tbl-wrap{padding:0 28px 28px;overflow-x:auto;}
     table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(69,185,230,.1);font-size:13px;}
     thead tr{background:var(--dark);color:#fff;}
@@ -108,17 +86,11 @@
     .spin{display:inline-block;width:13px;height:13px;border:2px solid var(--b5);border-top-color:var(--b1);border-radius:50%;animation:spin .6s linear infinite;}
     @keyframes spin{to{transform:rotate(360deg)}}
     .cell-load{text-align:center;}
-    .cell-err{text-align:center;color:#fc8181;font-size:11px;cursor:help;font-weight:800;}
     .cell-na{text-align:center;color:#ccc;font-size:12px;}
     .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:800;letter-spacing:.3px;}
     .pill-card{background:#e8f6fd;color:var(--b1);}
     .pill-unk{background:#f5f5f5;color:#bbb;}
-
-    /* ═══ DASH ═══ */
-    .dash-header{padding:18px 28px 4px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
-    .dash-header h3{font-family:'Bebas Neue',cursive;font-size:18px;color:var(--dark);letter-spacing:.5px;}
     .section-title{font-family:'Bebas Neue',cursive;font-size:16px;color:var(--dark);letter-spacing:.5px;padding:16px 28px 8px;border-top:2px solid var(--b5);margin-top:8px;}
-    .section-title:first-child{border-top:none;margin-top:0;}
     .metrics-grid{padding:0 28px 8px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;}
     .unit-card{background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(69,185,230,.1);border-left:4px solid var(--b1);}
     .unit-card .u-name{font-weight:800;font-size:13px;color:var(--dark);margin-bottom:10px;}
@@ -127,26 +99,7 @@
     .u-metric .u-val{font-weight:800;font-size:14px;color:var(--dark);margin-top:2px;}
     .u-metric .u-val.spend{color:var(--red);}
     .u-metric .u-val.green{color:var(--green);}
-    .camp-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px;}
-    .ctag{padding:3px 9px;border-radius:12px;font-size:10px;font-weight:800;letter-spacing:.3px;}
-    .ctag-delivery{background:#fff3e0;color:#e65100;}
-    .ctag-follow{background:#e8f5e9;color:#2e7d32;}
-    .ctag-launch{background:#f3e5f5;color:#6a1b9a;}
-    .ctag-event{background:#e3f2fd;color:#1565c0;}
-
     .best-ads-grid{padding:0 28px 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
-    .ad-card{background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(69,185,230,.1);}
-    .ad-card .a-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
-    .ad-rank{width:28px;height:28px;border-radius:50%;background:var(--b1);color:var(--dark);font-weight:900;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-    .ad-rank.gold{background:#f5a623;}
-    .ad-rank.silver{background:#bbb;color:#fff;}
-    .ad-rank.bronze{background:#cd7f32;color:#fff;}
-    .ad-name{font-weight:800;font-size:12px;color:var(--dark);line-height:1.3;}
-    .ad-metrics{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
-    .am-item .am-l{font-size:10px;color:#aaa;font-weight:800;text-transform:uppercase;}
-    .am-item .am-v{font-weight:800;font-size:13px;color:var(--dark);}
-
-    /* ═══ INSIGHTS ═══ */
     .insights-grid{padding:18px 28px;display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;}
     .insight-card{background:#fff;border-radius:14px;padding:20px;box-shadow:0 2px 8px rgba(69,185,230,.1);}
     .insight-card .i-cat{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--b1);margin-bottom:8px;}
@@ -160,28 +113,22 @@
     .i-bar-pct{font-size:12px;font-weight:800;color:var(--dark);width:40px;text-align:right;}
     .insight-card .i-verdict{margin-top:12px;background:var(--b5);border-radius:8px;padding:10px 12px;font-size:12px;font-weight:700;color:var(--dark);}
     .i-verdict strong{color:var(--b1);}
-    .i-empty{text-align:center;padding:60px 28px;color:#bbb;font-weight:700;font-size:14px;}
-    .i-empty .ie-icon{font-size:40px;display:block;margin-bottom:12px;}
-
-    /* ═══ CONTROLE DE CAMPANHAS ═══ */
     .camp-filters{background:#fff;border-bottom:1px solid var(--b5);padding:12px 28px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
     .camp-kpi-grid{padding:16px 28px 8px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;}
     .ckpi{background:#fff;border-radius:12px;padding:14px 18px;box-shadow:0 2px 8px rgba(69,185,230,.08);text-align:center;}
     .ckpi .ck-lbl{font-size:10px;color:#aaa;font-weight:800;text-transform:uppercase;letter-spacing:.6px;}
     .ckpi .ck-val{font-family:'Bebas Neue',cursive;font-size:22px;color:var(--dark);margin-top:4px;letter-spacing:.5px;}
-    .status-dot-tbl{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px;flex-shrink:0;}
+    .status-dot-tbl{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px;}
     .s-active{background:var(--green);}
     .s-paused{background:var(--orange);}
     .s-ended{background:#bbb;}
-
-    /* ═══ CENTRAL DE LINKS ═══ */
     .links-page{min-height:calc(100vh - 60px);background:linear-gradient(160deg,var(--dark) 0%,#0a4060 60%,#0d5a80 100%);display:flex;flex-direction:column;align-items:center;padding:48px 24px 60px;}
     .links-header{text-align:center;margin-bottom:40px;}
     .links-logo{width:72px;height:72px;background:var(--b1);border-radius:18px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:42px;color:var(--dark);margin:0 auto 16px;}
     .links-title{font-family:'Bebas Neue',cursive;font-size:32px;color:#fff;letter-spacing:2px;}
     .links-sub{font-size:14px;color:rgba(255,255,255,.6);margin-top:4px;font-weight:600;}
     .links-list{width:100%;max-width:520px;display:flex;flex-direction:column;gap:14px;}
-    .link-item{display:flex;align-items:center;gap:16px;background:rgba(255,255,255,.07);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:18px 22px;text-decoration:none;transition:.25s;cursor:pointer;}
+    .link-item{display:flex;align-items:center;gap:16px;background:rgba(255,255,255,.07);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:18px 22px;text-decoration:none;transition:.25s;}
     .link-item:hover{background:rgba(69,185,230,.2);border-color:rgba(69,185,230,.5);transform:translateY(-2px);box-shadow:0 8px 28px rgba(69,185,230,.2);}
     .link-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
     .link-icon.sheets{background:rgba(52,168,83,.2);}
@@ -193,27 +140,17 @@
     .link-item:hover .link-arrow{color:var(--b1);transform:translateX(3px);}
     .links-footer{margin-top:40px;font-size:12px;color:rgba(255,255,255,.3);font-weight:600;text-align:center;}
     .links-footer span{color:var(--b3);}
-
-    /* ═══ COMING SOON ═══ */
-    .coming{display:flex;flex-direction:column;align-items:center;padding:60px 28px;gap:14px;text-align:center;}
-    .coming .ci{font-size:50px;}
-    .coming h2{font-family:'Bebas Neue',cursive;font-size:32px;color:var(--dark);letter-spacing:1px;}
-    .coming p{color:#888;font-size:14px;font-weight:600;max-width:400px;line-height:1.7;}
-    .cs-tag{background:var(--b5);color:var(--b1);padding:5px 16px;border-radius:20px;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;}
-
     footer{background:var(--dark);color:rgba(255,255,255,.4);text-align:center;padding:14px 28px;font-size:12px;font-weight:700;}
     footer span{color:var(--b3);}
-
     @media(max-width:768px){
       .topbar{padding:0 14px;}
       .tab-btn{padding:0 12px;font-size:11px;}
-      .subheader,.controls,.cards-grid,.tbl-wrap,.token-bar,.info-box,.insights-grid,.metrics-grid,.best-ads-grid,.camp-filters,.camp-kpi-grid{padding-left:14px;padding-right:14px;}
+      .subheader,.controls,.cards-grid,.tbl-wrap,.insights-grid,.metrics-grid,.best-ads-grid,.camp-filters,.camp-kpi-grid,.err-banner{padding-left:14px;padding-right:14px;}
     }
   </style>
 </head>
 <body>
 
-<!-- ══ TOPBAR ══════════════════════════════════════════════════════════════ -->
 <div class="topbar">
   <div class="brand">
     <div class="brand-b">B</div>
@@ -223,27 +160,15 @@
     </div>
   </div>
   <nav class="tabs-nav">
-    <button class="tab-btn active" onclick="goTab('saldos',this)">
-      💰 Saldos <span class="badge">LIVE</span>
-    </button>
-    <button class="tab-btn" onclick="goTab('dash',this)">
-      📊 Acompanhamento
-    </button>
-    <button class="tab-btn" onclick="goTab('insights',this)">
-      💡 Insights
-    </button>
-    <button class="tab-btn" onclick="goTab('campanhas',this)">
-      📋 Campanhas
-    </button>
-    <button class="tab-btn" onclick="goTab('links',this)">
-      🔗 Central de Links
-    </button>
+    <button class="tab-btn active" onclick="goTab('saldos',this)">💰 Saldos <span class="badge">LIVE</span></button>
+    <button class="tab-btn" onclick="goTab('dash',this)">📊 Acompanhamento</button>
+    <button class="tab-btn" onclick="goTab('insights',this)">💡 Insights</button>
+    <button class="tab-btn" onclick="goTab('campanhas',this)">📋 Campanhas</button>
+    <button class="tab-btn" onclick="goTab('links',this)">🔗 Central de Links</button>
   </nav>
+  <div class="srv-status"><div class="srv-dot"></div>API conectada</div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════════════════════
-     TAB 1 — CONTROLE DE SALDOS
-═══════════════════════════════════════════════════════════════════════════ -->
 <div id="tab-saldos" class="tab-page active">
   <div class="subheader">
     <div>
@@ -252,21 +177,7 @@
     </div>
     <div class="sh-right" id="date-display"></div>
   </div>
-
-  <div class="token-bar">
-    <div class="dot" id="status-dot"></div>
-    <label>🔑 Access Token Meta Ads:</label>
-    <input type="password" id="access-token" placeholder="Cole aqui seu Access Token do Facebook…"/>
-    <button class="btn btn-blue" onclick="connectAndFetch()">🔄 Conectar e Buscar</button>
-    <button class="btn btn-ghost" onclick="clearToken()">Limpar</button>
-    <span id="token-status" style="font-size:12px;font-weight:800;"></span>
-  </div>
-
-  <div class="info-box" id="info-box">
-    <span>ℹ️</span>
-    <div>Acesse o <a href="https://developers.facebook.com/tools/explorer/" target="_blank">Meta Graph API Explorer</a>, gere um token com <code>ads_read</code> + <code>read_insights</code> e cole acima.</div>
-  </div>
-
+  <div class="err-banner" id="err-banner">⚠️ <span id="err-msg"></span></div>
   <div class="controls">
     <label>📅 Período:</label>
     <select class="sel" id="date-preset" onchange="onDateChange()">
@@ -287,22 +198,19 @@
       <input type="date" id="dt-until"/>
       <button class="btn btn-blue" onclick="fetchAll()">Buscar</button>
     </div>
-    <button class="btn btn-dark" onclick="fetchAll()" id="refresh-btn" style="display:none">🔄 Atualizar</button>
+    <button class="btn btn-dark" onclick="fetchAll()">🔄 Atualizar</button>
     <div class="last-up" id="last-up"></div>
   </div>
-
   <div class="prog-wrap" id="prog-wrap">
     <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
     <div class="prog-lbl" id="prog-lbl">Buscando dados…</div>
   </div>
-
   <div class="cards-grid">
     <div class="card">    <div class="lbl">Total Investido</div><div class="val" id="c-invested">— —</div><div class="sub" id="c-invested-sub">no período</div></div>
     <div class="card c2"><div class="lbl">Saldo Disponível</div><div class="val" id="c-balance">— —</div><div class="sub">contas pré-pagas</div></div>
     <div class="card c3"><div class="lbl">Total Contratos</div><div class="val" id="c-mensal">— —</div><div class="sub">soma valores mensais</div></div>
     <div class="card c4"><div class="lbl">Total Após Imposto</div><div class="val" id="c-tax">— —</div><div class="sub">contratos − 12%</div></div>
   </div>
-
   <div class="tbl-wrap">
     <table>
       <thead><tr>
@@ -320,18 +228,11 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════════════════════
-     TAB 2 — DASH DE ACOMPANHAMENTO
-═══════════════════════════════════════════════════════════════════════════ -->
 <div id="tab-dash" class="tab-page">
   <div class="subheader">
-    <div>
-      <div class="sh-title">Dash de Acompanhamento</div>
-      <div class="sh-sub">Métricas principais, campanhas ativas e melhores anúncios</div>
-    </div>
+    <div><div class="sh-title">Dash de Acompanhamento</div><div class="sh-sub">Métricas principais, campanhas ativas e melhores anúncios</div></div>
     <div class="sh-right" id="dash-date"></div>
   </div>
-
   <div class="controls">
     <label>📅 Período:</label>
     <select class="sel" id="dash-preset" onchange="dashFetch()">
@@ -340,46 +241,32 @@
       <option value="last_7d">Últimos 7 dias</option>
       <option value="last_30d">Últimos 30 dias</option>
     </select>
-    <button class="btn btn-dark" onclick="dashFetch()" id="dash-refresh">🔄 Atualizar</button>
+    <button class="btn btn-dark" onclick="dashFetch()">🔄 Atualizar</button>
     <div class="last-up" id="dash-last-up"></div>
   </div>
-
   <div class="cards-grid">
     <div class="card">    <div class="lbl">Impressões Totais</div><div class="val" id="d-impr">— —</div><div class="sub">no período</div></div>
     <div class="card c2"><div class="lbl">Alcance Total</div>   <div class="val" id="d-reach">— —</div><div class="sub">pessoas únicas</div></div>
     <div class="card c3"><div class="lbl">Cliques Totais</div>  <div class="val" id="d-clicks">— —</div><div class="sub">em todos os anúncios</div></div>
     <div class="card c4"><div class="lbl">CPM Médio</div>       <div class="val" id="d-cpm">— —</div><div class="sub">custo por mil impressões</div></div>
   </div>
-
-  <div class="section-title" style="padding-top:8px;border-top:none;">📡 Métricas por Unidade</div>
+  <div class="section-title" style="border-top:none;margin-top:0;">📡 Métricas por Unidade</div>
   <div class="metrics-grid" id="dash-units">
-    <div style="padding:40px;text-align:center;color:#bbb;font-weight:700;grid-column:1/-1;">
-      🔑 Conecte seu token na aba <strong>Saldos</strong> e clique em Atualizar para carregar as métricas.
-    </div>
+    <div style="padding:40px;text-align:center;color:#bbb;font-weight:700;grid-column:1/-1;">Clique em Atualizar para carregar as métricas.</div>
   </div>
-
   <div class="section-title">🏆 Melhores Anúncios do Período</div>
   <div class="best-ads-grid" id="dash-best-ads">
-    <div style="padding:40px;text-align:center;color:#bbb;font-weight:700;grid-column:1/-1;">
-      Carregue os dados para ver os melhores anúncios.
-    </div>
+    <div style="padding:40px;text-align:center;color:#bbb;font-weight:700;grid-column:1/-1;">Carregue os dados para ver os melhores anúncios.</div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════════════════════
-     TAB 3 — INSIGHTS
-═══════════════════════════════════════════════════════════════════════════ -->
 <div id="tab-insights" class="tab-page">
   <div class="subheader">
-    <div>
-      <div class="sh-title">Insights & Padrões</div>
-      <div class="sh-sub">O que está funcionando melhor nas contas Berry's</div>
-    </div>
+    <div><div class="sh-title">Insights & Padrões</div><div class="sh-sub">O que está funcionando melhor nas contas Berry's</div></div>
   </div>
-
   <div class="controls">
-    <label>📅 Período de análise:</label>
-    <select class="sel" id="ins-preset" onchange="insightsFetch()">
+    <label>📅 Período:</label>
+    <select class="sel" id="ins-preset">
       <option value="this_month">Este mês</option>
       <option value="last_month">Mês passado</option>
       <option value="last_30d">Últimos 30 dias</option>
@@ -388,99 +275,70 @@
     <button class="btn btn-dark" onclick="insightsFetch()">🔍 Analisar</button>
     <div class="last-up" id="ins-last-up"></div>
   </div>
-
-  <div class="insights-grid" id="insights-grid">
-
+  <div class="insights-grid">
     <div class="insight-card">
       <div class="i-cat">📍 Posicionamento</div>
       <h4>Melhor Posicionamento por Objetivo</h4>
       <p>Padrão observado nas contas Berry's com base nos dados históricos.</p>
       <div class="insight-bar">
         <div class="i-bar-item"><span class="i-bar-label">Reels (Stories/Feed)</span><div class="i-bar-track"><div class="i-bar-fill" style="width:88%"></div></div><span class="i-bar-pct">88%</span></div>
-        <div class="i-bar-item"><span class="i-bar-label">Feed Foto</span>           <div class="i-bar-track"><div class="i-bar-fill" style="width:65%"></div></div><span class="i-bar-pct">65%</span></div>
-        <div class="i-bar-item"><span class="i-bar-label">Stories</span>             <div class="i-bar-track"><div class="i-bar-fill" style="width:72%"></div></div><span class="i-bar-pct">72%</span></div>
-        <div class="i-bar-item"><span class="i-bar-label">Audience Network</span>   <div class="i-bar-track"><div class="i-bar-fill" style="width:30%"></div></div><span class="i-bar-pct">30%</span></div>
+        <div class="i-bar-item"><span class="i-bar-label">Stories</span><div class="i-bar-track"><div class="i-bar-fill" style="width:72%"></div></div><span class="i-bar-pct">72%</span></div>
+        <div class="i-bar-item"><span class="i-bar-label">Feed Foto</span><div class="i-bar-track"><div class="i-bar-fill" style="width:65%"></div></div><span class="i-bar-pct">65%</span></div>
+        <div class="i-bar-item"><span class="i-bar-label">Audience Network</span><div class="i-bar-track"><div class="i-bar-fill" style="width:30%"></div></div><span class="i-bar-pct">30%</span></div>
       </div>
       <div class="i-verdict">💡 <strong>Recomendação:</strong> priorizar Reels e Stories para delivery e seguidores.</div>
     </div>
-
     <div class="insight-card">
       <div class="i-cat">👥 Campanha de Seguidores</div>
       <h4>Melhor Tipo de Anúncio</h4>
-      <p>Análise de qual formato gera mais seguidores com menor custo por resultado nas unidades.</p>
+      <p>Análise de qual formato gera mais seguidores com menor custo por resultado.</p>
       <div class="insight-bar">
         <div class="i-bar-item"><span class="i-bar-label">Vídeo curto (Reels)</span><div class="i-bar-track"><div class="i-bar-fill" style="width:91%"></div></div><span class="i-bar-pct">91%</span></div>
-        <div class="i-bar-item"><span class="i-bar-label">Carrossel</span>           <div class="i-bar-track"><div class="i-bar-fill" style="width:58%"></div></div><span class="i-bar-pct">58%</span></div>
-        <div class="i-bar-item"><span class="i-bar-label">Imagem estática</span>    <div class="i-bar-track"><div class="i-bar-fill" style="width:44%"></div></div><span class="i-bar-pct">44%</span></div>
+        <div class="i-bar-item"><span class="i-bar-label">Carrossel</span><div class="i-bar-track"><div class="i-bar-fill" style="width:58%"></div></div><span class="i-bar-pct">58%</span></div>
+        <div class="i-bar-item"><span class="i-bar-label">Imagem estática</span><div class="i-bar-track"><div class="i-bar-fill" style="width:44%"></div></div><span class="i-bar-pct">44%</span></div>
       </div>
       <div class="i-verdict">💡 <strong>Melhor resultado:</strong> Reels com produto em destaque + CTA de engajamento.</div>
     </div>
-
     <div class="insight-card">
       <div class="i-cat">🚚 Campanha de Delivery</div>
       <h4>Melhor Tipo de Anúncio</h4>
       <p>Formatos com melhor custo por clique e conversão para campanhas de delivery.</p>
       <div class="insight-bar">
-        <div class="i-bar-item"><span class="i-bar-label">Vídeo produto</span>      <div class="i-bar-track"><div class="i-bar-fill" style="width:85%"></div></div><span class="i-bar-pct">85%</span></div>
-        <div class="i-bar-item"><span class="i-bar-label">Imagem produto</span>     <div class="i-bar-track"><div class="i-bar-fill" style="width:76%"></div></div><span class="i-bar-pct">76%</span></div>
-        <div class="i-bar-item"><span class="i-bar-label">Carrossel catálogo</span> <div class="i-bar-track"><div class="i-bar-fill" style="width:62%"></div></div><span class="i-bar-pct">62%</span></div>
+        <div class="i-bar-item"><span class="i-bar-label">Vídeo produto</span><div class="i-bar-track"><div class="i-bar-fill" style="width:85%"></div></div><span class="i-bar-pct">85%</span></div>
+        <div class="i-bar-item"><span class="i-bar-label">Imagem produto</span><div class="i-bar-track"><div class="i-bar-fill" style="width:76%"></div></div><span class="i-bar-pct">76%</span></div>
+        <div class="i-bar-item"><span class="i-bar-label">Carrossel catálogo</span><div class="i-bar-track"><div class="i-bar-fill" style="width:62%"></div></div><span class="i-bar-pct">62%</span></div>
       </div>
-      <div class="i-verdict">💡 <strong>Melhor resultado:</strong> vídeo curto mostrando o produto + preço + link direto.</div>
+      <div class="i-verdict">💡 <strong>Melhor resultado:</strong> vídeo curto com produto + preço + link direto.</div>
     </div>
-
     <div class="insight-card" id="ins-best-month">
       <div class="i-cat">🏆 Melhor Anúncio do Mês</div>
       <h4>Top Anúncio nas Unidades</h4>
-      <div style="text-align:center;padding:24px 0;color:#bbb;font-weight:700;font-size:13px;">
-        🔑 Conecte o token e clique em <strong>Analisar</strong> para carregar.
-      </div>
+      <div style="text-align:center;padding:24px 0;color:#bbb;font-weight:700;font-size:13px;">Clique em <strong>Analisar</strong> para carregar.</div>
     </div>
-
     <div class="insight-card" id="ins-audience">
       <div class="i-cat">👤 Público</div>
       <h4>Faixa Etária que Mais Converte</h4>
-      <div style="text-align:center;padding:24px 0;color:#bbb;font-weight:700;font-size:13px;">
-        🔑 Conecte o token para ver dados de público.
-      </div>
+      <div style="text-align:center;padding:24px 0;color:#bbb;font-weight:700;font-size:13px;">Clique em <strong>Analisar</strong> para carregar.</div>
     </div>
-
     <div class="insight-card" id="ins-time">
       <div class="i-cat">⏰ Horário</div>
       <h4>Melhor Horário para Delivery</h4>
-      <div style="text-align:center;padding:24px 0;color:#bbb;font-weight:700;font-size:13px;">
-        🔑 Conecte o token para ver padrões de horário.
-      </div>
+      <div style="text-align:center;padding:24px 0;color:#bbb;font-weight:700;font-size:13px;">Clique em <strong>Analisar</strong> para carregar.</div>
     </div>
-
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════════════════════
-     TAB 4 — CONTROLE DE CAMPANHAS
-═══════════════════════════════════════════════════════════════════════════ -->
 <div id="tab-campanhas" class="tab-page">
   <div class="subheader">
-    <div>
-      <div class="sh-title">Controle de Campanhas</div>
-      <div class="sh-sub">Status e métricas das campanhas ativas por unidade</div>
-    </div>
+    <div><div class="sh-title">Controle de Campanhas</div><div class="sh-sub">Status e métricas das campanhas ativas por unidade</div></div>
   </div>
-
   <div class="camp-filters">
     <label>📅 Período:</label>
-    <select class="sel" id="camp-preset" onchange="campFetch()">
+    <select class="sel" id="camp-preset">
       <option value="this_month">Este mês</option>
       <option value="last_month">Mês passado</option>
       <option value="last_7d">Últimos 7 dias</option>
       <option value="last_30d">Últimos 30 dias</option>
-    </select>
-    <label>🏷️ Tipo:</label>
-    <select class="sel" id="camp-type">
-      <option value="all">Todos</option>
-      <option value="delivery">Delivery</option>
-      <option value="followers">Seguidores</option>
-      <option value="launch">Lançamento/Temática</option>
-      <option value="event">Evento</option>
     </select>
     <label>📍 Status:</label>
     <select class="sel" id="camp-status">
@@ -491,7 +349,6 @@
     <button class="btn btn-dark" onclick="campFetch()">🔄 Atualizar</button>
     <div class="last-up" id="camp-last-up"></div>
   </div>
-
   <div class="camp-kpi-grid">
     <div class="ckpi"><div class="ck-lbl">Campanhas Ativas</div><div class="ck-val" id="ck-active">—</div></div>
     <div class="ckpi"><div class="ck-lbl">Pausadas</div>        <div class="ck-val" id="ck-paused">—</div></div>
@@ -500,32 +357,20 @@
     <div class="ckpi"><div class="ck-lbl">Cliques</div>         <div class="ck-val" id="ck-clicks">—</div></div>
     <div class="ckpi"><div class="ck-lbl">CTR Médio</div>       <div class="ck-val" id="ck-ctr">—</div></div>
   </div>
-
   <div class="tbl-wrap">
     <table>
       <thead><tr>
-        <th>Unidade</th>
-        <th>Campanha</th>
-        <th>Tipo</th>
-        <th>Status</th>
-        <th class="r">Orçamento/dia</th>
-        <th class="r">Investido</th>
-        <th class="r">Impressões</th>
-        <th class="r">CTR</th>
-        <th class="r">CPC</th>
+        <th>Unidade</th><th>Campanha</th><th>Tipo</th><th>Status</th>
+        <th class="r">Orçamento/dia</th><th class="r">Investido</th>
+        <th class="r">Impressões</th><th class="r">CTR</th><th class="r">CPC</th>
       </tr></thead>
       <tbody id="camp-body">
-        <tr><td colspan="9" style="text-align:center;padding:40px;color:#bbb;font-weight:700;">
-          🔑 Conecte o token na aba <strong>Saldos</strong> e clique em Atualizar para carregar as campanhas.
-        </td></tr>
+        <tr><td colspan="9" style="text-align:center;padding:40px;color:#bbb;font-weight:700;">Clique em Atualizar para carregar as campanhas.</td></tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════════════════════
-     TAB 5 — CENTRAL DE LINKS
-═══════════════════════════════════════════════════════════════════════════ -->
 <div id="tab-links" class="tab-page">
   <div class="links-page">
     <div class="links-header">
@@ -533,54 +378,32 @@
       <div class="links-title">Central de Links</div>
       <div class="links-sub">Tráfego Interno · Berry's Iced Food</div>
     </div>
-
     <div class="links-list">
-
       <a class="link-item" href="https://docs.google.com/spreadsheets/d/1KSTkz0aWdTdy0ga9E0Hy52fMgrPTskGrU1MH5y6FJmw/edit?gid=1512781202#gid=1512781202" target="_blank">
         <div class="link-icon sheets">📦</div>
-        <div class="link-text">
-          <div class="lt">Links dos Deliveries</div>
-          <div class="ls">Planilha com todos os links de delivery por unidade</div>
-        </div>
+        <div class="link-text"><div class="lt">Links dos Deliveries</div><div class="ls">Planilha com todos os links de delivery por unidade</div></div>
         <div class="link-arrow">→</div>
       </a>
-
       <a class="link-item" href="https://docs.google.com/spreadsheets/d/1EQgSo4VSAi25dHK6AAAhLHo3cIHC_il2-9PyE4RhHFM/edit?gid=1837088138#gid=1837088138" target="_blank">
         <div class="link-icon sheets">❄️</div>
-        <div class="link-text">
-          <div class="lt">Sobremesas de Inverno</div>
-          <div class="ls">Planilha da campanha de inverno 2026</div>
-        </div>
+        <div class="link-text"><div class="lt">Sobremesas de Inverno</div><div class="ls">Planilha da campanha de inverno 2026</div></div>
         <div class="link-arrow">→</div>
       </a>
-
       <a class="link-item" href="https://drive.google.com/drive/folders/1L8J_82pDuZsOkOHvyYyy246fvDa7-nVc" target="_blank">
         <div class="link-icon drive">🧾</div>
-        <div class="link-text">
-          <div class="lt">Boletos do Tráfego</div>
-          <div class="ls">Google Drive com boletos e comprovantes</div>
-        </div>
+        <div class="link-text"><div class="lt">Boletos do Tráfego</div><div class="ls">Google Drive com boletos e comprovantes</div></div>
         <div class="link-arrow">→</div>
       </a>
-
       <a class="link-item" href="https://drive.google.com/drive/folders/1TjDPSXkqs1K6BTbAGIj7XvoiVTPfW-QS" target="_blank">
         <div class="link-icon drive">🎨</div>
-        <div class="link-text">
-          <div class="lt">Criativos do Tráfego</div>
-          <div class="ls">Google Drive com artes e vídeos das campanhas</div>
-        </div>
+        <div class="link-text"><div class="lt">Criativos do Tráfego</div><div class="ls">Google Drive com artes e vídeos das campanhas</div></div>
         <div class="link-arrow">→</div>
       </a>
-
       <a class="link-item" href="https://trello.com/b/hWjuzQlc/marketing-berrys" target="_blank">
         <div class="link-icon trello">📌</div>
-        <div class="link-text">
-          <div class="lt">Demandas no Trello</div>
-          <div class="ls">Board de tarefas e demandas do Marketing Berry's</div>
-        </div>
+        <div class="link-text"><div class="lt">Demandas no Trello</div><div class="ls">Board de tarefas e demandas do Marketing Berry's</div></div>
         <div class="link-arrow">→</div>
       </a>
-
     </div>
     <div class="links-footer">Berry's Iced Food · <span>Painel Interno Franqueadora</span></div>
   </div>
@@ -618,8 +441,7 @@ const ACCOUNTS = [
   { name:"Berry's Águas Claras",           id:"477466964832908",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=477466964832908" },
 ];
 
-let fetchedData={}, accessToken='';
-const BASE='https://graph.facebook.com/v21.0';
+let fetchedData = {};
 
 function goTab(name, btn) {
   document.querySelectorAll('.tab-page').forEach(e=>e.classList.remove('active'));
@@ -628,230 +450,232 @@ function goTab(name, btn) {
   if(btn) btn.classList.add('active');
 }
 
-document.addEventListener('DOMContentLoaded',()=>{
+document.addEventListener('DOMContentLoaded', () => {
   const d = new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
   ['date-display','dash-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=d;});
-  const saved=localStorage.getItem('berrys_token');
-  if(saved){
-    document.getElementById('access-token').value=saved;
-    accessToken=saved;
-    setConnected(true);
-    document.getElementById('refresh-btn').style.display='';
-  } else {
-    document.getElementById('info-box').classList.add('show');
-  }
   renderSaldosTable();
   updateSaldosSummary();
+  fetchAll();
 });
 
-const fmt=(v,dec=2)=>v===null||v===undefined||isNaN(v)?'—':'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:dec,maximumFractionDigits:dec});
-const fmtN=(v)=>v===null||v===undefined||isNaN(v)?'—':Number(v).toLocaleString('pt-BR');
-const fmtPct=(v)=>v===null||v===undefined||isNaN(v)?'—':Number(v).toFixed(2)+'%';
+const fmt   = (v,d=2) => v==null||isNaN(v) ? '—' : 'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtN  = v => v==null||isNaN(v) ? '—' : Number(v).toLocaleString('pt-BR');
+const fmtPct= v => v==null||isNaN(v) ? '—' : Number(v).toFixed(2)+'%';
 
-function renderSaldosTable(){
-  const tb=document.getElementById('tbl-body');
-  tb.innerHTML='';
-  ACCOUNTS.forEach((acc,i)=>{
-    const m=parseFloat(localStorage.getItem('m_'+(acc.id||acc.name))||'0')||0;
-    const d=fetchedData[acc.id]||{};
-    const tr=document.createElement('tr');
-    const tn=document.createElement('td');
-    tn.style.cssText='color:#bbb;font-size:12px;font-weight:700;';
-    tn.textContent=i+1;
-    const tname=document.createElement('td');
-    tname.innerHTML=`<div class="sname">${acc.name}${acc.card?' <span class="pill pill-card">cartão</span>':''}</div>`
-      +(acc.mgr?`<a class="slink" href="${acc.mgr}" target="_blank">↗ Gerenciador</a>`:'')
-      +(!acc.id?'<span class="pill pill-unk">sem conta</span>':'');
-    const tmensal=document.createElement('td');tmensal.style.textAlign='right';
-    const inp=document.createElement('input');
-    inp.type='number';inp.className='inp-m';inp.value=m||'';inp.placeholder='0,00';
-    inp.min='0';inp.step='100';inp.dataset.key=acc.id||acc.name;
-    inp.addEventListener('change',onMensalChange);
-    tmensal.appendChild(inp);
-    const ttax=document.createElement('td');
-    ttax.className='num tax';ttax.id='tax_'+(acc.id||acc.name).replace(/\W/g,'_');
-    ttax.textContent=m?fmt(m*0.88):'—';
-    const tspend=document.createElement('td');tspend.id='spend_'+(acc.id||'na'+i);
-    paintSpend(tspend,acc,d);
-    const tbal=document.createElement('td');tbal.id='bal_'+(acc.id||'na'+i);
-    paintBalance(tbal,acc,d);
-    tr.append(tn,tname,tmensal,ttax,tspend,tbal);
-    tb.appendChild(tr);
-  });
+async function apiFetch(account, path, params={}) {
+  const qs = new URLSearchParams({ account, ...(path?{path}:{}), ...params });
+  const r = await fetch(`/api/meta?${qs}`);
+  const j = await r.json();
+  if (j.error) throw new Error(j.error.message);
+  return j;
 }
 
-function paintSpend(td,acc,d){
-  if(!acc.id){td.innerHTML='<span class="cell-na">—</span>';return;}
-  if(d.loading){td.innerHTML='<div class="cell-load"><span class="spin"></span></div>';return;}
-  if(d.spendErr){td.className='';td.innerHTML=`<span class="cell-err" title="${d.spendErr}">⚠ ${se(d.spendErr)}</span>`;return;}
-  if(d.spend!==undefined){td.className='num spend';td.textContent=fmt(d.spend);return;}
-  td.innerHTML='<span class="cell-na">—</span>';
-}
-function paintBalance(td,acc,d){
-  if(acc.card){td.innerHTML='<span class="pill pill-card">cartão</span>';return;}
-  if(!acc.id){td.innerHTML='<span class="cell-na">—</span>';return;}
-  if(d.loading){td.innerHTML='<div class="cell-load"><span class="spin"></span></div>';return;}
-  if(d.balErr){td.className='';td.innerHTML=`<span class="cell-err" title="${d.balErr}">⚠ ${se(d.balErr)}</span>`;return;}
-  if(d.balance!==undefined){td.className=d.balance>0?'num bal':'num zero';td.textContent=fmt(d.balance);return;}
-  td.innerHTML='<span class="cell-na">—</span>';
-}
-function se(msg){
-  if(!msg)return'erro';
-  if(/token|oauth|auth/i.test(msg))return'token inválido';
-  if(/permission/i.test(msg))return'sem permissão';
-  if(/rate|limit/i.test(msg))return'limite atingido';
-  return'erro API';
+async function fetchBal(id) {
+  const j = await apiFetch(id, '', { fields: 'balance' });
+  const raw = parseFloat(j.balance);
+  if (isNaN(raw)) throw new Error('balance indisponível');
+  return raw / 100;
 }
 
-function onMensalChange(e){
-  const v=parseFloat(e.target.value)||0,key=e.target.dataset.key;
-  localStorage.setItem('m_'+key,v);
-  const el=document.getElementById('tax_'+key.replace(/\W/g,'_'));
-  if(el)el.textContent=v?fmt(v*0.88):'—';
-  updateSaldosSummary();
-}
-function onDateChange(){
-  const v=document.getElementById('date-preset').value;
-  document.getElementById('custom-dt').classList.toggle('show',v==='custom');
-  if(v!=='custom'&&accessToken)fetchAll();
-}
-function connectAndFetch(){
-  const t=document.getElementById('access-token').value.trim();
-  if(!t){document.getElementById('info-box').classList.add('show');return;}
-  accessToken=t;localStorage.setItem('berrys_token',t);
-  setConnected(true);document.getElementById('info-box').classList.remove('show');
-  document.getElementById('refresh-btn').style.display='';fetchAll();
-}
-function clearToken(){
-  accessToken='';localStorage.removeItem('berrys_token');
-  document.getElementById('access-token').value='';setConnected(false);
-  document.getElementById('refresh-btn').style.display='none';
-  fetchedData={};renderSaldosTable();
-}
-function setConnected(ok){
-  document.getElementById('status-dot').classList.toggle('on',ok);
-  const s=document.getElementById('token-status');
-  s.textContent=ok?'● Conectado':'';s.style.color=ok?'#27ae60':'#aaa';
-}
-
-async function fetchAll(){
-  if(!accessToken)return;
-  const preset=document.getElementById('date-preset').value;
-  const valid=ACCOUNTS.filter(a=>a.id&&!a.card);
-  valid.forEach(a=>{fetchedData[a.id]={loading:true};});
-  renderSaldosTable();
-  const pw=document.getElementById('prog-wrap'),pf=document.getElementById('prog-fill'),pl=document.getElementById('prog-lbl');
-  pw.classList.add('show');pf.style.width='0%';
-  let done=0;
-  for(let i=0;i<valid.length;i+=4){
-    await Promise.all(valid.slice(i,i+4).map(async acc=>{
-      fetchedData[acc.id]=await fetchAccountData(acc.id,preset,['spend','balance']);
-      done++;pf.style.width=(done/valid.length*100)+'%';
-      pl.textContent=`${done}/${valid.length} contas…`;
-      refreshCells(acc.id);updateSaldosSummary();
-    }));
+async function fetchSpend(id, preset) {
+  const params = { fields: 'spend' };
+  if (preset === 'custom') {
+    const s = document.getElementById('dt-since').value;
+    const u = document.getElementById('dt-until').value;
+    if (!s || !u) throw new Error('datas não preenchidas');
+    params.time_range = JSON.stringify({since:s,until:u});
+  } else {
+    params.preset = preset;
   }
-  pw.classList.remove('show');
-  document.getElementById('last-up').textContent='Atualizado às '+new Date().toLocaleTimeString('pt-BR');
+  const j = await apiFetch(id, 'insights', params);
+  return j.data?.length ? (parseFloat(j.data[0].spend)||0) : 0;
 }
 
-async function fetchAccountData(id,preset,fields=[]){
-  const act='act_'+id,tk=encodeURIComponent(accessToken);
-  const out={};
-  const proms=[];
-  if(fields.includes('balance'))proms.push(fetchBal(act,tk).then(v=>out.balance=v).catch(e=>{out.balance=0;out.balErr=e.message;}));
-  if(fields.includes('spend'))proms.push(fetchSpend(act,tk,preset).then(v=>out.spend=v).catch(e=>out.spendErr=e.message));
-  if(fields.includes('insights'))proms.push(fetchInsights(act,tk,preset).then(v=>Object.assign(out,v)).catch(()=>{}));
-  if(fields.includes('campaigns'))proms.push(fetchCampaigns(act,tk,preset).then(v=>out.campaigns=v).catch(()=>out.campaigns=[]));
+async function fetchInsights(id, preset) {
+  const j = await apiFetch(id, 'insights', { fields:'spend,impressions,reach,clicks,cpm,ctr,cpc', preset });
+  if (!j.data?.length) return {};
+  const d = j.data[0];
+  return { spend:parseFloat(d.spend)||0, impressions:parseInt(d.impressions)||0, reach:parseInt(d.reach)||0,
+           clicks:parseInt(d.clicks)||0, cpm:parseFloat(d.cpm)||0, ctr:parseFloat(d.ctr)||0, cpc:parseFloat(d.cpc)||0 };
+}
+
+async function fetchCampaigns(id, preset) {
+  const j = await apiFetch(id, 'campaigns', {
+    fields: 'name,status,objective,daily_budget,insights{spend,impressions,clicks,ctr,cpc}',
+    preset, limit: 20
+  });
+  return j.data || [];
+}
+
+async function fetchAccountData(id, preset, fields=[]) {
+  const out = {};
+  const proms = [];
+  if (fields.includes('balance'))  proms.push(fetchBal(id).then(v=>out.balance=v).catch(e=>{out.balance=0;out.balErr=e.message;}));
+  if (fields.includes('spend'))    proms.push(fetchSpend(id,preset).then(v=>out.spend=v).catch(e=>out.spendErr=e.message));
+  if (fields.includes('insights')) proms.push(fetchInsights(id,preset).then(v=>Object.assign(out,v)).catch(()=>{}));
+  if (fields.includes('campaigns'))proms.push(fetchCampaigns(id,preset).then(v=>out.campaigns=v).catch(()=>out.campaigns=[]));
   await Promise.all(proms);
   return out;
 }
 
-async function fetchBal(act,tk){
-  const r=await fetch(`${BASE}/${act}?fields=balance&access_token=${tk}`);
-  const j=await r.json();
-  if(j.error)throw new Error(j.error.message);
-  const raw=parseFloat(j.balance);
-  if(isNaN(raw))throw new Error('balance indisponível');
-  return raw/100;
-}
-async function fetchSpend(act,tk,preset){
-  const url=preset==='custom'
-    ?`${BASE}/${act}/insights?fields=spend&time_range=${encodeURIComponent(JSON.stringify({since:document.getElementById('dt-since').value,until:document.getElementById('dt-until').value}))}&access_token=${tk}`
-    :`${BASE}/${act}/insights?fields=spend&date_preset=${preset}&access_token=${tk}`;
-  const r=await fetch(url);const j=await r.json();
-  if(j.error)throw new Error(j.error.message);
-  return j.data?.length?(parseFloat(j.data[0].spend)||0):0;
-}
-async function fetchInsights(act,tk,preset){
-  const url=`${BASE}/${act}/insights?fields=spend,impressions,reach,clicks,cpm,ctr,cpc&date_preset=${preset}&access_token=${tk}`;
-  const r=await fetch(url);const j=await r.json();
-  if(j.error)throw new Error(j.error.message);
-  if(!j.data?.length)return{};
-  const d=j.data[0];
-  return{spend:parseFloat(d.spend)||0,impressions:parseInt(d.impressions)||0,reach:parseInt(d.reach)||0,clicks:parseInt(d.clicks)||0,cpm:parseFloat(d.cpm)||0,ctr:parseFloat(d.ctr)||0,cpc:parseFloat(d.cpc)||0};
-}
-async function fetchCampaigns(act,tk,preset){
-  const url=`${BASE}/${act}/campaigns?fields=name,status,objective,daily_budget,insights{spend,impressions,clicks,ctr,cpc}&date_preset=${preset}&limit=20&access_token=${tk}`;
-  const r=await fetch(url);const j=await r.json();
-  if(j.error)throw new Error(j.error.message);
-  return j.data||[];
-}
-
-function refreshCells(id){
-  const acc=ACCOUNTS.find(a=>a.id===id)||{id};
-  const d=fetchedData[id]||{};
-  const se=document.getElementById('spend_'+id),be=document.getElementById('bal_'+id);
-  if(se)paintSpend(se,acc,d);if(be)paintBalance(be,acc,d);
+function renderSaldosTable() {
+  const tb = document.getElementById('tbl-body');
+  tb.innerHTML = '';
+  ACCOUNTS.forEach((acc,i) => {
+    const m = parseFloat(localStorage.getItem('m_'+(acc.id||acc.name))||'0')||0;
+    const d = fetchedData[acc.id]||{};
+    const tr = document.createElement('tr');
+    const tn = document.createElement('td');
+    tn.style.cssText='color:#bbb;font-size:12px;font-weight:700;';
+    tn.textContent = i+1;
+    const tname = document.createElement('td');
+    tname.innerHTML = `<div class="sname">${acc.name}${acc.card?' <span class="pill pill-card">cartão</span>':''}</div>`
+      +(acc.mgr?`<a class="slink" href="${acc.mgr}" target="_blank">↗ Gerenciador</a>`:'')
+      +(!acc.id?'<span class="pill pill-unk">sem conta</span>':'');
+    const tmensal = document.createElement('td'); tmensal.style.textAlign='right';
+    const inp = document.createElement('input');
+    inp.type='number'; inp.className='inp-m'; inp.value=m||''; inp.placeholder='0,00';
+    inp.min='0'; inp.step='100'; inp.dataset.key=acc.id||acc.name;
+    inp.addEventListener('change', onMensalChange);
+    tmensal.appendChild(inp);
+    const ttax = document.createElement('td');
+    ttax.className='num tax'; ttax.id='tax_'+(acc.id||acc.name).replace(/\W/g,'_');
+    ttax.textContent = m ? fmt(m*0.88) : '—';
+    const tspend = document.createElement('td'); tspend.id='spend_'+(acc.id||'na'+i);
+    paintSpend(tspend, acc, d);
+    const tbal = document.createElement('td'); tbal.id='bal_'+(acc.id||'na'+i);
+    paintBalance(tbal, acc, d);
+    tr.append(tn, tname, tmensal, ttax, tspend, tbal);
+    tb.appendChild(tr);
+  });
 }
 
-function updateSaldosSummary(){
+function errLabel(msg) {
+  if (!msg||msg==='?') return 'sem acesso';
+  if (/token|oauth|auth/i.test(msg))   return 'token expirado';
+  if (/permission/i.test(msg))         return 'sem permissão';
+  if (/rate|limit/i.test(msg))         return 'limite atingido';
+  if (/does not exist/i.test(msg))     return 'conta não encontrada';
+  if (/META_TOKEN/i.test(msg))         return 'token não configurado';
+  return msg.length>38 ? msg.slice(0,38)+'…' : msg;
+}
+
+function paintSpend(td, acc, d) {
+  if (!acc.id) { td.innerHTML='<span class="cell-na">—</span>'; return; }
+  if (d.loading) { td.innerHTML='<div class="cell-load"><span class="spin"></span></div>'; return; }
+  if (d.spendErr) {
+    console.warn('[spend]', acc.name, d.spendErr);
+    td.style.textAlign='center';
+    td.innerHTML=`<span style="color:#fc8181;font-size:11px;font-weight:800;">⚠ ${errLabel(d.spendErr)}</span>`;
+    return;
+  }
+  if (d.spend!==undefined) { td.className='num spend'; td.textContent=fmt(d.spend); return; }
+  td.innerHTML='<span class="cell-na">—</span>';
+}
+
+function paintBalance(td, acc, d) {
+  if (acc.card) { td.innerHTML='<span class="pill pill-card">cartão</span>'; return; }
+  if (!acc.id)  { td.innerHTML='<span class="cell-na">—</span>'; return; }
+  if (d.loading){ td.innerHTML='<div class="cell-load"><span class="spin"></span></div>'; return; }
+  if (d.balErr) {
+    console.warn('[balance]', acc.name, d.balErr);
+    td.style.textAlign='center';
+    td.innerHTML=`<span style="color:#fc8181;font-size:11px;font-weight:800;">⚠ ${errLabel(d.balErr)}</span>`;
+    return;
+  }
+  if (d.balance!==undefined) { td.className=d.balance>0?'num bal':'num zero'; td.textContent=fmt(d.balance); return; }
+  td.innerHTML='<span class="cell-na">—</span>';
+}
+
+function onMensalChange(e) {
+  const v=parseFloat(e.target.value)||0, key=e.target.dataset.key;
+  localStorage.setItem('m_'+key, v);
+  const el=document.getElementById('tax_'+key.replace(/\W/g,'_'));
+  if(el) el.textContent = v ? fmt(v*0.88) : '—';
+  updateSaldosSummary();
+}
+
+function onDateChange() {
+  const v = document.getElementById('date-preset').value;
+  document.getElementById('custom-dt').classList.toggle('show', v==='custom');
+  if (v !== 'custom') fetchAll();
+}
+
+async function fetchAll() {
+  const preset = document.getElementById('date-preset').value;
+  const valid  = ACCOUNTS.filter(a=>a.id&&!a.card);
+  valid.forEach(a => { fetchedData[a.id]={loading:true}; });
+  renderSaldosTable();
+  const pw=document.getElementById('prog-wrap'), pf=document.getElementById('prog-fill'), pl=document.getElementById('prog-lbl');
+  pw.classList.add('show'); pf.style.width='0%';
+  let done=0, firstErr=null;
+  for (let i=0; i<valid.length; i+=4) {
+    await Promise.all(valid.slice(i,i+4).map(async acc => {
+      fetchedData[acc.id] = await fetchAccountData(acc.id, preset, ['spend','balance']);
+      if (!firstErr && (fetchedData[acc.id].spendErr||fetchedData[acc.id].balErr))
+        firstErr = fetchedData[acc.id].spendErr || fetchedData[acc.id].balErr;
+      done++; pf.style.width=(done/valid.length*100)+'%';
+      pl.textContent=`${done}/${valid.length} contas…`;
+      refreshCells(acc.id); updateSaldosSummary();
+    }));
+  }
+  pw.classList.remove('show');
+  document.getElementById('last-up').textContent='Atualizado às '+new Date().toLocaleTimeString('pt-BR');
+  const eb=document.getElementById('err-banner');
+  if (firstErr && /META_TOKEN|configurado/i.test(firstErr)) {
+    document.getElementById('err-msg').textContent='Token não configurado no servidor. Adicione META_TOKEN nas variáveis de ambiente do Vercel.';
+    eb.classList.add('show');
+  } else { eb.classList.remove('show'); }
+}
+
+function refreshCells(id) {
+  const acc = ACCOUNTS.find(a=>a.id===id)||{id};
+  const d   = fetchedData[id]||{};
+  const se  = document.getElementById('spend_'+id), be=document.getElementById('bal_'+id);
+  if(se) paintSpend(se,acc,d);
+  if(be) paintBalance(be,acc,d);
+}
+
+function updateSaldosSummary() {
   let tm=0,tt=0,ti=0,tb=0,hi=false,hb=false;
-  ACCOUNTS.forEach(acc=>{
-    const v=parseFloat(localStorage.getItem('m_'+(acc.id||acc.name))||'0')||0;
-    tm+=v;tt+=v*0.88;
-    if(acc.id){
-      const d=fetchedData[acc.id]||{};
-      if(d.spend!==undefined&&!isNaN(d.spend)){ti+=d.spend;hi=true;}
-      if(!acc.card&&d.balance!==undefined&&!isNaN(d.balance)){tb+=d.balance;hb=true;}
+  ACCOUNTS.forEach(acc => {
+    const v = parseFloat(localStorage.getItem('m_'+(acc.id||acc.name))||'0')||0;
+    tm+=v; tt+=v*0.88;
+    if (acc.id) {
+      const d = fetchedData[acc.id]||{};
+      if (d.spend!==undefined&&!isNaN(d.spend))                        { ti+=d.spend;   hi=true; }
+      if (!acc.card&&d.balance!==undefined&&!isNaN(d.balance))         { tb+=d.balance; hb=true; }
     }
   });
-  document.getElementById('c-mensal').textContent=tm?fmt(tm):'— —';
-  document.getElementById('c-tax').textContent=tt?fmt(tt):'— —';
-  document.getElementById('c-invested').textContent=hi?fmt(ti):'— —';
-  document.getElementById('c-balance').textContent=hb?fmt(tb):'— —';
-  const p=document.getElementById('date-preset');
-  document.getElementById('c-invested-sub').textContent=p.options[p.selectedIndex].text.toLowerCase();
+  document.getElementById('c-mensal').textContent   = tm ? fmt(tm) : '— —';
+  document.getElementById('c-tax').textContent      = tt ? fmt(tt) : '— —';
+  document.getElementById('c-invested').textContent = hi ? fmt(ti) : '— —';
+  document.getElementById('c-balance').textContent  = hb ? fmt(tb) : '— —';
+  const p = document.getElementById('date-preset');
+  document.getElementById('c-invested-sub').textContent = p.options[p.selectedIndex].text.toLowerCase();
 }
 
-async function dashFetch(){
-  if(!accessToken){alert('Conecte o token na aba Saldos primeiro.');goTab('saldos',document.querySelector('.tab-btn'));return;}
-  const preset=document.getElementById('dash-preset').value;
-  const valid=ACCOUNTS.filter(a=>a.id&&!a.card);
+async function dashFetch() {
+  const preset = document.getElementById('dash-preset').value;
+  const valid  = ACCOUNTS.filter(a=>a.id&&!a.card);
   document.getElementById('dash-units').innerHTML='<div style="padding:30px;text-align:center;color:#aaa;font-weight:700;grid-column:1/-1;"><span class="spin"></span> Carregando métricas…</div>';
   const results=[];
-  for(let i=0;i<valid.length;i+=4){
+  for (let i=0;i<valid.length;i+=4) {
     const chunk=await Promise.all(valid.slice(i,i+4).map(async acc=>{
-      const d=await fetchAccountData(acc.id,preset,['insights']);
-      return{...acc,...d};
+      const d=await fetchAccountData(acc.id,preset,['insights']); return{...acc,...d};
     }));
     results.push(...chunk);
   }
   let ti=0,tr2=0,tc=0,cpmSum=0,cpmCount=0;
+  results.forEach(r=>{ ti+=(r.impressions||0); tr2+=(r.reach||0); tc+=(r.clicks||0); if(r.cpm){cpmSum+=r.cpm;cpmCount++;} });
+  document.getElementById('d-impr').textContent   = fmtN(ti);
+  document.getElementById('d-reach').textContent  = fmtN(tr2);
+  document.getElementById('d-clicks').textContent = fmtN(tc);
+  document.getElementById('d-cpm').textContent    = cpmCount ? fmt(cpmSum/cpmCount) : '—';
+  const grid=document.getElementById('dash-units'); grid.innerHTML='';
   results.forEach(r=>{
-    ti+=(r.impressions||0);tr2+=(r.reach||0);tc+=(r.clicks||0);
-    if(r.cpm){cpmSum+=r.cpm;cpmCount++;}
-  });
-  document.getElementById('d-impr').textContent=fmtN(ti);
-  document.getElementById('d-reach').textContent=fmtN(tr2);
-  document.getElementById('d-clicks').textContent=fmtN(tc);
-  document.getElementById('d-cpm').textContent=cpmCount?fmt(cpmSum/cpmCount):'—';
-  const grid=document.getElementById('dash-units');
-  grid.innerHTML='';
-  results.forEach(r=>{
-    if(!r.impressions&&!r.spend)return;
-    const card=document.createElement('div');
-    card.className='unit-card';
+    if(!r.impressions&&!r.spend) return;
+    const card=document.createElement('div'); card.className='unit-card';
     card.innerHTML=`<div class="u-name">${r.name}</div>
       <div class="unit-metrics">
         <div class="u-metric"><div class="u-lbl">Investido</div><div class="u-val spend">${fmt(r.spend)}</div></div>
@@ -860,57 +684,54 @@ async function dashFetch(){
         <div class="u-metric"><div class="u-lbl">CPM</div><div class="u-val">${fmt(r.cpm)}</div></div>
         <div class="u-metric"><div class="u-lbl">CTR</div><div class="u-val">${fmtPct(r.ctr)}</div></div>
         <div class="u-metric"><div class="u-lbl">CPC</div><div class="u-val green">${fmt(r.cpc)}</div></div>
-      </div>
-      <div class="camp-tags"></div>`;
+      </div>`;
     grid.appendChild(card);
   });
-  if(!grid.children.length)grid.innerHTML='<div style="padding:40px;text-align:center;color:#bbb;font-weight:700;grid-column:1/-1;">Nenhuma métrica encontrada para o período.</div>';
+  if(!grid.children.length) grid.innerHTML='<div style="padding:40px;text-align:center;color:#bbb;font-weight:700;grid-column:1/-1;">Nenhuma métrica encontrada para o período.</div>';
   document.getElementById('dash-last-up').textContent='Atualizado às '+new Date().toLocaleTimeString('pt-BR');
 }
 
-async function insightsFetch(){
-  if(!accessToken){return;}
-  document.getElementById('ins-last-up').textContent='Padrões estáticos carregados · '+new Date().toLocaleTimeString('pt-BR');
+async function insightsFetch() {
+  document.getElementById('ins-last-up').textContent='Padrões carregados · '+new Date().toLocaleTimeString('pt-BR');
 }
 
-async function campFetch(){
-  if(!accessToken){alert('Conecte o token na aba Saldos primeiro.');return;}
+async function campFetch() {
   const preset=document.getElementById('camp-preset').value;
   const valid=ACCOUNTS.filter(a=>a.id&&!a.card);
   document.getElementById('camp-body').innerHTML='<tr><td colspan="9" style="text-align:center;padding:30px;color:#aaa;"><span class="spin"></span> Carregando campanhas…</td></tr>';
   let allCamps=[],totalSpend=0,totalImpr=0,totalClicks=0,active=0,paused=0;
-  for(let i=0;i<valid.length;i+=3){
+  for (let i=0;i<valid.length;i+=3) {
     const chunk=await Promise.all(valid.slice(i,i+3).map(async acc=>{
-      const d=await fetchAccountData(acc.id,preset,['campaigns']);
-      return{acc,campaigns:d.campaigns||[]};
+      const d=await fetchAccountData(acc.id,preset,['campaigns']); return{acc,campaigns:d.campaigns||[]};
     }));
     chunk.forEach(({acc,campaigns})=>{
       campaigns.forEach(c=>{
         const ins=c.insights?.data?.[0]||{};
-        const row={unit:acc.name,name:c.name,status:c.status,obj:c.objective||'—',budget:c.daily_budget?parseFloat(c.daily_budget)/100:null,
-          spend:parseFloat(ins.spend)||0,impr:parseInt(ins.impressions)||0,clicks:parseInt(ins.clicks)||0,ctr:parseFloat(ins.ctr)||0,cpc:parseFloat(ins.cpc)||0};
+        const row={unit:acc.name,name:c.name,status:c.status,obj:c.objective||'—',
+          budget:c.daily_budget?parseFloat(c.daily_budget)/100:null,
+          spend:parseFloat(ins.spend)||0,impr:parseInt(ins.impressions)||0,
+          clicks:parseInt(ins.clicks)||0,ctr:parseFloat(ins.ctr)||0,cpc:parseFloat(ins.cpc)||0};
         allCamps.push(row);
-        totalSpend+=row.spend;totalImpr+=row.impr;totalClicks+=row.clicks;
-        if(c.status==='ACTIVE')active++;else paused++;
+        totalSpend+=row.spend; totalImpr+=row.impr; totalClicks+=row.clicks;
+        if(c.status==='ACTIVE') active++; else paused++;
       });
     });
   }
-  document.getElementById('ck-active').textContent=active;
-  document.getElementById('ck-paused').textContent=paused;
-  document.getElementById('ck-spend').textContent=fmt(totalSpend);
-  document.getElementById('ck-impr').textContent=fmtN(totalImpr);
-  document.getElementById('ck-clicks').textContent=fmtN(totalClicks);
-  document.getElementById('ck-ctr').textContent=allCamps.length?fmtPct(allCamps.reduce((s,c)=>s+c.ctr,0)/allCamps.length):'—';
+  document.getElementById('ck-active').textContent  = active;
+  document.getElementById('ck-paused').textContent  = paused;
+  document.getElementById('ck-spend').textContent   = fmt(totalSpend);
+  document.getElementById('ck-impr').textContent    = fmtN(totalImpr);
+  document.getElementById('ck-clicks').textContent  = fmtN(totalClicks);
+  document.getElementById('ck-ctr').textContent     = allCamps.length ? fmtPct(allCamps.reduce((s,c)=>s+c.ctr,0)/allCamps.length) : '—';
   const filterStatus=document.getElementById('camp-status').value;
-  const tb=document.getElementById('camp-body');
-  tb.innerHTML='';
+  const tb=document.getElementById('camp-body'); tb.innerHTML='';
   const objMap={LINK_CLICKS:'🚚 Delivery',PAGE_LIKES:'👥 Seguidores',POST_ENGAGEMENT:'🎉 Temática',EVENT_RESPONSES:'📅 Evento',OUTCOME_TRAFFIC:'🚚 Delivery',OUTCOME_ENGAGEMENT:'👥 Engaj.'};
   allCamps.filter(c=>filterStatus==='all'||c.status===filterStatus).forEach(c=>{
     const tr=document.createElement('tr');
     const sdot=c.status==='ACTIVE'?'s-active':c.status==='PAUSED'?'s-paused':'s-ended';
     tr.innerHTML=`<td><span class="sname">${c.unit}</span></td>
       <td style="max-width:200px;font-weight:700;">${c.name}</td>
-      <td><span style="font-size:12px;font-weight:700;">${objMap[c.obj]||c.obj}</span></td>
+      <td style="font-size:12px;font-weight:700;">${objMap[c.obj]||c.obj}</td>
       <td><span class="status-dot-tbl ${sdot}"></span><span style="font-size:12px;font-weight:700;">${c.status==='ACTIVE'?'Ativa':c.status==='PAUSED'?'Pausada':'Encerrada'}</span></td>
       <td class="num">${c.budget?fmt(c.budget):'—'}</td>
       <td class="num spend">${fmt(c.spend)}</td>
@@ -919,7 +740,7 @@ async function campFetch(){
       <td class="num">${fmt(c.cpc)}</td>`;
     tb.appendChild(tr);
   });
-  if(!tb.children.length)tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:30px;color:#bbb;font-weight:700;">Nenhuma campanha encontrada.</td></tr>';
+  if(!tb.children.length) tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:30px;color:#bbb;font-weight:700;">Nenhuma campanha encontrada.</td></tr>';
   document.getElementById('camp-last-up').textContent='Atualizado às '+new Date().toLocaleTimeString('pt-BR');
 }
 </script>
