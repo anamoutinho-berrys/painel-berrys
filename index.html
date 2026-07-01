@@ -165,6 +165,7 @@
     <button class="tab-btn" onclick="goTab('insights',this)">💡 Insights</button>
     <button class="tab-btn" onclick="goTab('campanhas',this)">📋 Campanhas</button>
     <button class="tab-btn" onclick="goTab('links',this)">🔗 Central de Links</button>
+    <button class="tab-btn" onclick="goTab('trafego-julho',this)">🗓️ Estrutura de Tráfego — Julho</button>
   </nav>
   <div class="srv-status"><div class="srv-dot"></div>API conectada</div>
 </div>
@@ -406,6 +407,518 @@
       </a>
     </div>
     <div class="links-footer">Berry's Iced Food · <span>Painel Interno Franqueadora</span></div>
+  </div>
+</div>
+
+<div id="tab-trafego-julho" class="tab-page">
+  <style>
+    .tf-wrap{max-width:1100px;margin:0 auto;padding:24px 28px 48px;}
+    .tf-hero{background:linear-gradient(135deg,#0D2E3F 0%,#0a4060 60%,#0d5a80 100%);border-radius:16px;padding:28px 32px;margin-bottom:28px;}
+    .tf-hero-title{font-family:'Bebas Neue',cursive;font-size:32px;color:#fff;letter-spacing:2px;margin-bottom:4px;}
+    .tf-hero-sub{font-size:13px;color:rgba(255,255,255,.6);font-weight:600;}
+    .tf-section{font-family:'Bebas Neue',cursive;font-size:17px;color:var(--b1);letter-spacing:1px;margin:28px 0 14px;text-transform:uppercase;}
+    .tf-distrib-box{background:#fff;border-radius:14px;padding:20px 24px;box-shadow:0 2px 10px rgba(69,185,230,.1);margin-bottom:20px;}
+    .tf-distrib-lbl{font-size:11px;color:#aaa;font-weight:800;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;}
+    .tf-distrib-desc{font-size:13px;color:#555;font-weight:600;line-height:1.7;}
+    .tf-distrib-desc strong{color:var(--dark);}
+    .tf-cards-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+    @media(max-width:860px){.tf-cards-row{grid-template-columns:repeat(2,1fr);}}
+    .tf-card{background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 2px 10px rgba(69,185,230,.1);}
+    .tf-card-icon{font-size:18px;margin-bottom:6px;}
+    .tf-card-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;}
+    .tf-card-val{font-family:'Bebas Neue',cursive;font-size:36px;letter-spacing:1px;line-height:1;}
+    .tf-card-sub{font-size:11px;color:#999;font-weight:700;margin-top:4px;}
+    .tf-card-list{margin-top:10px;font-size:12px;color:#555;font-weight:600;line-height:1.8;}
+    .tf-card-list li{list-style:none;padding-left:12px;position:relative;}
+    .tf-card-list li::before{content:'–';position:absolute;left:0;color:#aaa;}
+    .tf-card.tematicas .tf-card-title{color:#f5a623;}
+    .tf-card.tematicas .tf-card-val{color:#f5a623;}
+    .tf-card.visitas .tf-card-title{color:var(--b1);}
+    .tf-card.visitas .tf-card-val{color:var(--b1);}
+    .tf-card.l2p1 .tf-card-title{color:var(--green);}
+    .tf-card.l2p1 .tf-card-val{color:var(--green);}
+    .tf-card.delivery .tf-card-title{color:#9b59b6;}
+    .tf-card.delivery .tf-card-val{color:#9b59b6;}
+    .tf-schedule-box{background:#f8f0ff;border:1.5px solid #d8b4fe;border-radius:12px;padding:16px 20px;margin-top:10px;margin-bottom:4px;}
+    .tf-schedule-row{display:flex;gap:14px;margin-top:8px;}
+    .tf-schedule-item{flex:1;background:#fff;border-radius:8px;padding:12px 14px;border-left:4px solid #9b59b6;}
+    .tf-schedule-item.anota{border-left-color:#f5a623;}
+    .tf-schedule-item .si-title{font-size:11px;font-weight:800;text-transform:uppercase;color:#9b59b6;letter-spacing:.5px;}
+    .tf-schedule-item.anota .si-title{color:#e07b00;}
+    .tf-schedule-item .si-day{font-family:'Bebas Neue',cursive;font-size:16px;color:var(--dark);margin:2px 0;}
+    .tf-schedule-item .si-desc{font-size:12px;color:#666;font-weight:600;}
+    .tf-table-wrap{overflow-x:auto;border-radius:14px;box-shadow:0 2px 10px rgba(69,185,230,.1);margin-bottom:28px;}
+    .tf-table{width:100%;border-collapse:collapse;background:#fff;font-size:12.5px;}
+    .tf-table thead tr{background:var(--dark);}
+    .tf-table th{padding:12px 13px;text-align:left;font-weight:800;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:#fff;white-space:nowrap;}
+    .tf-table th.r{text-align:right;}
+    .tf-table td{padding:10px 13px;border-bottom:1px solid #f0f8fc;vertical-align:middle;}
+    .tf-table tr:last-child td{border-bottom:none;}
+    .tf-table tbody tr:hover td{background:#f5fbfd;}
+    .tf-table .unit-name{font-weight:800;color:var(--dark);}
+    .tf-table .val-r{text-align:right;font-weight:700;}
+    .tf-table .val-green{color:var(--green);font-weight:800;}
+    .tf-table .val-blue{color:var(--b1);font-weight:800;}
+    .tf-table .val-orange{color:#f5a623;font-weight:800;}
+    .tf-table .val-purple{color:#9b59b6;font-weight:800;}
+    .tf-table .val-gray{color:#bbb;font-weight:700;}
+    .tf-table .dash{color:#bbb;text-align:center;}
+    .tf-table .tier-tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:800;white-space:nowrap;}
+    .tf-table .tier-br{background:#e8f6fd;color:var(--b1);}
+    .tf-table .tier-moc{background:#fef0e8;color:#e07b00;}
+    .tf-table .tier-especial{background:#f8f0ff;color:#9b59b6;}
+    .tf-table .tier-red{background:#fff5f5;color:var(--red);}
+    .tf-table .tier-gray{background:#f5f5f5;color:#999;}
+    .tf-table .obs-txt{font-size:11px;color:#666;font-weight:600;}
+    .tf-notes-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    @media(max-width:700px){.tf-notes-grid{grid-template-columns:1fr;}}
+    .tf-note-card{background:#fff;border-radius:14px;padding:20px;box-shadow:0 2px 8px rgba(69,185,230,.1);}
+    .tf-note-card h4{font-family:'Bebas Neue',cursive;font-size:16px;color:var(--dark);letter-spacing:.5px;margin-bottom:12px;}
+    .tf-rule{border-left:4px solid var(--b5);padding:8px 12px;margin-bottom:10px;border-radius:0 8px 8px 0;}
+    .tf-rule.r600{border-left-color:var(--red);}
+    .tf-rule.r1000{border-left-color:var(--b1);}
+    .tf-rule.r1500{border-left-color:var(--green);}
+    .tf-rule.r5000{border-left-color:#f5a623;}
+    .tf-rule .r-title{font-size:12px;font-weight:800;color:var(--dark);margin-bottom:3px;}
+    .tf-rule .r-desc{font-size:12px;color:#666;font-weight:600;line-height:1.6;}
+    .tf-especial{background:#fff8e8;border:1.5px solid #f5a623;border-radius:10px;padding:12px 16px;margin-bottom:10px;}
+    .tf-especial h5{font-size:12px;font-weight:800;color:#e07b00;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+    .tf-especial p{font-size:12px;color:#555;font-weight:600;line-height:1.6;}
+    .tf-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:16px;margin-bottom:28px;}
+    .tf-legend-item{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#555;}
+    .tf-legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+    .tf-footer{text-align:center;font-size:11px;color:#bbb;font-weight:700;padding-top:20px;border-top:1px solid var(--b5);}
+    .tf-delivery-note{background:#f0fdf4;border:1.5px solid #6ee7b7;border-radius:10px;padding:12px 16px;margin-bottom:10px;}
+    .tf-delivery-note h5{font-size:12px;font-weight:800;color:#059669;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+    .tf-delivery-note p{font-size:12px;color:#555;font-weight:600;line-height:1.6;}
+    .tf-nordeste-note{background:#fff5f5;border:1.5px solid #fca5a5;border-radius:10px;padding:12px 16px;margin-bottom:10px;}
+    .tf-nordeste-note h5{font-size:12px;font-weight:800;color:#dc2626;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+    .tf-nordeste-note p{font-size:12px;color:#555;font-weight:600;line-height:1.6;}
+  </style>
+
+  <div class="tf-wrap">
+    <!-- HERO -->
+    <div class="tf-hero">
+      <div class="tf-hero-title">Estrutura de Tráfego — Julho/2026</div>
+      <div class="tf-hero-sub">Distribuição de orçamento por campanha · Todas as unidades Berry's Brasil</div>
+    </div>
+
+    <!-- DISTRIBUIÇÃO PADRÃO -->
+    <div class="tf-section">Distribuição Padrão — Unidades R$ 1.000/mês</div>
+    <div class="tf-distrib-box">
+      <div class="tf-distrib-lbl">Base de cálculo</div>
+      <div class="tf-distrib-desc">R$1.000 contratado → <strong>R$870 líquido após imposto Meta</strong> (−R$130/dia). A distribuição abaixo é o padrão para a maioria das unidades. Unidades com orçamento diferente têm ajustes descritos abaixo.</div>
+    </div>
+
+    <div class="tf-cards-row">
+      <div class="tf-card tematicas">
+        <div class="tf-card-icon">🎨</div>
+        <div class="tf-card-title">Campanhas Temáticas</div>
+        <div class="tf-card-val">R$ 240</div>
+        <div class="tf-card-sub">≈ R$ 8/dia</div>
+        <ul class="tf-card-list">
+          <li>Brownie de calda quente <em>(delivery)</em></li>
+          <li>Bolo na chapa + brownie na chapa <em>(loja física)</em></li>
+          <li>Açaí no Ifood <em>(unidades que possuem)</em></li>
+          <li>Sobremesas de inverno</li>
+          <li>Sabores juninos <em>(apenas Nordeste)</em></li>
+        </ul>
+      </div>
+      <div class="tf-card visitas">
+        <div class="tf-card-icon">👥</div>
+        <div class="tf-card-title">Visitas ao Perfil</div>
+        <div class="tf-card-val">R$ 300</div>
+        <div class="tf-card-sub">≈ R$ 10/dia</div>
+        <div class="tf-card-list" style="margin-top:10px;">Campanha de novos seguidores. Objetivo: crescimento de audiência orgânica e aumento de base para remarketing futuro.</div>
+      </div>
+      <div class="tf-card l2p1">
+        <div class="tf-card-icon">🎯</div>
+        <div class="tf-card-title">L2P1</div>
+        <div class="tf-card-val">R$ 100</div>
+        <div class="tf-card-sub">Orçamento fixo</div>
+        <div class="tf-card-list" style="margin-top:10px;">Campanha L2P1 (Lead to Purchase). Valor fixo independente do orçamento total da unidade.</div>
+      </div>
+      <div class="tf-card delivery">
+        <div class="tf-card-icon">🚚</div>
+        <div class="tf-card-title">Delivery</div>
+        <div class="tf-card-val">R$ 230</div>
+        <div class="tf-card-sub">≈ R$ 7,67/dia</div>
+        <div class="tf-card-list" style="margin-top:10px;">Escalonamento semanal:<br>
+          <strong style="color:#e07b00;">Seg–Qui:</strong> promoção Anota Aí<br>
+          <strong style="color:#9b59b6;">Sex–Dom:</strong> campanha delivery normal
+        </div>
+        <div class="tf-schedule-box" style="margin-top:12px;padding:10px 12px;">
+          <div class="tf-schedule-row" style="margin-top:0;gap:8px;">
+            <div class="tf-schedule-item anota" style="padding:8px 10px;">
+              <div class="si-title">Seg → Qui</div>
+              <div class="si-day">Anota Aí</div>
+              <div class="si-desc">Promoção do app</div>
+            </div>
+            <div class="tf-schedule-item" style="padding:8px 10px;">
+              <div class="si-title">Sex → Dom</div>
+              <div class="si-day">Delivery</div>
+              <div class="si-desc">Campanha normal</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABELA COMPLETA -->
+    <div class="tf-section">Tabela Completa por Unidade</div>
+    <div class="tf-table-wrap">
+      <table class="tf-table">
+        <thead>
+          <tr>
+            <th>Unidade</th>
+            <th class="r">Invest. Contrat.</th>
+            <th class="r">Líquido (Após Impost.)</th>
+            <th class="r">Temáticas</th>
+            <th class="r">Visitas Perfil</th>
+            <th class="r">L2P1</th>
+            <th class="r">Delivery</th>
+            <th>Tier / Obs.</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background:#f0f8fc;">
+            <td class="unit-name">Berry's BR (Franqueadora)</td>
+            <td class="val-r">R$ 6.000</td>
+            <td class="val-r val-green">R$ 5.960</td>
+            <td class="dash">–</td>
+            <td class="dash">–</td>
+            <td class="dash">–</td>
+            <td class="dash">–</td>
+            <td><span class="tier-tag tier-br">R$6.000 — BR</span> <span class="obs-txt">Conta franqueadora — planejamento próprio</span></td>
+          </tr>
+          <tr style="background:#fff8f0;">
+            <td class="unit-name">Berry's MOC</td>
+            <td class="val-r">R$ 5.000</td>
+            <td class="val-r val-green">R$ 4.390</td>
+            <td class="val-r val-orange">R$ 904</td>
+            <td class="val-r val-blue">R$ 856</td>
+            <td class="val-r val-green">R$ 100</td>
+            <td class="val-r val-purple">R$ 2.610 (60%)</td>
+            <td><span class="tier-tag tier-moc">R$5.000 — MOC</span> <span class="obs-txt">60% no delivery</span></td>
+          </tr>
+          <tr style="background:#fffbf0;">
+            <td class="unit-name">Guanambi</td>
+            <td class="val-r">R$ 2.000</td>
+            <td class="val-r val-green">R$ 1.740</td>
+            <td class="dash">–</td>
+            <td class="dash">–</td>
+            <td class="dash">–</td>
+            <td class="dash">–</td>
+            <td><span class="tier-tag tier-especial">R$2.000</span> <span class="obs-txt">Pós-inauguração — planejamento próprio</span></td>
+          </tr>
+          <tr>
+            <td class="unit-name">Salvador</td>
+            <td class="val-r">R$ 2.000</td>
+            <td class="val-r val-green">R$ 1.740</td>
+            <td class="val-r val-orange">R$ 240</td>
+            <td class="val-r val-blue">R$ 300</td>
+            <td class="val-r val-green">R$ 100</td>
+            <td class="val-r val-purple">R$ 1.100 (delivery)</td>
+            <td><span class="tier-tag tier-especial">R$2.000</span> <span class="obs-txt">Delivery + sabores juninos ✅</span></td>
+          </tr>
+          <tr>
+            <td class="unit-name">Savassi</td>
+            <td class="val-r">R$ 1.500</td>
+            <td class="val-r val-green">R$ 1.305</td>
+            <td class="val-r val-orange">R$ 240</td>
+            <td class="val-r val-blue">R$ 300</td>
+            <td class="val-r val-green">R$ 100</td>
+            <td class="val-r val-purple">R$ 665 (delivery)</td>
+            <td><span class="tier-tag tier-especial">R$1.500</span></td>
+          </tr>
+          <tr>
+            <td class="unit-name">Maceió</td>
+            <td class="val-r">R$ 1.500</td>
+            <td class="val-r val-green">R$ 1.305</td>
+            <td class="val-r val-orange">R$ 240</td>
+            <td class="val-r val-blue">R$ 300</td>
+            <td class="val-r val-green">R$ 100</td>
+            <td class="val-r val-purple">R$ 665 (delivery)</td>
+            <td><span class="tier-tag tier-especial">R$1.500</span> <span class="obs-txt">Sabores juninos ✅</span></td>
+          </tr>
+          <tr>
+            <td class="unit-name">Uberaba</td>
+            <td class="val-r">R$ 1.000</td>
+            <td class="val-r val-green">R$ 870</td>
+            <td class="val-r val-orange">R$ 240</td>
+            <td class="val-r val-blue">R$ 300</td>
+            <td class="val-r val-green">R$ 100</td>
+            <td class="val-r val-purple">R$ 230 (escolher)</td>
+            <td><span class="tier-tag tier-br">R$1.000</span> <span class="obs-txt">Escolher delivery ou evento</span></td>
+          </tr>
+          <tr>
+            <td class="unit-name">Campinas</td>
+            <td class="val-r">R$ 1.000</td>
+            <td class="val-r val-green">R$ 870</td>
+            <td class="val-r val-orange">R$ 240</td>
+            <td class="val-r val-blue">R$ 300</td>
+            <td class="val-r val-green">R$ 100</td>
+            <td class="val-r val-purple">R$ 230 (escolher)</td>
+            <td><span class="tier-tag tier-br">R$1.000</span> <span class="obs-txt">Escolher delivery ou evento</span></td>
+          </tr>
+          <tr>
+            <td class="unit-name">Luiz Eduardo Magalhães</td>
+            <td class="val-r">R$ 1.000</td>
+            <td class="val-r val-green">R$ 870</td>
+            <td class="val-r val-orange">R$ 240</td>
+            <td class="val-r val-blue">R$ 300</td>
+            <td class="val-r val-green">R$ 100</td>
+            <td class="val-r val-purple">R$ 230 (escolher)</td>
+            <td><span class="tier-tag tier-br">R$1.000</span> <span class="obs-txt">Escolher delivery ou evento</span></td>
+          </tr>
+          <tr>
+            <td class="unit-name">Januária</td>
+            <td class="val-r">R$ 1.000</td>
+            <td class="val-r val-green">R$ 870</td>
+            <td class="val-r val-orange">R$ 240</td>
+            <td class="val-r val-blue">R$ 300</td>
+            <td class="val-r val-green">R$ 100</td>
+            <td class="val-r val-purple">R$ 230 (escolher)</td>
+            <td><span class="tier-tag tier-br">R$1.000</span> <span class="obs-txt">Escolher delivery ou evento</span></td>
+          </tr>
+          <tr>
+            <td class="unit-name">Anápolis</td>
+            <td class="val-r">R$ 1.000</td>
+            <td class="val-r val-green">R$ 870</td>
+            <td class="val-r val-orange">R$ 240</td>
+            <td class="val-r val-blue">R$ 300</td>
+            <td class="val-r val-green">R$ 100</td>
+            <td class="val-r val-purple">R$ 230 (escolher)</td>
+            <td><span class="tier-tag tier-br">R$1.000</span> <span class="obs-txt">Escolher delivery ou evento</span></td>
+          </tr>
+          <tr>
+            <td class="unit-name">Balneário</td>
+            <td class="val-r">R$ 1.000</td>
+            <td class="val-r val-green">R$ 870</td>
+            <td class="val-r val-orange">R$ 240</td>
+            <td class="val-r val-blue">R$ 300</td>
+            <td class="val-r val-green">R$ 100</td>
+            <td class="val-r val-purple">R$ 230 (escolher)</td>
+            <td><span class="tier-tag tier-br">R$1.000</span> <span class="obs-txt">Escolher delivery ou evento</span></td>
+          </tr>
+          <tr>
+            <td class="unit-name">Aracaju</td>
+            <td class="val-r">R$ 1.000</td>
+            <td class="val-r val-green">R$ 870</td>
+            <td class="val-r val-orange">R$ 240</td>
+            <td class="val-r val-blue">R$ 300</td>
+            <td class="val-r val-green">R$ 100</td>
+            <td class="val-r val-purple">R$ 230 (escolher)</td>
+            <td><span class="tier-tag tier-br">R$1.000</span> <span class="obs-txt">Sabores juninos ✅</span></td>
+          </tr>
+          <tr>
+            <td class="unit-name">Bocaíuva</td>
+            <td class="val-r">R$ 1.000</td>
+            <td class="val-r val-green">R$ 870</td>
+            <td class="val-r val-orange">R$ 240</td>
+            <td class="val-r val-blue">R$ 300</td>
+            <td class="val-r val-green">R$ 100</td>
+            <td class="val-r val-purple">R$ 230 (escolher)</td>
+            <td><span class="tier-tag tier-br">R$1.000</span> <span class="obs-txt">Escolher delivery ou evento</span></td>
+          </tr>
+          <tr>
+            <td class="unit-name">Lauro de Freitas</td>
+            <td class="val-r">R$ 1.000</td>
+            <td class="val-r val-green">R$ 870</td>
+            <td class="val-r val-orange">R$ 240</td>
+            <td class="val-r val-blue">R$ 300</td>
+            <td class="val-r val-green">R$ 100</td>
+            <td class="val-r val-purple">R$ 230 (escolher)</td>
+            <td><span class="tier-tag tier-br">R$1.000</span> <span class="obs-txt">Sabores juninos ✅</span></td>
+          </tr>
+          <tr>
+            <td class="unit-name">Pirapora</td>
+            <td class="val-r">R$ 1.000</td>
+            <td class="val-r val-green">R$ 870</td>
+            <td class="val-r val-orange">R$ 240</td>
+            <td class="val-r val-blue">R$ 300</td>
+            <td class="val-r val-green">R$ 100</td>
+            <td class="val-r val-purple">R$ 230 (escolher)</td>
+            <td><span class="tier-tag tier-br">R$1.000</span> <span class="obs-txt">Escolher delivery ou evento</span></td>
+          </tr>
+          <tr>
+            <td class="unit-name">Indaiatuba</td>
+            <td class="val-r">R$ 1.000</td>
+            <td class="val-r val-green">R$ 870</td>
+            <td class="val-r val-orange">R$ 240</td>
+            <td class="val-r val-blue">R$ 300</td>
+            <td class="val-r val-green">R$ 100</td>
+            <td class="val-r val-purple">R$ 230 (escolher)</td>
+            <td><span class="tier-tag tier-br">R$1.000</span> <span class="obs-txt">Escolher delivery ou evento</span></td>
+          </tr>
+          <tr>
+            <td class="unit-name">Recife</td>
+            <td class="val-r">R$ 1.000</td>
+            <td class="val-r val-green">R$ 870</td>
+            <td class="val-r val-orange">R$ 240</td>
+            <td class="val-r val-blue">R$ 300</td>
+            <td class="val-r val-green">R$ 100</td>
+            <td class="val-r val-purple">R$ 230 (escolher)</td>
+            <td><span class="tier-tag tier-br">R$1.000</span> <span class="obs-txt">Sabores juninos ✅</span></td>
+          </tr>
+          <tr style="background:#fffbf0;">
+            <td class="unit-name">Salinas</td>
+            <td class="val-r">R$ 1.000</td>
+            <td class="val-r val-green">R$ 870</td>
+            <td class="dash">–</td>
+            <td class="dash">–</td>
+            <td class="dash">–</td>
+            <td class="dash">–</td>
+            <td><span class="tier-tag tier-especial">R$1.000</span> <span class="obs-txt">Pós-inauguração — planejamento próprio</span></td>
+          </tr>
+          <tr>
+            <td class="unit-name">Janaúba</td>
+            <td class="val-r">R$ 1.000</td>
+            <td class="val-r val-green">R$ 870</td>
+            <td class="val-r val-orange">R$ 240</td>
+            <td class="val-r val-blue">R$ 300</td>
+            <td class="val-r val-green">R$ 100</td>
+            <td class="val-r val-purple">R$ 230 (escolher)</td>
+            <td><span class="tier-tag tier-br">R$1.000</span> <span class="obs-txt">Escolher delivery ou evento</span></td>
+          </tr>
+          <tr>
+            <td class="unit-name">Contagem</td>
+            <td class="val-r">R$ 1.000</td>
+            <td class="val-r val-green">R$ 870</td>
+            <td class="val-r val-orange">R$ 240</td>
+            <td class="val-r val-blue">R$ 300</td>
+            <td class="val-r val-green">R$ 100</td>
+            <td class="val-r val-purple">R$ 230 (escolher)</td>
+            <td><span class="tier-tag tier-br">R$1.000</span> <span class="obs-txt">Escolher delivery ou evento</span></td>
+          </tr>
+          <tr>
+            <td class="unit-name">Conquista</td>
+            <td class="val-r">R$ 1.000</td>
+            <td class="val-r val-green">R$ 870</td>
+            <td class="val-r val-orange">R$ 240</td>
+            <td class="val-r val-blue">R$ 300</td>
+            <td class="val-r val-green">R$ 100</td>
+            <td class="val-r val-purple">R$ 230 (escolher)</td>
+            <td><span class="tier-tag tier-br">R$1.000</span> <span class="obs-txt">Escolher delivery ou evento</span></td>
+          </tr>
+          <tr style="background:#fff8f5;">
+            <td class="unit-name">Feira de Santana</td>
+            <td class="val-r">R$ 700</td>
+            <td class="val-r val-green">R$ 609</td>
+            <td class="val-r val-orange">R$ 213</td>
+            <td class="val-r val-blue">R$ 213</td>
+            <td class="val-r val-green">R$ 100</td>
+            <td class="dash">–</td>
+            <td><span class="tier-tag tier-red">R$700</span> <span class="obs-txt">Sem delivery/evento · Sabores juninos ✅</span></td>
+          </tr>
+          <tr style="background:#fff8f5;">
+            <td class="unit-name">Águas Claras</td>
+            <td class="val-r">R$ 600</td>
+            <td class="val-r val-green">R$ 522</td>
+            <td class="val-r val-orange">R$ 146</td>
+            <td class="val-r val-blue">R$ 183</td>
+            <td class="val-r val-green">R$ 100</td>
+            <td class="dash">–</td>
+            <td><span class="tier-tag tier-red">R$600</span> <span class="obs-txt">Sem delivery/evento</span></td>
+          </tr>
+          <tr style="background:#fff8f5;">
+            <td class="unit-name">Porto Seguro</td>
+            <td class="val-r">R$ 600</td>
+            <td class="val-r val-green">R$ 522</td>
+            <td class="val-r val-orange">R$ 146</td>
+            <td class="val-r val-blue">R$ 183</td>
+            <td class="val-r val-green">R$ 100</td>
+            <td class="dash">–</td>
+            <td><span class="tier-tag tier-red">R$600</span> <span class="obs-txt">Sem delivery/evento · Sabores juninos ✅</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- LEGENDA -->
+    <div class="tf-legend">
+      <div class="tf-legend-item"><div class="tf-legend-dot" style="background:#e8f6fd;border:1.5px solid var(--b1);"></div> Berry's BR (Franqueadora)</div>
+      <div class="tf-legend-item"><div class="tf-legend-dot" style="background:#fef0e8;border:1.5px solid #f5a623;"></div> Berry's MOC (distribuição especial 60% delivery)</div>
+      <div class="tf-legend-item"><div class="tf-legend-dot" style="background:#f8f0ff;border:1.5px solid #9b59b6;"></div> Guanambi / Salinas — pós-inauguração, planejamento próprio</div>
+      <div class="tf-legend-item"><div class="tf-legend-dot" style="background:#fff8f5;border:1.5px solid var(--red);"></div> Orçamento reduzido — sem delivery/evento</div>
+      <div class="tf-legend-item"><span style="font-size:13px;">✅</span> Inclui sabores juninos (apenas Nordeste)</div>
+    </div>
+
+    <!-- NOTAS ESTRATÉGICAS -->
+    <div class="tf-section">Notas Estratégicas de Julho</div>
+    <div class="tf-notes-grid">
+      <div class="tf-note-card">
+        <h4>🗓️ Regras por Faixa de Orçamento</h4>
+        <div class="tf-rule r600">
+          <div class="r-title">Abaixo de R$1.000 (R$600–R$700)</div>
+          <div class="r-desc">Seguem a estrutura padrão sem o bloco de Delivery. Foco em temáticas, visitas ao perfil e L2P1.</div>
+        </div>
+        <div class="tf-rule r1000">
+          <div class="r-title">R$1.000/mês (maioria das unidades)</div>
+          <div class="r-desc">Estrutura padrão completa. Escolher entre Delivery com escalonamento semanal (Seg–Qui Anota Aí / Sex–Dom normal) ou Evento no bloco de R$230.</div>
+        </div>
+        <div class="tf-rule r1500">
+          <div class="r-title">R$1.500 e R$2.000 (Salvador, Savassi, Maceió)</div>
+          <div class="r-desc">Podem rodar Delivery e Evento simultaneamente — não precisam escolher apenas um.</div>
+        </div>
+        <div class="tf-rule r5000">
+          <div class="r-title">R$5.000 (Berry's MOC)</div>
+          <div class="r-desc">60% do orçamento na campanha de Delivery com Anota Aí. Restante segue a estrutura padrão adaptada.</div>
+        </div>
+      </div>
+      <div class="tf-note-card">
+        <h4>🎨 Temáticas de Julho</h4>
+        <div class="tf-delivery-note">
+          <h5>🍫 Brownie de Calda Quente — Delivery</h5>
+          <p>Criativo focado em delivery. Mostrar o produto com calda quente, apelo sensorial. Rodar nas unidades que têm delivery ativo.</p>
+        </div>
+        <div class="tf-delivery-note" style="background:#f0f9ff;border-color:#93c5fd;">
+          <h5 style="color:#1d4ed8;">🥞 Bolo na Chapa + Brownie na Chapa — Loja Física</h5>
+          <p>Criativo voltado para visita à loja. Produto consumido no local, apelo de experiência presencial.</p>
+        </div>
+        <div class="tf-delivery-note" style="background:#f0fdf4;border-color:#6ee7b7;">
+          <h5>🍧 Açaí no Ifood</h5>
+          <p>Ativar apenas nas unidades que possuem o produto no cardápio. Criativo direto com link do Ifood.</p>
+        </div>
+        <div class="tf-nordeste-note">
+          <h5>🎉 Sabores Juninos — Apenas Nordeste</h5>
+          <p>Manter a campanha de sabores juninos exclusivamente para as unidades do Nordeste: Salvador, Maceió, Aracaju, Recife, Lauro de Freitas, Feira de Santana, Porto Seguro. Não veicular nas demais regiões.</p>
+        </div>
+        <div class="tf-especial">
+          <h5>❄️ Sobremesas de Inverno</h5>
+          <p>Manter ativas em todas as unidades. Inverno ainda em vigor em julho — continua sendo relevante para o sul/sudeste.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tf-notes-grid" style="margin-top:16px;">
+      <div class="tf-note-card">
+        <h4>🚚 Escalonamento Delivery — Anota Aí</h4>
+        <div class="tf-delivery-note">
+          <h5>📅 Segunda → Quinta</h5>
+          <p>Rodar campanha de delivery com <strong>promoção do Anota Aí</strong>. Dias de menor movimento — promoção incentiva o pedido. Usar criativos específicos com a oferta do Anota Aí.</p>
+        </div>
+        <div class="tf-delivery-note" style="background:#f8f0ff;border-color:#d8b4fe;">
+          <h5 style="color:#7c3aed;">📅 Sexta → Domingo</h5>
+          <p>Rodar <strong>campanha de delivery normal</strong> (sem promoção). Final de semana tem tráfego natural mais alto — não precisa de desconto para converter.</p>
+        </div>
+      </div>
+      <div class="tf-note-card">
+        <h4>🏪 Unidades em Planejamento Especial</h4>
+        <div class="tf-especial">
+          <h5>Berry's Guanambi</h5>
+          <p>Processo de <strong>pós-inauguração</strong>. Seguirá planejamento próprio de início de loja, focado em geração de awareness local intensivo e construção de base de seguidores. Não aplicar estrutura padrão.</p>
+        </div>
+        <div class="tf-especial">
+          <h5>Berry's Salinas</h5>
+          <p>Processo de <strong>pós-inauguração</strong>. Mesmo contexto que Guanambi — planejamento próprio de lançamento. Foco em primeiras semanas de operação e conquista de audiência local.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tf-footer">
+      Berry's Iced Food · Analytics Dashboard · Meta Ads · Gestão de Franquias · Julho 2026 · Valores extraídos dos prints originais sem inferência.
+    </div>
   </div>
 </div>
 
