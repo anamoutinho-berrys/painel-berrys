@@ -76,8 +76,11 @@
     .sname{font-weight:800;color:var(--dark);}
     .slink{color:var(--b1);font-size:11px;font-weight:600;display:block;margin-top:1px;text-decoration:none;}
     .slink:hover{text-decoration:underline;}
-    .inp-m{width:108px;padding:5px 9px;border:1.5px solid transparent;border-radius:7px;font-size:13px;font-weight:700;color:var(--dark);background:var(--gray);text-align:right;font-family:'Nunito',sans-serif;transition:.2s;}
-    .inp-m:focus{outline:none;border-color:var(--b1);background:#fff;box-shadow:0 0 0 3px rgba(69,185,230,.15);}
+    th.sortable{cursor:pointer;user-select:none;transition:.15s;}
+    th.sortable:hover{background:#1a4a60;}
+    th .s-ind{display:inline-block;margin-left:4px;font-size:9px;opacity:.35;}
+    th.sorted .s-ind{opacity:1;color:var(--b1);}
+    .num.low{color:var(--red);font-weight:800;}
     .num{text-align:right;font-weight:700;}
     .num.tax{color:#6a8a9a;}
     .num.spend{color:var(--red);}
@@ -215,17 +218,18 @@
   <div class="tbl-wrap">
     <table>
       <thead><tr>
-        <th>#</th><th>Unidade</th>
-        <th class="r">Valor Mensal</th>
-        <th class="r">Após Imposto <span style="opacity:.5;font-weight:400">(−12%)</span></th>
-        <th class="r">Qto Investiu <span style="opacity:.5;font-weight:400">/ período</span></th>
-        <th class="r">Saldo Disponível <span style="opacity:.5;font-weight:400">/ conta</span></th>
+        <th>#</th>
+        <th class="sortable" data-sort="name" onclick="setSort('name')">Unidade <span class="s-ind">▲▼</span></th>
+        <th class="r sortable" data-sort="mensal" onclick="setSort('mensal')">Valor Mensal <span class="s-ind">▲▼</span></th>
+        <th class="r sortable" data-sort="tax" onclick="setSort('tax')">Após Imposto <span style="opacity:.5;font-weight:400">(−12%)</span> <span class="s-ind">▲▼</span></th>
+        <th class="r sortable" data-sort="spend" onclick="setSort('spend')">Qto Investiu <span style="opacity:.5;font-weight:400">/ período</span> <span class="s-ind">▲▼</span></th>
+        <th class="r sortable" data-sort="balance" onclick="setSort('balance')">Saldo Disponível <span style="opacity:.5;font-weight:400">/ conta</span> <span class="s-ind">▲▼</span></th>
       </tr></thead>
       <tbody id="tbl-body"></tbody>
     </table>
   </div>
   <div style="padding:0 28px 20px;font-size:11px;color:#ccc;text-align:right;font-weight:700;">
-    * Saldo = crédito pré-pago disponível. Contas "cartão" = pós-pago.
+    * Saldo = crédito pré-pago disponível. <span style="color:var(--red);">Vermelho = saldo abaixo de R$ 200</span>. Contas "cartão" = pós-pago. Clique nos títulos das colunas para ordenar.
   </div>
 </div>
 
@@ -938,11 +942,47 @@ const ACCOUNTS = [
   { name:"Berry's Águas Claras",           id:"477466964832908",   mensal:600,  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=477466964832908" },
 ];
 
-// Valor mensal efetivo: fixo por padrão; edição manual (salva no navegador) tem prioridade
-function getMensal(acc) {
-  const ov = localStorage.getItem('mv_' + (acc.id || acc.name));
-  if (ov !== null && ov !== '') { const n = parseFloat(ov); if (!isNaN(n)) return n; }
-  return acc.mensal || 0;
+// Valor mensal é FIXO (definido em ACCOUNTS), sem edição manual
+function getMensal(acc) { return acc.mensal || 0; }
+
+// ── Ordenação da tabela de saldos ──
+let sortState = { key: null, dir: 1 }; // dir: 1 = crescente, -1 = decrescente
+
+function sortVal(acc, key) {
+  const d = fetchedData[acc.id] || {};
+  switch (key) {
+    case 'name':    return acc.name.toLowerCase();
+    case 'mensal':  return getMensal(acc);
+    case 'tax':     return getMensal(acc) * 0.88;
+    case 'spend':   return (acc.id && d.spend !== undefined && !isNaN(d.spend)) ? d.spend : null;
+    case 'balance': return (acc.id && !acc.card && !d.postpaid && d.balance !== undefined && !isNaN(d.balance)) ? d.balance : null;
+  }
+  return null;
+}
+
+function sortedAccounts() {
+  if (!sortState.key) return ACCOUNTS;
+  const k = sortState.key, dir = sortState.dir;
+  return [...ACCOUNTS].sort((a, b) => {
+    const va = sortVal(a, k), vb = sortVal(b, k);
+    if (va === null && vb === null) return 0;
+    if (va === null) return 1;  // sem valor (erro/cartão/sem conta) sempre no fim
+    if (vb === null) return -1;
+    if (va < vb) return -1 * dir;
+    if (va > vb) return  1 * dir;
+    return 0;
+  });
+}
+
+function setSort(key) {
+  if (sortState.key === key) sortState.dir = -sortState.dir;
+  else { sortState.key = key; sortState.dir = key === 'name' ? 1 : -1; } // texto começa A→Z, números do maior p/ menor
+  document.querySelectorAll('#tab-saldos th.sortable').forEach(th => {
+    const active = th.dataset.sort === key;
+    th.classList.toggle('sorted', active);
+    th.querySelector('.s-ind').textContent = active ? (sortState.dir === 1 ? '▲' : '▼') : '▲▼';
+  });
+  renderSaldosTable();
 }
 
 let fetchedData = {};
@@ -1047,7 +1087,7 @@ async function fetchAccountData(id, preset, fields=[]) {
 function renderSaldosTable() {
   const tb = document.getElementById('tbl-body');
   tb.innerHTML = '';
-  ACCOUNTS.forEach((acc,i) => {
+  sortedAccounts().forEach((acc,i) => {
     const m = getMensal(acc);
     const d = fetchedData[acc.id]||{};
     const tr = document.createElement('tr');
@@ -1058,14 +1098,11 @@ function renderSaldosTable() {
     tname.innerHTML = `<div class="sname">${acc.name}${acc.card?' <span class="pill pill-card">cartão</span>':''}</div>`
       +(acc.mgr?`<a class="slink" href="${acc.mgr}" target="_blank">↗ Gerenciador</a>`:'')
       +(!acc.id?'<span class="pill pill-unk">sem conta</span>':'');
-    const tmensal = document.createElement('td'); tmensal.style.textAlign='right';
-    const inp = document.createElement('input');
-    inp.type='number'; inp.className='inp-m'; inp.value=m||''; inp.placeholder='0,00';
-    inp.min='0'; inp.step='100'; inp.dataset.key=acc.id||acc.name;
-    inp.addEventListener('change', onMensalChange);
-    tmensal.appendChild(inp);
+    const tmensal = document.createElement('td');
+    tmensal.className='num'; tmensal.style.color='var(--dark)';
+    tmensal.textContent = m ? fmt(m) : '—';
     const ttax = document.createElement('td');
-    ttax.className='num tax'; ttax.id='tax_'+(acc.id||acc.name).replace(/\W/g,'_');
+    ttax.className='num tax';
     ttax.textContent = m ? fmt(m*0.88) : '—';
     const tspend = document.createElement('td'); tspend.id='spend_'+(acc.id||'na'+i);
     paintSpend(tspend, acc, d);
@@ -1110,16 +1147,8 @@ function paintBalance(td, acc, d) {
     td.innerHTML=`<span style="color:#fc8181;font-size:11px;font-weight:800;">⚠ ${errLabel(d.balErr)}</span>`;
     return;
   }
-  if (d.balance!==undefined) { td.className=d.balance>0?'num bal':'num zero'; td.textContent=fmt(d.balance); return; }
+  if (d.balance!==undefined) { td.className = d.balance < 200 ? 'num low' : 'num bal'; td.textContent=fmt(d.balance); return; }
   td.innerHTML='<span class="cell-na">—</span>';
-}
-
-function onMensalChange(e) {
-  const v=parseFloat(e.target.value)||0, key=e.target.dataset.key;
-  localStorage.setItem('mv_'+key, v);
-  const el=document.getElementById('tax_'+key.replace(/\W/g,'_'));
-  if(el) el.textContent = v ? fmt(v*0.88) : '—';
-  updateSaldosSummary();
 }
 
 function onDateChange() {
