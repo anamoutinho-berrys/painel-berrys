@@ -142,53 +142,68 @@
     .links-footer span{color:var(--b3);}
     footer{background:var(--dark);color:rgba(255,255,255,.4);text-align:center;padding:14px 28px;font-size:12px;font-weight:700;}
     footer span{color:var(--b3);}
-    /* Relatório Real-Time */
-    .rel-units-wrap{padding:0 28px 40px;display:flex;flex-direction:column;gap:16px;}
-    .rel-unit-section{background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(69,185,230,.12);overflow:hidden;border:1px solid #eaf6fb;}
-    .rel-unit-header{background:var(--dark);padding:13px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
-    .rel-unit-name{font-family:'Bebas Neue',cursive;font-size:17px;color:#fff;letter-spacing:.5px;}
-    .rel-mgr-link{font-size:11px;color:var(--b3);font-weight:700;text-decoration:none;opacity:.7;white-space:nowrap;}
-    .rel-mgr-link:hover{opacity:1;color:var(--b1);}
-    .rel-unit-loading{padding:20px;text-align:center;color:#aaa;font-size:12px;font-weight:700;}
-    .rel-unit-metrics{display:grid;grid-template-columns:repeat(6,1fr);border-bottom:1px solid var(--b5);}
-    .rel-metric{padding:11px 14px;border-right:1px solid var(--b5);}
-    .rel-metric:last-child{border-right:none;}
-    .rel-m-lbl{display:block;font-size:9px;color:#aaa;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
-    .rel-m-val{font-family:'Bebas Neue',cursive;font-size:19px;color:var(--dark);letter-spacing:.4px;}
-    .rel-m-val.spend{color:var(--red);}
-    .rel-ads-section{padding:12px 18px 14px;}
-    .rel-ads-title{font-size:10px;font-weight:800;text-transform:uppercase;color:var(--b1);letter-spacing:.8px;margin-bottom:8px;}
-    .rel-ad-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f0f8fc;}
-    .rel-ad-item:last-child{border-bottom:none;}
-    .rel-ad-rank{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;flex-shrink:0;}
-    .rel-ad-rank.r1{background:#f5a623;color:#fff;}
-    .rel-ad-rank.r2{background:#9b9b9b;color:#fff;}
-    .rel-ad-rank.r3{background:#cd7f32;color:#fff;}
-    .rel-ad-thumb{width:42px;height:42px;object-fit:cover;border-radius:7px;flex-shrink:0;background:var(--b5);}
-    .rel-ad-info{flex:1;min-width:0;}
-    .rel-ad-name{font-weight:800;font-size:12px;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .rel-ad-metrics{font-size:11px;color:#888;font-weight:600;margin-top:2px;}
-    .rel-nodata{padding:16px;text-align:center;color:#bbb;font-size:12px;font-weight:700;}
-    .rel-prog-wrap{background:#fff;border-bottom:1px solid var(--b5);padding:8px 28px;display:none;align-items:center;gap:12px;font-size:12px;font-weight:700;color:#666;}
-    .rel-prog-wrap.show{display:flex;}
-    .rel-prog-bar{flex:1;height:4px;background:var(--b5);border-radius:3px;overflow:hidden;}
-    .rel-prog-fill{height:100%;background:linear-gradient(90deg,var(--b1),#2292c4);border-radius:3px;transition:.3s;}
-    .rel-autorefresh-lbl{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;cursor:pointer;margin-left:4px;}
-    .rel-autorefresh-lbl input{cursor:pointer;}
-    .rel-themes{padding:8px 18px 10px;display:flex;flex-wrap:wrap;gap:6px;border-bottom:1px solid var(--b5);}
-    .rel-themes-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#bbb;width:100%;margin-bottom:2px;}
-    .rel-theme-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;letter-spacing:.1px;white-space:nowrap;}
-    .rel-camps-detail{padding:0 18px 10px;border-bottom:1px solid var(--b5);}
-    .rel-camps-toggle{font-size:11px;font-weight:700;color:var(--b1);cursor:pointer;background:none;border:none;padding:0;font-family:'Nunito',sans-serif;}
+    /* Relatório Real-Time — estilo relatório Berry's */
+    #tab-relatorio{background:#daeef8;}
+    #tab-relatorio .subheader{background:linear-gradient(135deg,#0D2E3F 0%,#1a4a6e 100%);}
+    #tab-relatorio .controls{background:rgba(255,255,255,.85);backdrop-filter:blur(6px);border-bottom:1px solid #c4e4f0;}
+    #tab-relatorio .cards-grid{background:transparent;padding-bottom:4px;}
+    #tab-relatorio .card{border:1.5px solid #c8e9f5;background:#fff;}
+    .rel-units-wrap{padding:4px 24px 48px;display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:20px;}
+    /* Card principal */
+    .rel-unit-card{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 6px 24px rgba(13,46,63,.13);border:1.5px solid #c8e9f5;}
+    /* Header do card */
+    .rel-card-header{background:linear-gradient(135deg,#0D2E3F 0%,#1a4a6e 100%);padding:16px 20px;display:flex;align-items:center;gap:14px;}
+    .rel-card-icon-wrap{width:48px;height:48px;background:rgba(69,185,230,.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+    .rel-card-title{font-family:'Bebas Neue',cursive;font-size:22px;color:#fff;letter-spacing:1px;flex:1;line-height:1.1;}
+    .rel-card-mgr{font-size:10px;color:var(--b3);font-weight:700;text-decoration:none;opacity:.7;white-space:nowrap;}
+    .rel-card-mgr:hover{opacity:1;color:var(--b1);}
+    /* Lista de métricas estilo relatório */
+    .rel-metrics-list{padding:14px 20px;border-bottom:1.5px solid #eaf6fb;}
+    .rel-metric-row{display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:1px solid #f0f8fc;}
+    .rel-metric-row:last-child{border-bottom:none;}
+    .rel-m-icon{width:30px;height:30px;border-radius:50%;background:#e8f4fb;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+    .rel-m-text{font-size:13px;color:#555;font-weight:600;flex:1;}
+    .rel-m-text strong{color:#0D2E3F;font-weight:800;}
+    /* Temas */
+    .rel-themes-section{padding:11px 20px;border-bottom:1.5px solid #eaf6fb;}
+    .rel-section-lbl{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#aaa;margin-bottom:7px;}
+    .rel-themes-row{display:flex;flex-wrap:wrap;gap:6px;}
+    .rel-theme-pill{display:inline-flex;align-items:center;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:800;white-space:nowrap;}
+    /* Campanhas */
+    .rel-camps-section{padding:10px 20px;border-bottom:1.5px solid #eaf6fb;}
+    .rel-camps-toggle{font-size:11px;font-weight:700;color:var(--b1);background:none;border:none;cursor:pointer;padding:0;font-family:'Nunito',sans-serif;}
     .rel-camps-toggle:hover{text-decoration:underline;}
-    .rel-camp-list{margin-top:6px;display:none;flex-direction:column;gap:3px;}
+    .rel-camp-list{display:none;flex-direction:column;gap:4px;margin-top:8px;}
     .rel-camp-list.open{display:flex;}
-    .rel-camp-row{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;color:#555;}
+    .rel-camp-row{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#555;}
     .rel-camp-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
     .rel-camp-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
     .rel-camp-spend{color:var(--red);font-weight:800;white-space:nowrap;}
-    @media(max-width:900px){.rel-unit-metrics{grid-template-columns:repeat(3,1fr);}}
-    @media(max-width:560px){.rel-unit-metrics{grid-template-columns:repeat(2,1fr);}}
+    /* Melhores anúncios */
+    .rel-ads-section{padding:14px 20px;}
+    .rel-ads-badge-wrap{display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
+    .rel-ads-badge{background:#0D2E3F;color:#fff;font-size:10px;font-weight:900;letter-spacing:1.2px;text-transform:uppercase;padding:5px 16px;border-radius:20px;}
+    .rel-ad-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f8fc;}
+    .rel-ad-item:last-child{border-bottom:none;}
+    .rel-ad-rank{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;flex-shrink:0;}
+    .rel-ad-rank.r1{background:#f5a623;color:#fff;}
+    .rel-ad-rank.r2{background:#9b9b9b;color:#fff;}
+    .rel-ad-rank.r3{background:#cd7f32;color:#fff;}
+    .rel-ad-thumb{width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0;background:#daeef8;}
+    .rel-ad-info{flex:1;min-width:0;}
+    .rel-ad-name{font-weight:800;font-size:12px;color:#0D2E3F;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .rel-ad-metrics{font-size:11px;color:#888;font-weight:600;margin-top:2px;}
+    /* States */
+    .rel-nodata{padding:20px;text-align:center;color:#bbb;font-size:12px;font-weight:700;}
+    .rel-unit-loading{padding:20px;text-align:center;color:#aaa;font-size:12px;font-weight:700;}
+    /* Progress */
+    .rel-prog-wrap{background:rgba(255,255,255,.9);border-bottom:1px solid #c4e4f0;padding:8px 28px;display:none;align-items:center;gap:12px;font-size:12px;font-weight:700;color:#666;}
+    .rel-prog-wrap.show{display:flex;}
+    .rel-prog-bar{flex:1;height:4px;background:#c8e9f5;border-radius:3px;overflow:hidden;}
+    .rel-prog-fill{height:100%;background:linear-gradient(90deg,var(--b1),#2292c4);border-radius:3px;transition:.3s;}
+    .rel-autorefresh-lbl{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;cursor:pointer;margin-left:4px;}
+    .rel-autorefresh-lbl input{cursor:pointer;}
+    @media(max-width:860px){.rel-units-wrap{grid-template-columns:1fr;}}
     @media(max-width:768px){
       .topbar{padding:0 14px;}
       .tab-btn{padding:0 12px;font-size:11px;}
@@ -1455,27 +1470,56 @@ async function fetchRelTopAds(id, dateParams) {
   }
 }
 
-function renderRelUnit(acc, insights, topAds, campaigns, hasData) {
-  const section = document.createElement('div');
-  section.className = 'rel-unit-section';
+function unitIcon(name) {
+  const n = name.toLowerCase();
+  if (n.includes('moc')) return '🏪';
+  if (n.includes('delivery') || n.includes('aracaju') || n.includes('recife') || n.includes('maceió') || n.includes('maceio') || n.includes('salvador')) return '🌴';
+  if (n.includes('savassi') || n.includes('contagem') || n.includes('uberaba') || n.includes('anápolis') || n.includes('anapolis')) return '🏙️';
+  return '🍦';
+}
 
-  const header = `<div class="rel-unit-header">
-    <div class="rel-unit-name">${acc.name}</div>
-    ${acc.mgr ? `<a class="rel-mgr-link" href="${acc.mgr}" target="_blank">↗ Gerenciador</a>` : ''}
+function renderRelUnit(acc, insights, topAds, campaigns, hasData) {
+  const card = document.createElement('div');
+  card.className = 'rel-unit-card';
+
+  const displayName = acc.name.replace(/berry's\s*/i, '').trim().toUpperCase();
+
+  const header = `<div class="rel-card-header">
+    <div class="rel-card-icon-wrap">${unitIcon(acc.name)}</div>
+    <div class="rel-card-title">${displayName}</div>
+    ${acc.mgr ? `<a class="rel-card-mgr" href="${acc.mgr}" target="_blank">↗ Gerenciador</a>` : ''}
   </div>`;
 
   if (!hasData) {
-    section.innerHTML = header + `<div class="rel-nodata">Nenhuma métrica encontrada para o período selecionado.</div>`;
-    return section;
+    card.innerHTML = header + `<div class="rel-nodata">Nenhuma métrica encontrada para o período selecionado.</div>`;
+    return card;
   }
 
-  const metrics = `<div class="rel-unit-metrics">
-    <div class="rel-metric"><span class="rel-m-lbl">💰 Investido</span><span class="rel-m-val spend">${fmt(insights.spend)}</span></div>
-    <div class="rel-metric"><span class="rel-m-lbl">👥 Alcance</span><span class="rel-m-val">${fmtN(insights.reach)}</span></div>
-    <div class="rel-metric"><span class="rel-m-lbl">👁 Impressões</span><span class="rel-m-val">${fmtN(insights.impressions)}</span></div>
-    <div class="rel-metric"><span class="rel-m-lbl">🖱 Cliques</span><span class="rel-m-val">${fmtN(insights.clicks)}</span></div>
-    <div class="rel-metric"><span class="rel-m-lbl">CPM</span><span class="rel-m-val">${fmt(insights.cpm)}</span></div>
-    <div class="rel-metric"><span class="rel-m-lbl">CTR</span><span class="rel-m-val">${fmtPct(insights.ctr)}</span></div>
+  const metricsList = `<div class="rel-metrics-list">
+    <div class="rel-metric-row">
+      <div class="rel-m-icon">💰</div>
+      <div class="rel-m-text">Investimento: <strong>${fmt(insights.spend)}</strong></div>
+    </div>
+    <div class="rel-metric-row">
+      <div class="rel-m-icon">👥</div>
+      <div class="rel-m-text">Alcance: <strong>${fmtN(insights.reach)} pessoas</strong></div>
+    </div>
+    <div class="rel-metric-row">
+      <div class="rel-m-icon">👁</div>
+      <div class="rel-m-text">Impressões: <strong>${fmtN(insights.impressions)}</strong></div>
+    </div>
+    <div class="rel-metric-row">
+      <div class="rel-m-icon">🖱</div>
+      <div class="rel-m-text">Cliques no link: <strong>${fmtN(insights.clicks)}</strong></div>
+    </div>
+    <div class="rel-metric-row">
+      <div class="rel-m-icon">📊</div>
+      <div class="rel-m-text">Custo por 1.000 pessoas: <strong>${fmt(insights.cpm)}</strong></div>
+    </div>
+    <div class="rel-metric-row">
+      <div class="rel-m-icon">📈</div>
+      <div class="rel-m-text">CTR: <strong>${fmtPct(insights.ctr)}</strong>&nbsp;&nbsp;CPC: <strong>${fmt(insights.cpc)}</strong></div>
+    </div>
   </div>`;
 
   // Temas detectados
@@ -1484,29 +1528,30 @@ function renderRelUnit(acc, insights, topAds, campaigns, hasData) {
     ? themes.map(t => `<span class="rel-theme-pill" style="color:${t.color};background:${t.bg};">${t.label}</span>`).join('')
     : `<span style="font-size:11px;color:#ccc;font-weight:700;">Nenhum tema identificado</span>`;
 
-  const themesBlock = `<div class="rel-themes">
-    <span class="rel-themes-lbl">Temas veiculados no período</span>
-    ${themePills}
+  const themesBlock = `<div class="rel-themes-section">
+    <div class="rel-section-lbl">Temas veiculados no período</div>
+    <div class="rel-themes-row">${themePills}</div>
   </div>`;
 
-  // Lista colapsável de campanhas
-  const uid = 'camps_' + (acc.id || acc.name).replace(/\W/g,'_');
+  // Campanhas colapsável
   const statusDot = s => s === 'ACTIVE' ? '#27ae60' : s === 'PAUSED' ? '#f5a623' : '#bbb';
-  const statusLabel = s => s === 'ACTIVE' ? 'ativa' : s === 'PAUSED' ? 'pausada' : 'encerrada';
   const campRows = campaigns.map(c => {
     const sp = parseFloat(c.insights?.data?.[0]?.spend || 0);
     return `<div class="rel-camp-row">
-      <div class="rel-camp-dot" style="background:${statusDot(c.status)}" title="${statusLabel(c.status)}"></div>
+      <div class="rel-camp-dot" style="background:${statusDot(c.status)}"></div>
       <div class="rel-camp-name" title="${c.name}">${c.name}</div>
       ${sp > 0 ? `<div class="rel-camp-spend">${fmt(sp)}</div>` : ''}
     </div>`;
   }).join('');
 
-  const campsBlock = campaigns.length ? `<div class="rel-camps-detail">
-    <button class="rel-camps-toggle" onclick="this.nextElementSibling.classList.toggle('open');this.textContent=this.nextElementSibling.classList.contains('open')?'▲ ocultar campanhas':'▼ ver ${campaigns.length} campanhas';">▼ ver ${campaigns.length} campanhas</button>
+  const n = campaigns.length;
+  const campsBlock = n ? `<div class="rel-camps-section">
+    <div class="rel-section-lbl">Campanhas</div>
+    <button class="rel-camps-toggle" onclick="const l=this.nextElementSibling;l.classList.toggle('open');this.textContent=l.classList.contains('open')?'▲ ocultar':'▼ ver ${n} campanha${n>1?'s':''}';">▼ ver ${n} campanha${n>1?'s':''}</button>
     <div class="rel-camp-list">${campRows}</div>
   </div>` : '';
 
+  // Top ads
   const rankCls = ['r1','r2','r3'];
   const adsRows = topAds.length ? topAds.map((ad, i) => {
     const ins = ad.insights.data[0];
@@ -1517,19 +1562,20 @@ function renderRelUnit(acc, insights, topAds, campaigns, hasData) {
     const clk = parseInt(ins.clicks) || 0;
     return `<div class="rel-ad-item">
       <div class="rel-ad-rank ${rankCls[i]}">${i+1}</div>
-      ${thumb
-        ? `<img class="rel-ad-thumb" src="${thumb}" onerror="this.style.display='none'" loading="lazy"/>`
-        : `<div class="rel-ad-thumb"></div>`}
+      ${thumb ? `<img class="rel-ad-thumb" src="${thumb}" onerror="this.style.display='none'" loading="lazy"/>` : `<div class="rel-ad-thumb"></div>`}
       <div class="rel-ad-info">
         <div class="rel-ad-name">${ad.name}</div>
-        <div class="rel-ad-metrics">${fmt(sp)} &nbsp;·&nbsp; ${fmtN(rch)} alcance &nbsp;·&nbsp; ${fmtN(imp)} imp. &nbsp;·&nbsp; ${fmtN(clk)} cliques</div>
+        <div class="rel-ad-metrics">${fmt(sp)} · ${fmtN(rch)} alcance · ${fmtN(imp)} imp. · ${fmtN(clk)} cliques</div>
       </div>
     </div>`;
-  }).join('') : `<div class="rel-nodata" style="padding:10px 0;">Nenhum anúncio com gasto no período.</div>`;
+  }).join('') : `<div class="rel-nodata" style="padding:8px 0 0;">Nenhum anúncio com gasto no período.</div>`;
 
-  section.innerHTML = header + metrics + themesBlock + campsBlock +
-    `<div class="rel-ads-section"><div class="rel-ads-title">🏆 Melhores Anúncios</div>${adsRows}</div>`;
-  return section;
+  card.innerHTML = header + metricsList + themesBlock + campsBlock + `
+    <div class="rel-ads-section">
+      <div class="rel-ads-badge-wrap"><div class="rel-ads-badge">🏆 Melhores Anúncios</div></div>
+      ${adsRows}
+    </div>`;
+  return card;
 }
 
 async function relFetch() {
@@ -1552,8 +1598,8 @@ async function relFetch() {
   for (let i = 0; i < valid.length; i += 3) {
     await Promise.all(valid.slice(i, i + 3).map(async acc => {
       const placeholder = document.createElement('div');
-      placeholder.className = 'rel-unit-section';
-      placeholder.innerHTML = `<div class="rel-unit-header"><div class="rel-unit-name">${acc.name}</div></div>
+      placeholder.className = 'rel-unit-card';
+      placeholder.innerHTML = `<div class="rel-card-header"><div class="rel-card-icon-wrap">🍦</div><div class="rel-card-title">${acc.name.replace(/berry's\s*/i,'').trim().toUpperCase()}</div></div>
         <div class="rel-unit-loading"><span class="spin"></span> Carregando…</div>`;
       wrap.appendChild(placeholder);
 
