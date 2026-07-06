@@ -75,6 +75,10 @@
     .num.spend{color:var(--red);}
     .num.bal{color:var(--green);}
     .num.zero{color:#bbb;}
+.num.bal-low{color:var(--red);font-weight:800;}
+.th-sort{cursor:pointer;user-select:none;}
+.th-sort:hover{background:rgba(255,255,255,.1);}
+.sort-arrow{color:var(--b1);font-size:10px;margin-left:3px;}
     .spin{display:inline-block;width:13px;height:13px;border:2px solid var(--b5);border-top-color:var(--b1);border-radius:50%;animation:spin .6s linear infinite;}
     @keyframes spin{to{transform:rotate(360deg)}}
     .cell-load{text-align:center;}
