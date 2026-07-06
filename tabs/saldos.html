@@ -1,0 +1,56 @@
+  <div class="subheader">
+    <div>
+      <div class="sh-title">Controle de Saldos · Meta Ads</div>
+      <div class="sh-sub">Investimento e saldo disponível por unidade franqueada</div>
+    </div>
+    <div class="sh-right" id="date-display"></div>
+  </div>
+  <div class="err-banner" id="err-banner">⚠️ <span id="err-msg"></span></div>
+  <div class="controls">
+    <label>📅 Período:</label>
+    <select class="sel" id="date-preset" onchange="onDateChange()">
+      <option value="this_month">Este mês</option>
+      <option value="last_month">Mês passado</option>
+      <option value="last_7d">Últimos 7 dias</option>
+      <option value="last_30d">Últimos 30 dias</option>
+      <option value="last_14d">Últimos 14 dias</option>
+      <option value="today">Hoje</option>
+      <option value="yesterday">Ontem</option>
+      <option value="this_year">Este ano</option>
+      <option value="maximum">Máximo</option>
+      <option value="custom">Personalizado</option>
+    </select>
+    <div class="custom-dt" id="custom-dt">
+      <input type="date" id="dt-since"/>
+      <span style="color:#aaa;font-weight:700">até</span>
+      <input type="date" id="dt-until"/>
+      <button class="btn btn-blue" onclick="fetchAll()">Buscar</button>
+    </div>
+    <button class="btn btn-dark" onclick="fetchAll()">🔄 Atualizar</button>
+    <div class="last-up" id="last-up"></div>
+  </div>
+  <div class="prog-wrap" id="prog-wrap">
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
+    <div class="prog-lbl" id="prog-lbl">Buscando dados…</div>
+  </div>
+  <div class="cards-grid">
+    <div class="card">    <div class="lbl">Total Investido</div><div class="val" id="c-invested">— —</div><div class="sub" id="c-invested-sub">no período</div></div>
+    <div class="card c2"><div class="lbl">Saldo Disponível</div><div class="val" id="c-balance">— —</div><div class="sub">contas pré-pagas</div></div>
+    <div class="card c3"><div class="lbl">Total Contratos</div><div class="val" id="c-mensal">— —</div><div class="sub">soma valores mensais</div></div>
+    <div class="card c4"><div class="lbl">Total Após Imposto</div><div class="val" id="c-tax">— —</div><div class="sub">contratos − 12%</div></div>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>#</th><th>Unidade</th>
+        <th class="r">Valor Mensal</th>
+        <th class="r">Após Imposto <span style="opacity:.5;font-weight:400">(−12%)</span></th>
+        <th class="r">Qto Investiu <span style="opacity:.5;font-weight:400">/ período</span></th>
+        <th class="r">Saldo Disponível <span style="opacity:.5;font-weight:400">/ conta</span></th>
+      </tr></thead>
+      <tbody id="tbl-body"></tbody>
+    </table>
+  </div>
+  <div style="padding:0 28px 20px;font-size:11px;color:#ccc;text-align:right;font-weight:700;">
+    * Saldo = crédito pré-pago disponível. Contas "cartão" = pós-pago.
+  </div>
