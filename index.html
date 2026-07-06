@@ -76,11 +76,8 @@
     .sname{font-weight:800;color:var(--dark);}
     .slink{color:var(--b1);font-size:11px;font-weight:600;display:block;margin-top:1px;text-decoration:none;}
     .slink:hover{text-decoration:underline;}
-    th.sortable{cursor:pointer;user-select:none;transition:.15s;}
-    th.sortable:hover{background:#1a4a60;}
-    th .s-ind{display:inline-block;margin-left:4px;font-size:9px;opacity:.35;}
-    th.sorted .s-ind{opacity:1;color:var(--b1);}
-    .num.low{color:var(--red);font-weight:800;}
+    .inp-m{width:108px;padding:5px 9px;border:1.5px solid transparent;border-radius:7px;font-size:13px;font-weight:700;color:var(--dark);background:var(--gray);text-align:right;font-family:'Nunito',sans-serif;transition:.2s;}
+    .inp-m:focus{outline:none;border-color:var(--b1);background:#fff;box-shadow:0 0 0 3px rgba(69,185,230,.15);}
     .num{text-align:right;font-weight:700;}
     .num.tax{color:#6a8a9a;}
     .num.spend{color:var(--red);}
@@ -145,10 +142,45 @@
     .links-footer span{color:var(--b3);}
     footer{background:var(--dark);color:rgba(255,255,255,.4);text-align:center;padding:14px 28px;font-size:12px;font-weight:700;}
     footer span{color:var(--b3);}
+    /* Relatório Real-Time */
+    .rel-units-wrap{padding:0 28px 40px;display:flex;flex-direction:column;gap:16px;}
+    .rel-unit-section{background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(69,185,230,.12);overflow:hidden;border:1px solid #eaf6fb;}
+    .rel-unit-header{background:var(--dark);padding:13px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+    .rel-unit-name{font-family:'Bebas Neue',cursive;font-size:17px;color:#fff;letter-spacing:.5px;}
+    .rel-mgr-link{font-size:11px;color:var(--b3);font-weight:700;text-decoration:none;opacity:.7;white-space:nowrap;}
+    .rel-mgr-link:hover{opacity:1;color:var(--b1);}
+    .rel-unit-loading{padding:20px;text-align:center;color:#aaa;font-size:12px;font-weight:700;}
+    .rel-unit-metrics{display:grid;grid-template-columns:repeat(6,1fr);border-bottom:1px solid var(--b5);}
+    .rel-metric{padding:11px 14px;border-right:1px solid var(--b5);}
+    .rel-metric:last-child{border-right:none;}
+    .rel-m-lbl{display:block;font-size:9px;color:#aaa;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
+    .rel-m-val{font-family:'Bebas Neue',cursive;font-size:19px;color:var(--dark);letter-spacing:.4px;}
+    .rel-m-val.spend{color:var(--red);}
+    .rel-ads-section{padding:12px 18px 14px;}
+    .rel-ads-title{font-size:10px;font-weight:800;text-transform:uppercase;color:var(--b1);letter-spacing:.8px;margin-bottom:8px;}
+    .rel-ad-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f0f8fc;}
+    .rel-ad-item:last-child{border-bottom:none;}
+    .rel-ad-rank{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;flex-shrink:0;}
+    .rel-ad-rank.r1{background:#f5a623;color:#fff;}
+    .rel-ad-rank.r2{background:#9b9b9b;color:#fff;}
+    .rel-ad-rank.r3{background:#cd7f32;color:#fff;}
+    .rel-ad-thumb{width:42px;height:42px;object-fit:cover;border-radius:7px;flex-shrink:0;background:var(--b5);}
+    .rel-ad-info{flex:1;min-width:0;}
+    .rel-ad-name{font-weight:800;font-size:12px;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .rel-ad-metrics{font-size:11px;color:#888;font-weight:600;margin-top:2px;}
+    .rel-nodata{padding:16px;text-align:center;color:#bbb;font-size:12px;font-weight:700;}
+    .rel-prog-wrap{background:#fff;border-bottom:1px solid var(--b5);padding:8px 28px;display:none;align-items:center;gap:12px;font-size:12px;font-weight:700;color:#666;}
+    .rel-prog-wrap.show{display:flex;}
+    .rel-prog-bar{flex:1;height:4px;background:var(--b5);border-radius:3px;overflow:hidden;}
+    .rel-prog-fill{height:100%;background:linear-gradient(90deg,var(--b1),#2292c4);border-radius:3px;transition:.3s;}
+    .rel-autorefresh-lbl{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;cursor:pointer;margin-left:4px;}
+    .rel-autorefresh-lbl input{cursor:pointer;}
+    @media(max-width:900px){.rel-unit-metrics{grid-template-columns:repeat(3,1fr);}}
+    @media(max-width:560px){.rel-unit-metrics{grid-template-columns:repeat(2,1fr);}}
     @media(max-width:768px){
       .topbar{padding:0 14px;}
       .tab-btn{padding:0 12px;font-size:11px;}
-      .subheader,.controls,.cards-grid,.tbl-wrap,.insights-grid,.metrics-grid,.best-ads-grid,.camp-filters,.camp-kpi-grid,.err-banner{padding-left:14px;padding-right:14px;}
+      .subheader,.controls,.cards-grid,.tbl-wrap,.insights-grid,.metrics-grid,.best-ads-grid,.camp-filters,.camp-kpi-grid,.err-banner,.rel-units-wrap,.rel-prog-wrap{padding-left:14px;padding-right:14px;}
     }
   </style>
 </head>
@@ -169,6 +201,7 @@
     <button class="tab-btn" onclick="goTab('campanhas',this)">📋 Campanhas</button>
     <button class="tab-btn" onclick="goTab('links',this)">🔗 Central de Links</button>
     <button class="tab-btn" onclick="goTab('trafego-julho',this)">🗓️ Estrutura de Tráfego — Julho</button>
+    <button class="tab-btn" onclick="goTab('relatorio',this)">📈 Relatório Real-Time <span class="badge">LIVE</span></button>
   </nav>
   <div class="srv-status"><div class="srv-dot"></div>API conectada</div>
 </div>
@@ -218,18 +251,17 @@
   <div class="tbl-wrap">
     <table>
       <thead><tr>
-        <th>#</th>
-        <th class="sortable" data-sort="name" onclick="setSort('name')">Unidade <span class="s-ind">▲▼</span></th>
-        <th class="r sortable" data-sort="mensal" onclick="setSort('mensal')">Valor Mensal <span class="s-ind">▲▼</span></th>
-        <th class="r sortable" data-sort="tax" onclick="setSort('tax')">Após Imposto <span style="opacity:.5;font-weight:400">(−12%)</span> <span class="s-ind">▲▼</span></th>
-        <th class="r sortable" data-sort="spend" onclick="setSort('spend')">Qto Investiu <span style="opacity:.5;font-weight:400">/ período</span> <span class="s-ind">▲▼</span></th>
-        <th class="r sortable" data-sort="balance" onclick="setSort('balance')">Saldo Disponível <span style="opacity:.5;font-weight:400">/ conta</span> <span class="s-ind">▲▼</span></th>
+        <th>#</th><th>Unidade</th>
+        <th class="r">Valor Mensal</th>
+        <th class="r">Após Imposto <span style="opacity:.5;font-weight:400">(−12%)</span></th>
+        <th class="r">Qto Investiu <span style="opacity:.5;font-weight:400">/ período</span></th>
+        <th class="r">Saldo Disponível <span style="opacity:.5;font-weight:400">/ conta</span></th>
       </tr></thead>
       <tbody id="tbl-body"></tbody>
     </table>
   </div>
   <div style="padding:0 28px 20px;font-size:11px;color:#ccc;text-align:right;font-weight:700;">
-    * Saldo = crédito pré-pago disponível. <span style="color:var(--red);">Vermelho = saldo abaixo de R$ 200</span>. Contas "cartão" = pós-pago. Clique nos títulos das colunas para ordenar.
+    * Saldo = crédito pré-pago disponível. Contas "cartão" = pós-pago.
   </div>
 </div>
 
@@ -908,82 +940,86 @@
   </div>
 </div>
 
+<div id="tab-relatorio" class="tab-page">
+  <div class="subheader">
+    <div>
+      <div class="sh-title">Relatório em Tempo Real</div>
+      <div class="sh-sub">Métricas de todas as unidades · Meta Ads · Atualizado ao vivo</div>
+    </div>
+    <div class="sh-right" id="rel-date-display"></div>
+  </div>
+  <div class="controls">
+    <label>📅 Período:</label>
+    <select class="sel" id="rel-preset" onchange="onRelDateChange()">
+      <option value="this_month">Este mês</option>
+      <option value="last_month">Mês passado</option>
+      <option value="last_7d">Últimos 7 dias</option>
+      <option value="last_30d">Últimos 30 dias</option>
+      <option value="last_14d">Últimos 14 dias</option>
+      <option value="today">Hoje</option>
+      <option value="yesterday">Ontem</option>
+      <option value="this_year">Este ano</option>
+      <option value="maximum">Máximo</option>
+      <option value="custom">Personalizado</option>
+    </select>
+    <div class="custom-dt" id="rel-custom-dt">
+      <input type="date" id="rel-since"/>
+      <span style="color:#aaa;font-weight:700">até</span>
+      <input type="date" id="rel-until"/>
+      <button class="btn btn-blue" onclick="relFetch()">Buscar</button>
+    </div>
+    <button class="btn btn-dark" onclick="relFetch()">🔄 Atualizar</button>
+    <label class="rel-autorefresh-lbl">
+      <input type="checkbox" id="rel-autorefresh" onchange="toggleRelAutoRefresh()"> Auto-refresh 5min
+    </label>
+    <div class="last-up" id="rel-last-up"></div>
+  </div>
+  <div class="rel-prog-wrap" id="rel-prog-wrap">
+    <div class="rel-prog-bar"><div class="rel-prog-fill" id="rel-prog-fill"></div></div>
+    <span id="rel-prog-lbl">Carregando…</span>
+  </div>
+  <div class="cards-grid">
+    <div class="card">    <div class="lbl">Total Investido</div><div class="val" id="rel-total-spend">— —</div><div class="sub" id="rel-period-sub">no período</div></div>
+    <div class="card c2"><div class="lbl">Alcance Total</div>   <div class="val" id="rel-total-reach">— —</div><div class="sub">pessoas únicas</div></div>
+    <div class="card c3"><div class="lbl">Impressões Totais</div><div class="val" id="rel-total-impr">— —</div><div class="sub">todas as unidades</div></div>
+    <div class="card c4"><div class="lbl">Cliques Totais</div>  <div class="val" id="rel-total-clicks">— —</div><div class="sub">em todos os anúncios</div></div>
+  </div>
+  <div class="rel-units-wrap" id="rel-units-wrap">
+    <div style="padding:40px;text-align:center;color:#bbb;font-weight:700;">Clique em <strong>Atualizar</strong> para carregar o relatório.</div>
+  </div>
+</div>
+
 <footer>A gente quer sabor. A gente quer <span>Berry's</span>. 🩵 &nbsp;·&nbsp; Painel Interno Franqueadora</footer>
 
 <script>
-// mensal = investimento fixo contratado por unidade (R$/mês)
 const ACCOUNTS = [
-  { name:"Berry's MOC Avenida",           id:"980007099641939",   mensal:5000, mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=980007099641939" },
-  { name:"Berry's MOC Centro",             id:"26769229962779082", mensal:2000, mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=26769229962779082" },
-  { name:"Berry's Goiânia Alto da Glória", id:"1572310324316523",  mensal:1000, mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1572310324316523" },
-  { name:"Berry's Guanambi",               id:"3413870375457406",  mensal:1000, mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=3413870375457406" },
-  { name:"Berry's Maceió",                 id:"3407509682745878",  mensal:1500, mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=3407509682745878" },
-  { name:"Berry's Savassi",                id:"385985127004742",   mensal:1500, mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=385985127004742",  card:true },
-  { name:"Berry's Luiz Eduardo Magalhães", id:null, mensal:1000, mgr:null },
-  { name:"Berry's Indaiatuba",             id:null, mensal:1000, mgr:null },
-  { name:"Berry's Recife",                 id:"1320841319338526",  mensal:1000, mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1320841319338526", card:true },
-  { name:"Berry's Bocaiuva",               id:"1945459296360552",  mensal:1000, mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1945459296360552" },
-  { name:"Berry's Campinas",               id:"815737430504184",   mensal:1000, mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=815737430504184" },
-  { name:"Berry's Pirapora",               id:"898087053113777",   mensal:1000, mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=898087053113777" },
-  { name:"Berry's Uberaba",                id:"5326782910767622",  mensal:1000, mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=5326782910767622" },
-  { name:"Berry's Januária",               id:"1185830483132999",  mensal:1000, mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1185830483132999" },
-  { name:"Berry's Aracaju",                id:"855614106933266",   mensal:1000, mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=855614106933266" },
-  { name:"Berry's Salinas",                id:"1675046163715555",  mensal:1000, mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1675046163715555" },
-  { name:"Berry's Contagem",               id:"1512851600567325",  mensal:1000, mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1512851600567325" },
-  { name:"Berry's Janauba",                id:"988118436916274",   mensal:1000, mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=988118436916274" },
-  { name:"Berry's MOC Shopping",           id:"3794589237361601",  mensal:1000, mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=3794589237361601" },
-  { name:"Berry's Anápolis",               id:"547206184401772",   mensal:1000, mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=547206184401772" },
-  { name:"Berry's Conquista",              id:"718790137924927",   mensal:1000, mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=718790137924927" },
-  { name:"Berry's Feira de Santana",       id:"1715718849282094",  mensal:1000, mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1715718849282094" },
-  { name:"Berry's Porto Seguro",           id:"505755245757325",   mensal:600,  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=505755245757325" },
-  { name:"Berry's Lauro de Freitas",       id:"930248282851717",   mensal:1000, mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=930248282851717" },
-  { name:"Berry's Salvador",               id:"1228370282243542",  mensal:2000, mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1228370282243542" },
-  { name:"Berry's Balneário",              id:"364524186711060",   mensal:1000, mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=364524186711060" },
-  { name:"Berry's Águas Claras",           id:"477466964832908",   mensal:600,  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=477466964832908" },
+  { name:"Berry's MOC Avenida",           id:"980007099641939",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=980007099641939" },
+  { name:"Berry's MOC Centro",             id:"26769229962779082", mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=26769229962779082" },
+  { name:"Berry's Goiânia Alto da Glória", id:"1572310324316523",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1572310324316523" },
+  { name:"Berry's Guanambi",               id:"3413870375457406",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=3413870375457406" },
+  { name:"Berry's Maceió",                 id:"3407509682745878",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=3407509682745878" },
+  { name:"Berry's Savassi",                id:"385985127004742",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=385985127004742",  card:true },
+  { name:"Berry's Luiz Eduardo Magalhães", id:null, mgr:null },
+  { name:"Berry's Recife",                 id:"1320841319338526",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1320841319338526", card:true },
+  { name:"Berry's Bocaiuva",               id:"1945459296360552",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1945459296360552" },
+  { name:"Berry's Campinas",               id:"815737430504184",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=815737430504184" },
+  { name:"Berry's Pirapora",               id:"898087053113777",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=898087053113777" },
+  { name:"Berry's Uberaba",                id:"5326782910767622",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=5326782910767622" },
+  { name:"Berry's Januária",               id:"1185830483132999",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1185830483132999" },
+  { name:"Berry's Aracaju",                id:"855614106933266",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=855614106933266" },
+  { name:"Berry's Salinas",                id:"1675046163715555",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1675046163715555" },
+  { name:"Berry's Contagem",               id:"1512851600567325",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1512851600567325" },
+  { name:"Berry's Janauba",                id:"988118436916274",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=988118436916274" },
+  { name:"Berry's MOC Shopping",           id:"3794589237361601",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=3794589237361601" },
+  { name:"Berry's Anápolis",               id:"547206184401772",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=547206184401772" },
+  { name:"Berry's Conquista",              id:"718790137924927",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=718790137924927" },
+  { name:"Berry's Feira de Santana",       id:"1715718849282094",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1715718849282094" },
+  { name:"Berry's Porto Seguro",           id:"505755245757325",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=505755245757325" },
+  { name:"Berry's Lauro de Freitas",       id:"930248282851717",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=930248282851717" },
+  { name:"Berry's Salvador",               id:"1228370282243542",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1228370282243542" },
+  { name:"Berry's Balneário",              id:"364524186711060",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=364524186711060" },
+  { name:"Berry's Águas Claras",           id:"477466964832908",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=477466964832908" },
 ];
-
-// Valor mensal é FIXO (definido em ACCOUNTS), sem edição manual
-function getMensal(acc) { return acc.mensal || 0; }
-
-// ── Ordenação da tabela de saldos ──
-let sortState = { key: null, dir: 1 }; // dir: 1 = crescente, -1 = decrescente
-
-function sortVal(acc, key) {
-  const d = fetchedData[acc.id] || {};
-  switch (key) {
-    case 'name':    return acc.name.toLowerCase();
-    case 'mensal':  return getMensal(acc);
-    case 'tax':     return getMensal(acc) * 0.88;
-    case 'spend':   return (acc.id && d.spend !== undefined && !isNaN(d.spend)) ? d.spend : null;
-    case 'balance': return (acc.id && !acc.card && !d.postpaid && d.balance !== undefined && !isNaN(d.balance)) ? d.balance : null;
-  }
-  return null;
-}
-
-function sortedAccounts() {
-  if (!sortState.key) return ACCOUNTS;
-  const k = sortState.key, dir = sortState.dir;
-  return [...ACCOUNTS].sort((a, b) => {
-    const va = sortVal(a, k), vb = sortVal(b, k);
-    if (va === null && vb === null) return 0;
-    if (va === null) return 1;  // sem valor (erro/cartão/sem conta) sempre no fim
-    if (vb === null) return -1;
-    if (va < vb) return -1 * dir;
-    if (va > vb) return  1 * dir;
-    return 0;
-  });
-}
-
-function setSort(key) {
-  if (sortState.key === key) sortState.dir = -sortState.dir;
-  else { sortState.key = key; sortState.dir = key === 'name' ? 1 : -1; } // texto começa A→Z, números do maior p/ menor
-  document.querySelectorAll('#tab-saldos th.sortable').forEach(th => {
-    const active = th.dataset.sort === key;
-    th.classList.toggle('sorted', active);
-    th.querySelector('.s-ind').textContent = active ? (sortState.dir === 1 ? '▲' : '▼') : '▲▼';
-  });
-  renderSaldosTable();
-}
 
 let fetchedData = {};
 
@@ -1014,33 +1050,25 @@ async function apiFetch(account, path, params={}) {
   return j;
 }
 
-// Extrai valor monetário de textos como "Saldo disponível (R$1.500,00)"
-// ou "Available Balance (R$1,500.00)". Retorna null se não houver valor.
-function parseMoney(str) {
-  if (!str) return null;
-  const m = String(str).match(/(?:R\$|BRL|US\$|\$)\s*([\d][\d.,]*)/);
-  if (!m) return null;
-  let s = m[1];
-  const lc = s.lastIndexOf(','), ld = s.lastIndexOf('.');
-  if (lc > ld) s = s.replace(/\./g, '').replace(',', '.'); // formato pt-BR: 1.500,00
-  else         s = s.replace(/,/g, '');                    // formato en-US: 1,500.00
-  const v = parseFloat(s);
-  return isNaN(v) ? null : v;
-}
-
-// IMPORTANTE: a API da Meta NÃO tem campo numérico com o saldo pré-pago.
-// - "balance" na conta = valor DEVIDO (fatura em aberto), não saldo disponível.
-// - O nó funding_source não é acessível diretamente (erro de permissão).
-// O saldo pré-pago só aparece em funding_source_details.display_string,
-// ex.: "Saldo disponível (R$1.500,00)" — por isso lemos e interpretamos esse texto.
 async function fetchBal(id) {
-  const acct = await apiFetch(id, '', { fields: 'funding_source_details,is_prepay_account' });
-  const fsd  = acct.funding_source_details || {};
-  const v    = parseMoney(fsd.display_string);
-  if (v != null) return { balance: v };
-  if (acct.is_prepay_account === false) return { postpaid: true }; // conta pós-paga (cartão/fatura)
-  if (!acct.funding_source_details) throw new Error('sem forma de pagamento');
-  throw new Error('saldo não exposto: ' + (fsd.display_string || 'sem detalhe'));
+  const acct = await apiFetch(id, '', { fields: 'funding_source' });
+  if (acct.funding_source) {
+    try {
+      const qs = new URLSearchParams({ account: id, node: acct.funding_source, fields: 'balance' });
+      const r = await fetch(`/api/meta?${qs}`);
+      const fs = await r.json();
+      if (!fs.error && fs.balance != null) {
+        const raw = parseFloat(fs.balance);
+        if (!isNaN(raw)) return raw / 100;
+      }
+    } catch(e) {
+      console.warn('[funding_source balance]', e.message);
+    }
+  }
+  const j = await apiFetch(id, '', { fields: 'balance' });
+  const raw = parseFloat(j.balance);
+  if (isNaN(raw)) throw new Error('balance indisponível');
+  return raw / 100;
 }
 
 async function fetchSpend(id, preset) {
@@ -1076,7 +1104,7 @@ async function fetchCampaigns(id, preset) {
 async function fetchAccountData(id, preset, fields=[]) {
   const out = {};
   const proms = [];
-  if (fields.includes('balance'))  proms.push(fetchBal(id).then(v=>Object.assign(out,v)).catch(e=>{out.balErr=e.message;}));
+  if (fields.includes('balance'))  proms.push(fetchBal(id).then(v=>out.balance=v).catch(e=>{out.balance=0;out.balErr=e.message;}));
   if (fields.includes('spend'))    proms.push(fetchSpend(id,preset).then(v=>out.spend=v).catch(e=>out.spendErr=e.message));
   if (fields.includes('insights')) proms.push(fetchInsights(id,preset).then(v=>Object.assign(out,v)).catch(()=>{}));
   if (fields.includes('campaigns'))proms.push(fetchCampaigns(id,preset).then(v=>out.campaigns=v).catch(()=>out.campaigns=[]));
@@ -1087,8 +1115,8 @@ async function fetchAccountData(id, preset, fields=[]) {
 function renderSaldosTable() {
   const tb = document.getElementById('tbl-body');
   tb.innerHTML = '';
-  sortedAccounts().forEach((acc,i) => {
-    const m = getMensal(acc);
+  ACCOUNTS.forEach((acc,i) => {
+    const m = parseFloat(localStorage.getItem('m_'+(acc.id||acc.name))||'0')||0;
     const d = fetchedData[acc.id]||{};
     const tr = document.createElement('tr');
     const tn = document.createElement('td');
@@ -1098,11 +1126,14 @@ function renderSaldosTable() {
     tname.innerHTML = `<div class="sname">${acc.name}${acc.card?' <span class="pill pill-card">cartão</span>':''}</div>`
       +(acc.mgr?`<a class="slink" href="${acc.mgr}" target="_blank">↗ Gerenciador</a>`:'')
       +(!acc.id?'<span class="pill pill-unk">sem conta</span>':'');
-    const tmensal = document.createElement('td');
-    tmensal.className='num'; tmensal.style.color='var(--dark)';
-    tmensal.textContent = m ? fmt(m) : '—';
+    const tmensal = document.createElement('td'); tmensal.style.textAlign='right';
+    const inp = document.createElement('input');
+    inp.type='number'; inp.className='inp-m'; inp.value=m||''; inp.placeholder='0,00';
+    inp.min='0'; inp.step='100'; inp.dataset.key=acc.id||acc.name;
+    inp.addEventListener('change', onMensalChange);
+    tmensal.appendChild(inp);
     const ttax = document.createElement('td');
-    ttax.className='num tax';
+    ttax.className='num tax'; ttax.id='tax_'+(acc.id||acc.name).replace(/\W/g,'_');
     ttax.textContent = m ? fmt(m*0.88) : '—';
     const tspend = document.createElement('td'); tspend.id='spend_'+(acc.id||'na'+i);
     paintSpend(tspend, acc, d);
@@ -1139,7 +1170,6 @@ function paintSpend(td, acc, d) {
 function paintBalance(td, acc, d) {
   if (acc.card) { td.innerHTML='<span class="pill pill-card">cartão</span>'; return; }
   if (!acc.id)  { td.innerHTML='<span class="cell-na">—</span>'; return; }
-  if (d.postpaid){ td.style.textAlign='right'; td.innerHTML='<span class="pill pill-card">pós-pago</span>'; return; }
   if (d.loading){ td.innerHTML='<div class="cell-load"><span class="spin"></span></div>'; return; }
   if (d.balErr) {
     console.warn('[balance]', acc.name, d.balErr);
@@ -1147,8 +1177,16 @@ function paintBalance(td, acc, d) {
     td.innerHTML=`<span style="color:#fc8181;font-size:11px;font-weight:800;">⚠ ${errLabel(d.balErr)}</span>`;
     return;
   }
-  if (d.balance!==undefined) { td.className = d.balance < 200 ? 'num low' : 'num bal'; td.textContent=fmt(d.balance); return; }
+  if (d.balance!==undefined) { td.className=d.balance>0?'num bal':'num zero'; td.textContent=fmt(d.balance); return; }
   td.innerHTML='<span class="cell-na">—</span>';
+}
+
+function onMensalChange(e) {
+  const v=parseFloat(e.target.value)||0, key=e.target.dataset.key;
+  localStorage.setItem('m_'+key, v);
+  const el=document.getElementById('tax_'+key.replace(/\W/g,'_'));
+  if(el) el.textContent = v ? fmt(v*0.88) : '—';
+  updateSaldosSummary();
 }
 
 function onDateChange() {
@@ -1195,7 +1233,7 @@ function refreshCells(id) {
 function updateSaldosSummary() {
   let tm=0,tt=0,ti=0,tb=0,hi=false,hb=false;
   ACCOUNTS.forEach(acc => {
-    const v = getMensal(acc);
+    const v = parseFloat(localStorage.getItem('m_'+(acc.id||acc.name))||'0')||0;
     tm+=v; tt+=v*0.88;
     if (acc.id) {
       const d = fetchedData[acc.id]||{};
@@ -1298,6 +1336,177 @@ async function campFetch() {
   });
   if(!tb.children.length) tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:30px;color:#bbb;font-weight:700;">Nenhuma campanha encontrada.</td></tr>';
   document.getElementById('camp-last-up').textContent='Atualizado às '+new Date().toLocaleTimeString('pt-BR');
+}
+
+/* ─── RELATÓRIO REAL-TIME ──────────────────────────────────────────────── */
+let relAutoTimer = null;
+
+function onRelDateChange() {
+  const v = document.getElementById('rel-preset').value;
+  document.getElementById('rel-custom-dt').classList.toggle('show', v === 'custom');
+  if (v !== 'custom') relFetch();
+}
+
+function toggleRelAutoRefresh() {
+  const on = document.getElementById('rel-autorefresh').checked;
+  if (on) {
+    relFetch();
+    relAutoTimer = setInterval(relFetch, 5 * 60 * 1000);
+  } else {
+    clearInterval(relAutoTimer);
+    relAutoTimer = null;
+  }
+}
+
+function getRelDateParams() {
+  const p = document.getElementById('rel-preset').value;
+  if (p === 'custom') {
+    const s = document.getElementById('rel-since').value;
+    const u = document.getElementById('rel-until').value;
+    if (!s || !u) return null;
+    return { time_range: JSON.stringify({ since: s, until: u }) };
+  }
+  return { preset: p };
+}
+
+async function fetchRelInsights(id, dateParams) {
+  const j = await apiFetch(id, 'insights', { fields: 'spend,impressions,reach,clicks,cpm,ctr,cpc', ...dateParams });
+  if (!j.data?.length) return {};
+  const d = j.data[0];
+  return {
+    spend: parseFloat(d.spend) || 0,
+    impressions: parseInt(d.impressions) || 0,
+    reach: parseInt(d.reach) || 0,
+    clicks: parseInt(d.clicks) || 0,
+    cpm: parseFloat(d.cpm) || 0,
+    ctr: parseFloat(d.ctr) || 0,
+    cpc: parseFloat(d.cpc) || 0
+  };
+}
+
+async function fetchRelTopAds(id, dateParams) {
+  try {
+    const j = await apiFetch(id, 'ads', {
+      fields: 'name,creative{thumbnail_url},insights{spend,reach,impressions,clicks}',
+      limit: 50,
+      ...dateParams
+    });
+    const ads = (j.data || []).filter(a => a.insights?.data?.[0]?.spend > 0);
+    return ads.sort((a, b) =>
+      (parseFloat(b.insights.data[0].spend) || 0) - (parseFloat(a.insights.data[0].spend) || 0)
+    ).slice(0, 3);
+  } catch(e) {
+    return [];
+  }
+}
+
+function renderRelUnit(acc, insights, topAds, hasData) {
+  const section = document.createElement('div');
+  section.className = 'rel-unit-section';
+
+  const header = `<div class="rel-unit-header">
+    <div class="rel-unit-name">${acc.name}</div>
+    ${acc.mgr ? `<a class="rel-mgr-link" href="${acc.mgr}" target="_blank">↗ Gerenciador</a>` : ''}
+  </div>`;
+
+  if (!hasData) {
+    section.innerHTML = header + `<div class="rel-nodata">Nenhuma métrica encontrada para o período selecionado.</div>`;
+    return section;
+  }
+
+  const metrics = `<div class="rel-unit-metrics">
+    <div class="rel-metric"><span class="rel-m-lbl">💰 Investido</span><span class="rel-m-val spend">${fmt(insights.spend)}</span></div>
+    <div class="rel-metric"><span class="rel-m-lbl">👥 Alcance</span><span class="rel-m-val">${fmtN(insights.reach)}</span></div>
+    <div class="rel-metric"><span class="rel-m-lbl">👁 Impressões</span><span class="rel-m-val">${fmtN(insights.impressions)}</span></div>
+    <div class="rel-metric"><span class="rel-m-lbl">🖱 Cliques</span><span class="rel-m-val">${fmtN(insights.clicks)}</span></div>
+    <div class="rel-metric"><span class="rel-m-lbl">CPM</span><span class="rel-m-val">${fmt(insights.cpm)}</span></div>
+    <div class="rel-metric"><span class="rel-m-lbl">CTR</span><span class="rel-m-val">${fmtPct(insights.ctr)}</span></div>
+  </div>`;
+
+  const rankCls = ['r1','r2','r3'];
+  const adsRows = topAds.length ? topAds.map((ad, i) => {
+    const ins = ad.insights.data[0];
+    const thumb = ad.creative?.thumbnail_url;
+    const sp  = parseFloat(ins.spend) || 0;
+    const rch = parseInt(ins.reach) || 0;
+    const imp = parseInt(ins.impressions) || 0;
+    const clk = parseInt(ins.clicks) || 0;
+    return `<div class="rel-ad-item">
+      <div class="rel-ad-rank ${rankCls[i]}">${i+1}</div>
+      ${thumb
+        ? `<img class="rel-ad-thumb" src="${thumb}" onerror="this.style.display='none'" loading="lazy"/>`
+        : `<div class="rel-ad-thumb"></div>`}
+      <div class="rel-ad-info">
+        <div class="rel-ad-name">${ad.name}</div>
+        <div class="rel-ad-metrics">${fmt(sp)} &nbsp;·&nbsp; ${fmtN(rch)} alcance &nbsp;·&nbsp; ${fmtN(imp)} imp. &nbsp;·&nbsp; ${fmtN(clk)} cliques</div>
+      </div>
+    </div>`;
+  }).join('') : `<div class="rel-nodata" style="padding:10px 0;">Nenhum anúncio com gasto no período.</div>`;
+
+  section.innerHTML = header + metrics +
+    `<div class="rel-ads-section"><div class="rel-ads-title">🏆 Melhores Anúncios</div>${adsRows}</div>`;
+  return section;
+}
+
+async function relFetch() {
+  const dateParams = getRelDateParams();
+  if (!dateParams) { alert('Preencha as datas de início e fim.'); return; }
+
+  const valid = ACCOUNTS.filter(a => a.id && !a.card);
+  const wrap  = document.getElementById('rel-units-wrap');
+  wrap.innerHTML = '';
+
+  const pw = document.getElementById('rel-prog-wrap');
+  const pf = document.getElementById('rel-prog-fill');
+  const pl = document.getElementById('rel-prog-lbl');
+  pw.classList.add('show');
+  pf.style.width = '0%';
+
+  let totalSpend = 0, totalReach = 0, totalImpr = 0, totalClicks = 0;
+  let done = 0;
+
+  for (let i = 0; i < valid.length; i += 3) {
+    await Promise.all(valid.slice(i, i + 3).map(async acc => {
+      const placeholder = document.createElement('div');
+      placeholder.className = 'rel-unit-section';
+      placeholder.innerHTML = `<div class="rel-unit-header"><div class="rel-unit-name">${acc.name}</div></div>
+        <div class="rel-unit-loading"><span class="spin"></span> Carregando…</div>`;
+      wrap.appendChild(placeholder);
+
+      let ins = {}, topAds = [];
+      try {
+        [ins, topAds] = await Promise.all([
+          fetchRelInsights(acc.id, dateParams),
+          fetchRelTopAds(acc.id, dateParams)
+        ]);
+      } catch(e) { console.warn('[rel]', acc.name, e.message); }
+
+      const hasData = ins.spend > 0 || ins.impressions > 0;
+      totalSpend  += ins.spend  || 0;
+      totalReach  += ins.reach  || 0;
+      totalImpr   += ins.impressions || 0;
+      totalClicks += ins.clicks || 0;
+
+      const card = renderRelUnit(acc, ins, topAds, hasData);
+      wrap.replaceChild(card, placeholder);
+
+      done++;
+      pf.style.width = (done / valid.length * 100) + '%';
+      pl.textContent = `${done} / ${valid.length} unidades…`;
+
+      document.getElementById('rel-total-spend').textContent  = fmt(totalSpend);
+      document.getElementById('rel-total-reach').textContent  = fmtN(totalReach);
+      document.getElementById('rel-total-impr').textContent   = fmtN(totalImpr);
+      document.getElementById('rel-total-clicks').textContent = fmtN(totalClicks);
+    }));
+  }
+
+  pw.classList.remove('show');
+
+  const sel = document.getElementById('rel-preset');
+  document.getElementById('rel-period-sub').textContent = sel.options[sel.selectedIndex].text.toLowerCase();
+  document.getElementById('rel-last-up').textContent = 'Atualizado às ' + new Date().toLocaleTimeString('pt-BR');
+  document.getElementById('rel-date-display').textContent = new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
 }
 </script>
 </body>
