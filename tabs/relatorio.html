@@ -1,0 +1,61 @@
+  <div class="subheader">
+    <div>
+      <div class="sh-title">RELATÓRIO – TEMPO REAL</div>
+      <div class="sh-sub">Métricas de todas as unidades · Meta Ads · organizadas por objetivo de campanha</div>
+    </div>
+    <div class="sh-right" id="rel-date-display"></div>
+  </div>
+  <div class="controls">
+    <label>📅 Período:</label>
+    <select class="sel" id="rel-preset" onchange="onRelDateChange()">
+      <option value="this_month">Este mês</option>
+      <option value="last_month">Mês passado</option>
+      <option value="last_7d">Últimos 7 dias</option>
+      <option value="last_30d">Últimos 30 dias</option>
+      <option value="last_14d">Últimos 14 dias</option>
+      <option value="today">Hoje</option>
+      <option value="yesterday">Ontem</option>
+      <option value="this_year">Este ano</option>
+      <option value="maximum">Máximo</option>
+      <option value="custom">Personalizado</option>
+    </select>
+    <div class="custom-dt" id="rel-custom-dt">
+      <input type="date" id="rel-since"/>
+      <span style="color:#aaa;font-weight:700">até</span>
+      <input type="date" id="rel-until"/>
+      <button class="btn btn-blue" onclick="relFetch()">Buscar</button>
+    </div>
+    <button class="btn btn-dark" onclick="relFetch()">🔄 Atualizar</button>
+    <label class="rel-autorefresh-lbl">
+      <input type="checkbox" id="rel-autorefresh" onchange="toggleRelAutoRefresh()"> Auto-refresh 5min
+    </label>
+    <div class="last-up" id="rel-last-up"></div>
+  </div>
+  <div class="rel-prog-wrap" id="rel-prog-wrap">
+    <div class="rel-prog-bar"><div class="rel-prog-fill" id="rel-prog-fill"></div></div>
+    <span id="rel-prog-lbl">Carregando…</span>
+  </div>
+  <div id="rel-err-banner" style="display:none;margin:14px 28px 0;background:#fff5f5;border:2px solid #fc8181;border-radius:14px;padding:11px 16px;font-size:12.5px;color:#c53030;font-weight:800;"></div>
+  <div class="rel-sec-head">
+    <div class="rel-sec-title">RESUMO GERAL DO GRUPO</div>
+    <div class="rel-sec-sub">Destaques consolidados de todas as unidades</div>
+  </div>
+  <div class="cards-grid">
+    <div class="card"><div class="lbl">Total Investido</div><div class="val" id="rel-total-spend">— —</div><div class="sub" id="rel-period-sub">no período</div></div>
+    <div class="card"><div class="lbl">Alcance Total</div><div class="val" id="rel-total-reach">— —</div><div class="sub">pessoas únicas</div></div>
+    <div class="card"><div class="lbl">Impressões Totais</div><div class="val" id="rel-total-impr">— —</div><div class="sub">todas as unidades</div></div>
+    <div class="card"><div class="lbl">Cliques Totais</div><div class="val" id="rel-total-clicks">— —</div><div class="sub">em todos os anúncios</div></div>
+    <div class="card"><div class="lbl">Compras no Site</div><div class="val" id="rel-total-purch">— —</div><div class="sub">campanhas de vendas</div></div>
+    <div class="card"><div class="lbl">Valor de Conversão</div><div class="val" id="rel-total-convval">— —</div><div class="sub">retorno gerado</div></div>
+  </div>
+  <div class="rel-sec-head">
+    <div class="rel-sec-title">RESULTADOS POR UNIDADE</div>
+    <div class="rel-sec-sub">Métricas exibidas conforme os objetivos das campanhas veiculadas</div>
+  </div>
+  <div class="rel-units-wrap" id="rel-units-wrap">
+    <div style="padding:40px;text-align:center;color:#9fbdd4;font-weight:800;grid-column:1/-1;">Clique em <strong>Atualizar</strong> para carregar o relatório.</div>
+  </div>
+  <div class="rel-footer-strip">
+    <div class="rel-footer-ico">🍦</div>
+    <div class="rel-footer-txt">A gente quer sabor. A gente quer <strong>Berry’s</strong>.</div>
+  </div>
