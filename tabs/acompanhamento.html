@@ -1,0 +1,29 @@
+  <div class="subheader">
+    <div><div class="sh-title">Dash de Acompanhamento</div><div class="sh-sub">Métricas principais, campanhas ativas e melhores anúncios</div></div>
+    <div class="sh-right" id="dash-date"></div>
+  </div>
+  <div class="controls">
+    <label>📅 Período:</label>
+    <select class="sel" id="dash-preset" onchange="dashFetch()">
+      <option value="this_month">Este mês</option>
+      <option value="last_month">Mês passado</option>
+      <option value="last_7d">Últimos 7 dias</option>
+      <option value="last_30d">Últimos 30 dias</option>
+    </select>
+    <button class="btn btn-dark" onclick="dashFetch()">🔄 Atualizar</button>
+    <div class="last-up" id="dash-last-up"></div>
+  </div>
+  <div class="cards-grid">
+    <div class="card">    <div class="lbl">Impressões Totais</div><div class="val" id="d-impr">— —</div><div class="sub">no período</div></div>
+    <div class="card c2"><div class="lbl">Alcance Total</div>   <div class="val" id="d-reach">— —</div><div class="sub">pessoas únicas</div></div>
+    <div class="card c3"><div class="lbl">Cliques Totais</div>  <div class="val" id="d-clicks">— —</div><div class="sub">em todos os anúncios</div></div>
+    <div class="card c4"><div class="lbl">CPM Médio</div>       <div class="val" id="d-cpm">— —</div><div class="sub">custo por mil impressões</div></div>
+  </div>
+  <div class="section-title" style="border-top:none;margin-top:0;">📡 Métricas por Unidade</div>
+  <div class="metrics-grid" id="dash-units">
+    <div style="padding:40px;text-align:center;color:#bbb;font-weight:700;grid-column:1/-1;">Clique em Atualizar para carregar as métricas.</div>
+  </div>
+  <div class="section-title">🏆 Melhores Anúncios do Período</div>
+  <div class="best-ads-grid" id="dash-best-ads">
+    <div style="padding:40px;text-align:center;color:#bbb;font-weight:700;grid-column:1/-1;">Carregue os dados para ver os melhores anúncios.</div>
+  </div>
