@@ -1,0 +1,46 @@
+  <div class="subheader">
+    <div><div class="sh-title">Insights & Padrões</div><div class="sh-sub">O que está funcionando melhor nas contas Berry's</div></div>
+  </div>
+  <div class="controls">
+    <label>📅 Período:</label>
+    <select class="sel" id="ins-preset">
+      <option value="last_month" selected>Mês passado</option>
+      <option value="this_month">Este mês</option>
+      <option value="last_30d">Últimos 30 dias</option>
+      <option value="last_7d">Últimos 7 dias</option>
+    </select>
+    <button class="btn btn-dark" onclick="insightsFetch()">🔍 Analisar</button>
+    <div class="last-up" id="ins-last-up"></div>
+  </div>
+  <div class="insights-grid" id="ins-grid">
+    <div class="insight-card" id="ins-best-ads">
+      <div class="i-cat">🏆 Melhores Anúncios do Grupo</div>
+      <h4>Top 5 do período</h4>
+      <div class="ins-loading">Clique em <strong>Analisar</strong> para carregar.</div>
+    </div>
+    <div class="insight-card" id="ins-cpc">
+      <div class="i-cat">💸 Tráfego / Cliques</div>
+      <h4>Custo por clique por unidade</h4>
+      <div class="ins-loading">Clique em <strong>Analisar</strong> para carregar.</div>
+    </div>
+    <div class="insight-card" id="ins-reach">
+      <div class="i-cat">📣 Alcance / Divulgação</div>
+      <h4>Custo por 1.000 pessoas alcançadas</h4>
+      <div class="ins-loading">Clique em <strong>Analisar</strong> para carregar.</div>
+    </div>
+    <div class="insight-card" id="ins-eng">
+      <div class="i-cat">👥 Engajamento / Seguidores</div>
+      <h4>Custo por engajamento por unidade</h4>
+      <div class="ins-loading">Clique em <strong>Analisar</strong> para carregar.</div>
+    </div>
+    <div class="insight-card" id="ins-sales">
+      <div class="i-cat">🛵 Vendas / Delivery</div>
+      <h4>ROAS e custo por compra</h4>
+      <div class="ins-loading">Clique em <strong>Analisar</strong> para carregar.</div>
+    </div>
+    <div class="insight-card" id="ins-reads">
+      <div class="i-cat">🧠 Leituras Automáticas</div>
+      <h4>O que os números do período dizem</h4>
+      <div class="ins-loading">Clique em <strong>Analisar</strong> para carregar.</div>
+    </div>
+  </div>
