@@ -175,6 +175,18 @@
     .rel-prog-fill{height:100%;background:linear-gradient(90deg,var(--b1),#2292c4);border-radius:3px;transition:.3s;}
     .rel-autorefresh-lbl{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;cursor:pointer;margin-left:4px;}
     .rel-autorefresh-lbl input{cursor:pointer;}
+    .rel-themes{padding:8px 18px 10px;display:flex;flex-wrap:wrap;gap:6px;border-bottom:1px solid var(--b5);}
+    .rel-themes-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#bbb;width:100%;margin-bottom:2px;}
+    .rel-theme-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;letter-spacing:.1px;white-space:nowrap;}
+    .rel-camps-detail{padding:0 18px 10px;border-bottom:1px solid var(--b5);}
+    .rel-camps-toggle{font-size:11px;font-weight:700;color:var(--b1);cursor:pointer;background:none;border:none;padding:0;font-family:'Nunito',sans-serif;}
+    .rel-camps-toggle:hover{text-decoration:underline;}
+    .rel-camp-list{margin-top:6px;display:none;flex-direction:column;gap:3px;}
+    .rel-camp-list.open{display:flex;}
+    .rel-camp-row{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;color:#555;}
+    .rel-camp-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+    .rel-camp-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .rel-camp-spend{color:var(--red);font-weight:800;white-space:nowrap;}
     @media(max-width:900px){.rel-unit-metrics{grid-template-columns:repeat(3,1fr);}}
     @media(max-width:560px){.rel-unit-metrics{grid-template-columns:repeat(2,1fr);}}
     @media(max-width:768px){
@@ -1384,6 +1396,49 @@ async function fetchRelInsights(id, dateParams) {
   };
 }
 
+const CAMPAIGN_THEMES = [
+  { label:'🏆 Delivery Copa',       color:'#b8860b', bg:'#fff8e8', keys:['copa do mundo','copa mundo','copa 2026','copa2026','delivery copa'] },
+  { label:'❄️ Festival de Inverno', color:'#2292c4', bg:'#e8f4fb', keys:['inverno','winter','festival de inv','festival inv'] },
+  { label:'💕 Dia dos Namorados',   color:'#e94560', bg:'#fff0f3', keys:['namorado'] },
+  { label:'🎉 Sabor Junino',        color:'#e07b00', bg:'#fff5e8', keys:['junino','junina','arraiá','arraial','festa jun','são joão','sao joao'] },
+  { label:'👥 Influenciador',       color:'#9b59b6', bg:'#f8f0ff', keys:['influenciador','influencer','ugc'] },
+  { label:'👤 Seguidores / Visitas',color:'#27ae60', bg:'#edfdf5', keys:['seguidores','visitas','visitas ao perfil','novos seguidores','perfil'] },
+  { label:'🥞 Brownie na Chapa',    color:'#7c5c2e', bg:'#fdf5eb', keys:['brownie','chapa'] },
+  { label:'🚚 Delivery Padrão',     color:'#2292c4', bg:'#eaf4fb', keys:['delivery','ifood','anota ai','anota aí','pedido'] },
+  { label:'📅 Evento',              color:'#9b59b6', bg:'#f8f0ff', keys:['evento','event','inauguração','inauguracao','pre inaugura','pré inaugura'] },
+  { label:'🎨 Temática',            color:'#f5a623', bg:'#fff8e8', keys:['temátic','tematica','thematic','vv ','[vv]'] },
+  { label:'🛍️ L2P1',               color:'#27ae60', bg:'#edfdf5', keys:['leve 2','l2p1','leve2','2 por 1','2x1'] },
+];
+
+function classifyCampaigns(campaigns) {
+  const found = [];
+  const seen  = new Set();
+  campaigns.forEach(c => {
+    const n = (c.name || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    for (const theme of CAMPAIGN_THEMES) {
+      if (seen.has(theme.label)) continue;
+      const match = theme.keys.some(k =>
+        n.includes(k.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''))
+      );
+      if (match) { found.push(theme); seen.add(theme.label); }
+    }
+  });
+  return found;
+}
+
+async function fetchRelCampaigns(id, dateParams) {
+  try {
+    const j = await apiFetch(id, 'campaigns', {
+      fields: 'name,status,insights{spend}',
+      limit: 50,
+      ...dateParams
+    });
+    return (j.data || []).filter(c =>
+      parseFloat(c.insights?.data?.[0]?.spend || 0) > 0 || c.status === 'ACTIVE'
+    );
+  } catch(e) { return []; }
+}
+
 async function fetchRelTopAds(id, dateParams) {
   try {
     const j = await apiFetch(id, 'ads', {
@@ -1400,7 +1455,7 @@ async function fetchRelTopAds(id, dateParams) {
   }
 }
 
-function renderRelUnit(acc, insights, topAds, hasData) {
+function renderRelUnit(acc, insights, topAds, campaigns, hasData) {
   const section = document.createElement('div');
   section.className = 'rel-unit-section';
 
@@ -1423,6 +1478,35 @@ function renderRelUnit(acc, insights, topAds, hasData) {
     <div class="rel-metric"><span class="rel-m-lbl">CTR</span><span class="rel-m-val">${fmtPct(insights.ctr)}</span></div>
   </div>`;
 
+  // Temas detectados
+  const themes = classifyCampaigns(campaigns);
+  const themePills = themes.length
+    ? themes.map(t => `<span class="rel-theme-pill" style="color:${t.color};background:${t.bg};">${t.label}</span>`).join('')
+    : `<span style="font-size:11px;color:#ccc;font-weight:700;">Nenhum tema identificado</span>`;
+
+  const themesBlock = `<div class="rel-themes">
+    <span class="rel-themes-lbl">Temas veiculados no período</span>
+    ${themePills}
+  </div>`;
+
+  // Lista colapsável de campanhas
+  const uid = 'camps_' + (acc.id || acc.name).replace(/\W/g,'_');
+  const statusDot = s => s === 'ACTIVE' ? '#27ae60' : s === 'PAUSED' ? '#f5a623' : '#bbb';
+  const statusLabel = s => s === 'ACTIVE' ? 'ativa' : s === 'PAUSED' ? 'pausada' : 'encerrada';
+  const campRows = campaigns.map(c => {
+    const sp = parseFloat(c.insights?.data?.[0]?.spend || 0);
+    return `<div class="rel-camp-row">
+      <div class="rel-camp-dot" style="background:${statusDot(c.status)}" title="${statusLabel(c.status)}"></div>
+      <div class="rel-camp-name" title="${c.name}">${c.name}</div>
+      ${sp > 0 ? `<div class="rel-camp-spend">${fmt(sp)}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  const campsBlock = campaigns.length ? `<div class="rel-camps-detail">
+    <button class="rel-camps-toggle" onclick="this.nextElementSibling.classList.toggle('open');this.textContent=this.nextElementSibling.classList.contains('open')?'▲ ocultar campanhas':'▼ ver ${campaigns.length} campanhas';">▼ ver ${campaigns.length} campanhas</button>
+    <div class="rel-camp-list">${campRows}</div>
+  </div>` : '';
+
   const rankCls = ['r1','r2','r3'];
   const adsRows = topAds.length ? topAds.map((ad, i) => {
     const ins = ad.insights.data[0];
@@ -1443,7 +1527,7 @@ function renderRelUnit(acc, insights, topAds, hasData) {
     </div>`;
   }).join('') : `<div class="rel-nodata" style="padding:10px 0;">Nenhum anúncio com gasto no período.</div>`;
 
-  section.innerHTML = header + metrics +
+  section.innerHTML = header + metrics + themesBlock + campsBlock +
     `<div class="rel-ads-section"><div class="rel-ads-title">🏆 Melhores Anúncios</div>${adsRows}</div>`;
   return section;
 }
@@ -1473,11 +1557,12 @@ async function relFetch() {
         <div class="rel-unit-loading"><span class="spin"></span> Carregando…</div>`;
       wrap.appendChild(placeholder);
 
-      let ins = {}, topAds = [];
+      let ins = {}, topAds = [], campaigns = [];
       try {
-        [ins, topAds] = await Promise.all([
+        [ins, topAds, campaigns] = await Promise.all([
           fetchRelInsights(acc.id, dateParams),
-          fetchRelTopAds(acc.id, dateParams)
+          fetchRelTopAds(acc.id, dateParams),
+          fetchRelCampaigns(acc.id, dateParams)
         ]);
       } catch(e) { console.warn('[rel]', acc.name, e.message); }
 
@@ -1487,7 +1572,7 @@ async function relFetch() {
       totalImpr   += ins.impressions || 0;
       totalClicks += ins.clicks || 0;
 
-      const card = renderRelUnit(acc, ins, topAds, hasData);
+      const card = renderRelUnit(acc, ins, topAds, campaigns, hasData);
       wrap.replaceChild(card, placeholder);
 
       done++;
