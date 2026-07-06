@@ -142,68 +142,125 @@
     .links-footer span{color:var(--b3);}
     footer{background:var(--dark);color:rgba(255,255,255,.4);text-align:center;padding:14px 28px;font-size:12px;font-weight:700;}
     footer span{color:var(--b3);}
-    /* Relatório Real-Time — estilo relatório Berry's */
-    #tab-relatorio{background:#daeef8;}
-    #tab-relatorio .subheader{background:linear-gradient(135deg,#0D2E3F 0%,#1a4a6e 100%);}
-    #tab-relatorio .controls{background:rgba(255,255,255,.85);backdrop-filter:blur(6px);border-bottom:1px solid #c4e4f0;}
-    #tab-relatorio .cards-grid{background:transparent;padding-bottom:4px;}
-    #tab-relatorio .card{border:1.5px solid #c8e9f5;background:#fff;}
-    .rel-units-wrap{padding:4px 24px 48px;display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:20px;}
-    /* Card principal */
-    .rel-unit-card{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 6px 24px rgba(13,46,63,.13);border:1.5px solid #c8e9f5;}
-    /* Header do card */
-    .rel-card-header{background:linear-gradient(135deg,#0D2E3F 0%,#1a4a6e 100%);padding:16px 20px;display:flex;align-items:center;gap:14px;}
-    .rel-card-icon-wrap{width:48px;height:48px;background:rgba(69,185,230,.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
-    .rel-card-title{font-family:'Bebas Neue',cursive;font-size:22px;color:#fff;letter-spacing:1px;flex:1;line-height:1.1;}
-    .rel-card-mgr{font-size:10px;color:var(--b3);font-weight:700;text-decoration:none;opacity:.7;white-space:nowrap;}
-    .rel-card-mgr:hover{opacity:1;color:var(--b1);}
-    /* Lista de métricas estilo relatório */
-    .rel-metrics-list{padding:14px 20px;border-bottom:1.5px solid #eaf6fb;}
-    .rel-metric-row{display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:1px solid #f0f8fc;}
-    .rel-metric-row:last-child{border-bottom:none;}
-    .rel-m-icon{width:30px;height:30px;border-radius:50%;background:#e8f4fb;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
-    .rel-m-text{font-size:13px;color:#555;font-weight:600;flex:1;}
-    .rel-m-text strong{color:#0D2E3F;font-weight:800;}
+    /* ══ Relatório Real-Time — identidade Berry's (estilo relatório L2P1) ══ */
+    :root{
+      --ry:#1656C0;          /* azul royal dos títulos do PDF */
+      --ry-2:#3D82DC;        /* azul médio */
+      --ry-lt:#E9F4FC;       /* chip azul claro */
+      --ry-bd:#BFE0F5;       /* borda azul clara */
+      --ry-bg:#DCEEF9;       /* fundo azul gelo */
+      --ry-navy:#0E2A4E;
+    }
+    #tab-relatorio{
+      background:
+        radial-gradient(ellipse 340px 220px at -60px -40px, #BBDDF3 0%, transparent 70%),
+        radial-gradient(ellipse 380px 260px at calc(100% + 80px) 30%, #C7E5F6 0%, transparent 70%),
+        radial-gradient(ellipse 420px 260px at 20% calc(100% + 60px), #C2E2F5 0%, transparent 70%),
+        var(--ry-bg);
+      min-height:calc(100vh - 60px);
+    }
+    #tab-relatorio .subheader{background:#fff;border-bottom:none;padding:26px 28px 14px;position:relative;}
+    #tab-relatorio .sh-title{color:var(--ry);font-size:34px;letter-spacing:1.5px;line-height:1;}
+    #tab-relatorio .sh-title::after{content:"";display:block;width:210px;height:3px;background:var(--ry-2);border-radius:2px;margin-top:8px;}
+    #tab-relatorio .sh-sub{color:#4a6a8a;font-weight:700;margin-top:8px;}
+    #tab-relatorio .sh-right{color:#7d9cb8;}
+    #tab-relatorio .controls{background:#fff;border-bottom:2px solid var(--ry-bd);}
+    #tab-relatorio .btn-dark{background:var(--ry);}
+    #tab-relatorio .btn-dark:hover{background:#0f4096;}
+    /* Destaques (cards do topo) */
+    #tab-relatorio .cards-grid{padding:20px 28px 6px;}
+    #tab-relatorio .card{border:2px solid var(--ry-bd);border-top:2px solid var(--ry-bd);border-radius:18px;box-shadow:0 4px 16px rgba(22,86,192,.08);text-align:center;padding:18px 14px 16px;}
+    #tab-relatorio .card .lbl{color:var(--ry);font-size:11px;letter-spacing:1px;}
+    #tab-relatorio .card .val{color:var(--ry-navy);font-size:30px;margin-top:6px;}
+    #tab-relatorio .card .val::after{content:"";display:block;width:44px;height:2.5px;background:var(--ry-2);border-radius:2px;margin:7px auto 0;}
+    #tab-relatorio .card .sub{color:#8fb0c9;margin-top:6px;}
+    /* Título de seção estilo PDF */
+    .rel-sec-head{padding:18px 28px 4px;}
+    .rel-sec-title{font-family:'Bebas Neue',cursive;font-size:30px;color:var(--ry);letter-spacing:1.5px;line-height:1;}
+    .rel-sec-sub{font-size:14px;color:var(--ry-2);font-weight:800;margin-top:4px;}
+    .rel-sec-sub::after{content:"";display:block;width:170px;height:2.5px;background:var(--ry-2);border-radius:2px;margin-top:7px;}
+    /* Grid de unidades */
+    .rel-units-wrap{padding:16px 28px 34px;display:grid;grid-template-columns:repeat(auto-fill,minmax(430px,1fr));gap:22px;}
+    /* Card da unidade */
+    .rel-unit-card{background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 8px 30px rgba(22,86,192,.12);border:2px solid var(--ry-bd);display:flex;flex-direction:column;}
+    .rel-card-header{padding:18px 20px 12px;display:flex;align-items:center;gap:13px;flex-wrap:wrap;}
+    .rel-card-icon-wrap{width:52px;height:52px;background:var(--ry-lt);border:2px solid var(--ry-bd);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+    .rel-card-title{font-family:'Bebas Neue',cursive;font-size:26px;color:var(--ry);letter-spacing:1px;flex:1;line-height:1.05;min-width:120px;}
+    .rel-obj-badges{display:flex;gap:6px;flex-wrap:wrap;width:100%;padding-left:65px;margin-top:-4px;}
+    .rel-obj-badge{display:inline-flex;align-items:center;gap:5px;background:var(--ry);color:#fff;font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;padding:4px 12px;border-radius:20px;}
+    .rel-obj-badge.alt{background:var(--ry-lt);color:var(--ry);border:1.5px solid var(--ry-bd);}
+    .rel-card-mgr{font-size:10px;color:var(--ry-2);font-weight:800;text-decoration:none;white-space:nowrap;border:1.5px solid var(--ry-bd);border-radius:20px;padding:4px 10px;background:var(--ry-lt);}
+    .rel-card-mgr:hover{background:var(--ry);color:#fff;}
+    /* Bloco de objetivo */
+    .rel-obj-block{margin:6px 16px 12px;border:1.5px solid var(--ry-bd);border-radius:18px;padding:13px 15px;background:#fff;}
+    .rel-obj-block-head{display:flex;align-items:center;gap:9px;margin-bottom:10px;}
+    .rel-obj-pill{background:var(--ry);color:#fff;font-family:'Bebas Neue',cursive;font-size:14px;letter-spacing:1.5px;padding:4px 15px;border-radius:9px;}
+    .rel-obj-invest{margin-left:auto;font-size:11.5px;font-weight:800;color:#4a6a8a;}
+    .rel-obj-invest strong{color:var(--ry-navy);}
+    /* Tiles de métrica (estilo página 3 do PDF) */
+    .rel-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;}
+    .rel-tile{background:#F5FAFE;border:1.5px solid var(--ry-bd);border-radius:14px;padding:9px 6px 8px;text-align:center;}
+    .rel-tile .t-ico{width:30px;height:30px;margin:0 auto 5px;background:var(--ry-lt);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;}
+    .rel-tile .t-lbl{font-size:9px;font-weight:900;color:var(--ry);text-transform:none;letter-spacing:.2px;line-height:1.25;min-height:22px;display:flex;align-items:center;justify-content:center;}
+    .rel-tile .t-val{font-family:'Bebas Neue',cursive;font-size:19px;color:var(--ry-navy);letter-spacing:.5px;margin-top:2px;line-height:1;}
+    .rel-tile.hero{background:var(--ry-lt);}
+    .rel-tile.hero .t-val{color:var(--ry);font-size:21px;}
+    /* Linhas de métrica com ícone circular (estilo página 2) */
+    .rel-metric-row{display:flex;align-items:center;gap:11px;padding:5.5px 0;}
+    .rel-m-icon{width:30px;height:30px;border-radius:9px;background:var(--ry-lt);border:1.5px solid var(--ry-bd);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+    .rel-m-text{font-size:13px;color:#33556f;font-weight:700;flex:1;border-bottom:1px solid #EDF6FC;padding-bottom:5px;}
+    .rel-metric-row:last-child .rel-m-text{border-bottom:none;}
+    .rel-m-text strong{color:var(--ry-navy);font-weight:900;}
+    /* Resumo chip */
+    .rel-resumo{margin:0 16px 12px;background:#F5FAFE;border:1.5px solid var(--ry-bd);border-radius:14px;padding:11px 14px;}
+    .rel-resumo .r-chip{display:inline-block;background:var(--ry-lt);color:var(--ry);font-size:11px;font-weight:900;padding:2px 12px;border-radius:8px;margin-bottom:6px;border:1px solid var(--ry-bd);}
+    .rel-resumo p{font-size:12.5px;color:#33556f;font-weight:600;line-height:1.55;}
     /* Temas */
-    .rel-themes-section{padding:11px 20px;border-bottom:1.5px solid #eaf6fb;}
-    .rel-section-lbl{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#aaa;margin-bottom:7px;}
+    .rel-themes-section{padding:2px 18px 10px;}
+    .rel-section-lbl{font-size:9.5px;font-weight:900;text-transform:uppercase;letter-spacing:1.2px;color:var(--ry-2);margin-bottom:7px;}
     .rel-themes-row{display:flex;flex-wrap:wrap;gap:6px;}
     .rel-theme-pill{display:inline-flex;align-items:center;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:800;white-space:nowrap;}
     /* Campanhas */
-    .rel-camps-section{padding:10px 20px;border-bottom:1.5px solid #eaf6fb;}
-    .rel-camps-toggle{font-size:11px;font-weight:700;color:var(--b1);background:none;border:none;cursor:pointer;padding:0;font-family:'Nunito',sans-serif;}
+    .rel-camps-section{padding:2px 18px 10px;}
+    .rel-camps-toggle{font-size:11px;font-weight:800;color:var(--ry);background:none;border:none;cursor:pointer;padding:0;font-family:'Nunito',sans-serif;}
     .rel-camps-toggle:hover{text-decoration:underline;}
     .rel-camp-list{display:none;flex-direction:column;gap:4px;margin-top:8px;}
     .rel-camp-list.open{display:flex;}
-    .rel-camp-row{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#555;}
+    .rel-camp-row{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#33556f;}
     .rel-camp-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
     .rel-camp-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-    .rel-camp-spend{color:var(--red);font-weight:800;white-space:nowrap;}
+    .rel-camp-obj{font-size:9px;font-weight:900;color:var(--ry);background:var(--ry-lt);border-radius:8px;padding:1px 7px;white-space:nowrap;}
+    .rel-camp-spend{color:var(--ry-navy);font-weight:900;white-space:nowrap;}
     /* Melhores anúncios */
-    .rel-ads-section{padding:14px 20px;}
-    .rel-ads-badge-wrap{display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
-    .rel-ads-badge{background:#0D2E3F;color:#fff;font-size:10px;font-weight:900;letter-spacing:1.2px;text-transform:uppercase;padding:5px 16px;border-radius:20px;}
-    .rel-ad-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f8fc;}
+    .rel-ads-section{padding:6px 18px 16px;margin-top:auto;}
+    .rel-ads-badge-wrap{display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
+    .rel-ads-badge{background:var(--ry);color:#fff;font-family:'Bebas Neue',cursive;font-size:13px;letter-spacing:2px;padding:5px 20px;border-radius:20px;}
+    .rel-ad-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #EDF6FC;}
     .rel-ad-item:last-child{border-bottom:none;}
     .rel-ad-rank{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;flex-shrink:0;}
     .rel-ad-rank.r1{background:#f5a623;color:#fff;}
     .rel-ad-rank.r2{background:#9b9b9b;color:#fff;}
     .rel-ad-rank.r3{background:#cd7f32;color:#fff;}
-    .rel-ad-thumb{width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0;background:#daeef8;}
+    .rel-ad-thumb{width:44px;height:44px;object-fit:cover;border-radius:10px;flex-shrink:0;background:var(--ry-lt);border:1.5px solid var(--ry-bd);}
     .rel-ad-info{flex:1;min-width:0;}
-    .rel-ad-name{font-weight:800;font-size:12px;color:#0D2E3F;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-    .rel-ad-metrics{font-size:11px;color:#888;font-weight:600;margin-top:2px;}
+    .rel-ad-name{font-weight:800;font-size:12px;color:var(--ry-navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .rel-ad-metrics{font-size:11px;color:#7d9cb8;font-weight:700;margin-top:2px;}
+    /* Rodapé do relatório */
+    .rel-footer-strip{margin:0 28px 40px;background:#fff;border:2px solid var(--ry-bd);border-radius:18px;padding:13px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 16px rgba(22,86,192,.08);}
+    .rel-footer-ico{width:34px;height:34px;border-radius:50%;background:var(--ry-lt);border:1.5px solid var(--ry-bd);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+    .rel-footer-txt{font-size:13.5px;font-weight:700;color:var(--ry);}
+    .rel-footer-txt strong{font-weight:900;}
     /* States */
-    .rel-nodata{padding:20px;text-align:center;color:#bbb;font-size:12px;font-weight:700;}
-    .rel-unit-loading{padding:20px;text-align:center;color:#aaa;font-size:12px;font-weight:700;}
+    .rel-nodata{padding:20px;text-align:center;color:#9fbdd4;font-size:12px;font-weight:800;}
+    .rel-unit-loading{padding:20px;text-align:center;color:#9fbdd4;font-size:12px;font-weight:800;}
     /* Progress */
-    .rel-prog-wrap{background:rgba(255,255,255,.9);border-bottom:1px solid #c4e4f0;padding:8px 28px;display:none;align-items:center;gap:12px;font-size:12px;font-weight:700;color:#666;}
+    .rel-prog-wrap{background:rgba(255,255,255,.92);border-bottom:2px solid var(--ry-bd);padding:8px 28px;display:none;align-items:center;gap:12px;font-size:12px;font-weight:800;color:#4a6a8a;}
     .rel-prog-wrap.show{display:flex;}
-    .rel-prog-bar{flex:1;height:4px;background:#c8e9f5;border-radius:3px;overflow:hidden;}
-    .rel-prog-fill{height:100%;background:linear-gradient(90deg,var(--b1),#2292c4);border-radius:3px;transition:.3s;}
+    .rel-prog-bar{flex:1;height:5px;background:var(--ry-lt);border-radius:3px;overflow:hidden;}
+    .rel-prog-fill{height:100%;background:linear-gradient(90deg,var(--ry-2),var(--ry));border-radius:3px;transition:.3s;}
     .rel-autorefresh-lbl{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;cursor:pointer;margin-left:4px;}
     .rel-autorefresh-lbl input{cursor:pointer;}
-    @media(max-width:860px){.rel-units-wrap{grid-template-columns:1fr;}}
+    @media(max-width:920px){.rel-units-wrap{grid-template-columns:1fr;}}
     @media(max-width:768px){
       .topbar{padding:0 14px;}
       .tab-btn{padding:0 12px;font-size:11px;}
@@ -970,8 +1027,8 @@
 <div id="tab-relatorio" class="tab-page">
   <div class="subheader">
     <div>
-      <div class="sh-title">Relatório em Tempo Real</div>
-      <div class="sh-sub">Métricas de todas as unidades · Meta Ads · Atualizado ao vivo</div>
+      <div class="sh-title">RELATÓRIO – TEMPO REAL</div>
+      <div class="sh-sub">Métricas de todas as unidades · Meta Ads · organizadas por objetivo de campanha</div>
     </div>
     <div class="sh-right" id="rel-date-display"></div>
   </div>
@@ -1005,14 +1062,29 @@
     <div class="rel-prog-bar"><div class="rel-prog-fill" id="rel-prog-fill"></div></div>
     <span id="rel-prog-lbl">Carregando…</span>
   </div>
+  <div id="rel-err-banner" style="display:none;margin:14px 28px 0;background:#fff5f5;border:2px solid #fc8181;border-radius:14px;padding:11px 16px;font-size:12.5px;color:#c53030;font-weight:800;"></div>
+  <div class="rel-sec-head">
+    <div class="rel-sec-title">RESUMO GERAL DO GRUPO</div>
+    <div class="rel-sec-sub">Destaques consolidados de todas as unidades</div>
+  </div>
   <div class="cards-grid">
-    <div class="card">    <div class="lbl">Total Investido</div><div class="val" id="rel-total-spend">— —</div><div class="sub" id="rel-period-sub">no período</div></div>
-    <div class="card c2"><div class="lbl">Alcance Total</div>   <div class="val" id="rel-total-reach">— —</div><div class="sub">pessoas únicas</div></div>
-    <div class="card c3"><div class="lbl">Impressões Totais</div><div class="val" id="rel-total-impr">— —</div><div class="sub">todas as unidades</div></div>
-    <div class="card c4"><div class="lbl">Cliques Totais</div>  <div class="val" id="rel-total-clicks">— —</div><div class="sub">em todos os anúncios</div></div>
+    <div class="card"><div class="lbl">Total Investido</div><div class="val" id="rel-total-spend">— —</div><div class="sub" id="rel-period-sub">no período</div></div>
+    <div class="card"><div class="lbl">Alcance Total</div><div class="val" id="rel-total-reach">— —</div><div class="sub">pessoas únicas</div></div>
+    <div class="card"><div class="lbl">Impressões Totais</div><div class="val" id="rel-total-impr">— —</div><div class="sub">todas as unidades</div></div>
+    <div class="card"><div class="lbl">Cliques Totais</div><div class="val" id="rel-total-clicks">— —</div><div class="sub">em todos os anúncios</div></div>
+    <div class="card"><div class="lbl">Compras no Site</div><div class="val" id="rel-total-purch">— —</div><div class="sub">campanhas de vendas</div></div>
+    <div class="card"><div class="lbl">Valor de Conversão</div><div class="val" id="rel-total-convval">— —</div><div class="sub">retorno gerado</div></div>
+  </div>
+  <div class="rel-sec-head">
+    <div class="rel-sec-title">RESULTADOS POR UNIDADE</div>
+    <div class="rel-sec-sub">Métricas exibidas conforme os objetivos das campanhas veiculadas</div>
   </div>
   <div class="rel-units-wrap" id="rel-units-wrap">
-    <div style="padding:40px;text-align:center;color:#bbb;font-weight:700;">Clique em <strong>Atualizar</strong> para carregar o relatório.</div>
+    <div style="padding:40px;text-align:center;color:#9fbdd4;font-weight:800;grid-column:1/-1;">Clique em <strong>Atualizar</strong> para carregar o relatório.</div>
+  </div>
+  <div class="rel-footer-strip">
+    <div class="rel-footer-ico">🍦</div>
+    <div class="rel-footer-txt">A gente quer sabor. A gente quer <strong>Berry’s</strong>.</div>
   </div>
 </div>
 
@@ -1365,7 +1437,7 @@ async function campFetch() {
   document.getElementById('camp-last-up').textContent='Atualizado às '+new Date().toLocaleTimeString('pt-BR');
 }
 
-/* ─── RELATÓRIO REAL-TIME ──────────────────────────────────────────────── */
+/* ─── RELATÓRIO REAL-TIME — métricas por objetivo de campanha ─────────── */
 let relAutoTimer = null;
 
 function onRelDateChange() {
@@ -1376,13 +1448,8 @@ function onRelDateChange() {
 
 function toggleRelAutoRefresh() {
   const on = document.getElementById('rel-autorefresh').checked;
-  if (on) {
-    relFetch();
-    relAutoTimer = setInterval(relFetch, 5 * 60 * 1000);
-  } else {
-    clearInterval(relAutoTimer);
-    relAutoTimer = null;
-  }
+  if (on) { relFetch(); relAutoTimer = setInterval(relFetch, 5 * 60 * 1000); }
+  else { clearInterval(relAutoTimer); relAutoTimer = null; }
 }
 
 function getRelDateParams() {
@@ -1396,19 +1463,48 @@ function getRelDateParams() {
   return { preset: p };
 }
 
-async function fetchRelInsights(id, dateParams) {
-  const j = await apiFetch(id, 'insights', { fields: 'spend,impressions,reach,clicks,cpm,ctr,cpc', ...dateParams });
-  if (!j.data?.length) return {};
-  const d = j.data[0];
-  return {
-    spend: parseFloat(d.spend) || 0,
-    impressions: parseInt(d.impressions) || 0,
-    reach: parseInt(d.reach) || 0,
-    clicks: parseInt(d.clicks) || 0,
-    cpm: parseFloat(d.cpm) || 0,
-    ctr: parseFloat(d.ctr) || 0,
-    cpc: parseFloat(d.cpc) || 0
-  };
+/* ── extração de actions da Meta ── */
+function getAct(actions, types) {
+  if (!Array.isArray(actions)) return 0;
+  for (const t of types) {
+    const f = actions.find(a => a.action_type === t);
+    if (f) return parseFloat(f.value) || 0;
+  }
+  return 0;
+}
+const A_PURCHASE = ['omni_purchase','purchase','offsite_conversion.fb_pixel_purchase','onsite_web_purchase'];
+const A_LPV      = ['landing_page_view'];
+const A_LINK     = ['link_click'];
+const A_ENG      = ['post_engagement'];
+const A_FOLLOW   = ['follow','like','page_like'];
+const A_LEAD     = ['lead','onsite_conversion.lead_grouped'];
+const A_MSG      = ['onsite_conversion.messaging_conversation_started_7d'];
+const A_THRU     = ['video_thruplay_watched_actions'];
+
+/* ── classificação de objetivo (campo objective da Meta + fallback pelo nome) ── */
+const OBJ_GROUPS = {
+  vendas:  { key:'vendas',  label:'VENDAS / DELIVERY',      icon:'🛵', order:1 },
+  alcance: { key:'alcance', label:'ALCANCE / DIVULGAÇÃO',   icon:'📣', order:2 },
+  trafego: { key:'trafego', label:'TRÁFEGO / VISITAS',      icon:'🖱️', order:3 },
+  engaj:   { key:'engaj',   label:'ENGAJAMENTO / SEGUIDORES',icon:'👥', order:4 },
+  leads:   { key:'leads',   label:'CADASTROS / LEADS',      icon:'📋', order:5 },
+  outros:  { key:'outros',  label:'OUTRAS CAMPANHAS',       icon:'📦', order:6 },
+};
+function classifyObjective(c) {
+  const o = (c.objective || '').toUpperCase();
+  if (['OUTCOME_SALES','CONVERSIONS','PRODUCT_CATALOG_SALES','STORE_VISITS'].includes(o)) return 'vendas';
+  if (['OUTCOME_AWARENESS','REACH','BRAND_AWARENESS'].includes(o)) return 'alcance';
+  if (['OUTCOME_TRAFFIC','LINK_CLICKS'].includes(o)) return 'trafego';
+  if (['OUTCOME_ENGAGEMENT','POST_ENGAGEMENT','PAGE_LIKES','VIDEO_VIEWS','EVENT_RESPONSES','MESSAGES'].includes(o)) return 'engaj';
+  if (['OUTCOME_LEADS','LEAD_GENERATION'].includes(o)) return 'leads';
+  // fallback pelo nome da campanha
+  const n = (c.name || '').toLowerCase();
+  if (/vendas|convers|delivery|ifood|anota|compra|l2p1|leve 2/.test(n)) return 'vendas';
+  if (/alcance|awareness|divulga/.test(n)) return 'alcance';
+  if (/tr[aá]fego|visitas ao perfil|perfil|site/.test(n)) return 'trafego';
+  if (/seguidor|engaj|curtida|mensag/.test(n)) return 'engaj';
+  if (/lead|cadastro/.test(n)) return 'leads';
+  return 'outros';
 }
 
 const CAMPAIGN_THEMES = [
@@ -1424,126 +1520,291 @@ const CAMPAIGN_THEMES = [
   { label:'🎨 Temática',            color:'#f5a623', bg:'#fff8e8', keys:['temátic','tematica','thematic','vv ','[vv]'] },
   { label:'🛍️ L2P1',               color:'#27ae60', bg:'#edfdf5', keys:['leve 2','l2p1','leve2','2 por 1','2x1'] },
 ];
-
 function classifyCampaigns(campaigns) {
-  const found = [];
-  const seen  = new Set();
+  const found = [], seen = new Set();
   campaigns.forEach(c => {
-    const n = (c.name || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    const n = (c.name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
     for (const theme of CAMPAIGN_THEMES) {
       if (seen.has(theme.label)) continue;
-      const match = theme.keys.some(k =>
-        n.includes(k.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''))
-      );
-      if (match) { found.push(theme); seen.add(theme.label); }
+      if (theme.keys.some(k => n.includes(k.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')))) {
+        found.push(theme); seen.add(theme.label);
+      }
     }
   });
   return found;
 }
 
-async function fetchRelCampaigns(id, dateParams) {
-  try {
-    const j = await apiFetch(id, 'campaigns', {
-      fields: 'name,status,insights{spend}',
-      limit: 50,
-      ...dateParams
-    });
-    return (j.data || []).filter(c =>
-      parseFloat(c.insights?.data?.[0]?.spend || 0) > 0 || c.status === 'ACTIVE'
-    );
-  } catch(e) { return []; }
+/* ── fetchers ── */
+const REL_INSIGHT_FIELDSETS = [
+  'spend,impressions,reach,frequency,clicks,cpm,ctr,cpc',
+  'spend,impressions,reach,clicks,cpm,ctr,cpc'           // fallback: conjunto original que já funcionava
+];
+async function fetchRelInsights(id, dateParams) {
+  let lastErr = null;
+  for (const fields of REL_INSIGHT_FIELDSETS) {
+    try {
+      const j = await apiFetch(id, 'insights', { fields, ...dateParams });
+      if (!j.data?.length) return {};
+      const d = j.data[0];
+      return {
+        spend: parseFloat(d.spend) || 0, impressions: parseInt(d.impressions) || 0,
+        reach: parseInt(d.reach) || 0, frequency: parseFloat(d.frequency) || 0,
+        clicks: parseInt(d.clicks) || 0, cpm: parseFloat(d.cpm) || 0,
+        ctr: parseFloat(d.ctr) || 0, cpc: parseFloat(d.cpc) || 0
+      };
+    } catch(e) { lastErr = e; console.warn('[rel insights]', id, 'fields="'+fields+'" →', e.message); }
+  }
+  throw lastErr || new Error('insights indisponíveis');
 }
 
-async function fetchRelTopAds(id, dateParams) {
-  try {
-    const j = await apiFetch(id, 'ads', {
-      fields: 'name,creative{thumbnail_url},insights{spend,reach,impressions,clicks}',
-      limit: 50,
-      ...dateParams
-    });
-    const ads = (j.data || []).filter(a => a.insights?.data?.[0]?.spend > 0);
-    return ads.sort((a, b) =>
-      (parseFloat(b.insights.data[0].spend) || 0) - (parseFloat(a.insights.data[0].spend) || 0)
-    ).slice(0, 3);
-  } catch(e) {
-    return [];
+const REL_CAMPAIGN_FIELDSETS = [
+  // completo: métricas de conversão para exibir compras/ROAS por objetivo
+  'name,status,objective,insights{spend,impressions,reach,frequency,clicks,inline_link_clicks,cpm,ctr,cpc,actions,action_values,purchase_roas}',
+  // médio: sem actions (caso o proxy bloqueie)
+  'name,status,objective,insights{spend,impressions,reach,clicks,ctr,cpc}',
+  // mínimo: o que a versão anterior usava
+  'name,status,insights{spend}'
+];
+async function fetchRelCampaigns(id, dateParams) {
+  for (const fields of REL_CAMPAIGN_FIELDSETS) {
+    try {
+      const j = await apiFetch(id, 'campaigns', { fields, limit: 50, ...dateParams });
+      return (j.data || []).filter(c =>
+        parseFloat(c.insights?.data?.[0]?.spend || 0) > 0 || c.status === 'ACTIVE'
+      );
+    } catch(e) { console.warn('[rel campaigns]', id, 'fields="'+fields+'" →', e.message); }
   }
+  return [];
+}
+
+const REL_AD_FIELDSETS = [
+  'name,creative{thumbnail_url},insights{spend,reach,impressions,clicks,actions}',
+  'name,creative{thumbnail_url},insights{spend,reach,impressions,clicks}'  // fallback: conjunto original
+];
+async function fetchRelTopAds(id, dateParams) {
+  for (const fields of REL_AD_FIELDSETS) {
+    try {
+      const j = await apiFetch(id, 'ads', { fields, limit: 50, ...dateParams });
+      const ads = (j.data || []).filter(a => a.insights?.data?.[0]?.spend > 0);
+      return ads.sort((a, b) =>
+        (parseFloat(b.insights.data[0].spend) || 0) - (parseFloat(a.insights.data[0].spend) || 0)
+      ).slice(0, 3);
+    } catch(e) { console.warn('[rel ads]', id, 'fields="'+fields+'" →', e.message); }
+  }
+  return [];
+}
+
+/* ── agregação por objetivo ── */
+function aggregateByObjective(campaigns) {
+  const groups = {};
+  campaigns.forEach(c => {
+    const ins = c.insights?.data?.[0];
+    if (!ins || !(parseFloat(ins.spend) > 0)) return;
+    const g = classifyObjective(c);
+    if (!groups[g]) groups[g] = {
+      spend:0, impressions:0, reach:0, clicks:0, linkClicks:0,
+      purchases:0, convValue:0, lpv:0, engagement:0, follows:0,
+      leads:0, msgs:0, thruplays:0, freqW:0, campaigns:[]
+    };
+    const gr = groups[g];
+    const sp = parseFloat(ins.spend) || 0;
+    gr.spend       += sp;
+    gr.impressions += parseInt(ins.impressions) || 0;
+    gr.reach       += parseInt(ins.reach) || 0;
+    gr.clicks      += parseInt(ins.clicks) || 0;
+    gr.linkClicks  += parseInt(ins.inline_link_clicks) || 0;
+    gr.purchases   += getAct(ins.actions, A_PURCHASE);
+    gr.convValue   += getAct(ins.action_values, A_PURCHASE);
+    gr.lpv         += getAct(ins.actions, A_LPV);
+    gr.engagement  += getAct(ins.actions, A_ENG);
+    gr.follows     += getAct(ins.actions, A_FOLLOW);
+    gr.leads       += getAct(ins.actions, A_LEAD);
+    gr.msgs        += getAct(ins.actions, A_MSG);
+    gr.freqW       += (parseFloat(ins.frequency) || 0) * sp;
+    gr.campaigns.push(c);
+  });
+  Object.values(groups).forEach(g => {
+    g.frequency = g.spend > 0 ? g.freqW / g.spend : 0;
+    g.cpm = g.impressions > 0 ? g.spend / g.impressions * 1000 : null;
+    g.ctr = g.impressions > 0 ? g.clicks / g.impressions * 100 : null;
+    g.cpc = g.clicks > 0 ? g.spend / g.clicks : null;
+    g.costPerPurchase = g.purchases > 0 ? g.spend / g.purchases : null;
+    g.roas = g.spend > 0 && g.convValue > 0 ? g.convValue / g.spend : null;
+    g.costPerLpv = g.lpv > 0 ? g.spend / g.lpv : null;
+    g.costPerEng = g.engagement > 0 ? g.spend / g.engagement : null;
+    g.costPerFollow = g.follows > 0 ? g.spend / g.follows : null;
+    g.costPerLead = g.leads > 0 ? g.spend / g.leads : null;
+    g.costPerReach = g.reach > 0 ? g.spend / g.reach * 1000 : null;
+  });
+  return groups;
+}
+
+/* ── UI helpers ── */
+const tile = (ico, lbl, val, hero=false) =>
+  `<div class="rel-tile${hero?' hero':''}"><div class="t-ico">${ico}</div><div class="t-lbl">${lbl}</div><div class="t-val">${val}</div></div>`;
+const mrow = (ico, lbl, val) =>
+  `<div class="rel-metric-row"><div class="rel-m-icon">${ico}</div><div class="rel-m-text">${lbl}: <strong>${val}</strong></div></div>`;
+
+/* ── bloco de métricas conforme o objetivo ── */
+function renderObjBlock(key, g) {
+  const meta = OBJ_GROUPS[key];
+  let body = '';
+  if (key === 'vendas') {
+    body = `<div class="rel-tiles">
+      ${tile('🛍️','Compras no site', fmtN(g.purchases), true)}
+      ${tile('🏷️','Custo por compra', g.costPerPurchase!=null?fmt(g.costPerPurchase):'—')}
+      ${tile('💲','Valor de conversão', g.convValue>0?fmt(g.convValue):'—')}
+      ${tile('📈','ROAS', g.roas!=null?g.roas.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—', true)}
+      ${tile('👥','Alcance', fmtN(g.reach))}
+      ${tile('👁️','Impressões', fmtN(g.impressions))}
+      ${tile('🖱️','Cliques', fmtN(g.clicks))}
+      ${tile('📊','CTR', fmtPct(g.ctr))}
+      ${tile('💸','CPC', g.cpc!=null?fmt(g.cpc):'—')}
+      ${g.lpv>0?tile('📄','Visualizações da página', fmtN(g.lpv)):''}
+      ${g.costPerLpv!=null?tile('🧾','Custo por visualização', fmt(g.costPerLpv)):''}
+      ${g.msgs>0?tile('💬','Conversas iniciadas', fmtN(g.msgs)):''}
+    </div>`;
+  } else if (key === 'alcance') {
+    body = `
+      ${mrow('👥','Alcance', fmtN(g.reach)+' pessoas')}
+      ${mrow('👁️','Impressões', fmtN(g.impressions))}
+      ${mrow('🔁','Frequência', g.frequency? g.frequency.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—')}
+      ${mrow('📊','Custo por 1.000 pessoas alcançadas', g.costPerReach!=null?fmt(g.costPerReach):'—')}
+      ${mrow('🧾','CPM', g.cpm!=null?fmt(g.cpm):'—')}
+      ${g.clicks>0?mrow('🖱️','Cliques no link', fmtN(g.clicks)):''}`;
+  } else if (key === 'trafego') {
+    body = `<div class="rel-tiles">
+      ${tile('🖱️','Cliques no link', fmtN(g.linkClicks||g.clicks), true)}
+      ${tile('💸','CPC', g.cpc!=null?fmt(g.cpc):'—')}
+      ${tile('📊','CTR', fmtPct(g.ctr))}
+      ${g.lpv>0?tile('📄','Visualizações da página', fmtN(g.lpv)):''}
+      ${g.costPerLpv!=null?tile('🧾','Custo por visualização', fmt(g.costPerLpv)):''}
+      ${tile('👥','Alcance', fmtN(g.reach))}
+      ${tile('👁️','Impressões', fmtN(g.impressions))}
+    </div>`;
+  } else if (key === 'engaj') {
+    body = `<div class="rel-tiles">
+      ${tile('👥','Engajamentos', fmtN(g.engagement), true)}
+      ${tile('🏷️','Custo por engajamento', g.costPerEng!=null?fmt(g.costPerEng):'—')}
+      ${g.follows>0?tile('➕','Seguidores / curtidas', fmtN(g.follows)):''}
+      ${g.costPerFollow!=null?tile('🧾','Custo por seguidor', fmt(g.costPerFollow)):''}
+      ${g.msgs>0?tile('💬','Conversas iniciadas', fmtN(g.msgs)):''}
+      ${tile('👤','Alcance', fmtN(g.reach))}
+      ${tile('👁️','Impressões', fmtN(g.impressions))}
+    </div>`;
+  } else if (key === 'leads') {
+    body = `<div class="rel-tiles">
+      ${tile('📋','Leads', fmtN(g.leads), true)}
+      ${tile('🏷️','Custo por lead', g.costPerLead!=null?fmt(g.costPerLead):'—')}
+      ${tile('🖱️','Cliques', fmtN(g.clicks))}
+      ${tile('📊','CTR', fmtPct(g.ctr))}
+      ${tile('👥','Alcance', fmtN(g.reach))}
+    </div>`;
+  } else {
+    body = `<div class="rel-tiles">
+      ${tile('👥','Alcance', fmtN(g.reach))}
+      ${tile('👁️','Impressões', fmtN(g.impressions))}
+      ${tile('🖱️','Cliques', fmtN(g.clicks))}
+      ${tile('🧾','CPM', g.cpm!=null?fmt(g.cpm):'—')}
+    </div>`;
+  }
+  return `<div class="rel-obj-block">
+    <div class="rel-obj-block-head">
+      <div class="rel-obj-pill">${meta.icon} ${meta.label}</div>
+      <div class="rel-obj-invest">Investimento: <strong>${fmt(g.spend)}</strong></div>
+    </div>
+    ${body}
+  </div>`;
+}
+
+/* ── resumo automático estilo PDF ── */
+function buildResumo(displayName, groups) {
+  const parts = [];
+  const v = groups.vendas, a = groups.alcance, t = groups.trafego, e = groups.engaj;
+  if (v && v.purchases > 0) {
+    parts.push(`As campanhas de vendas geraram <strong>${fmtN(v.purchases)} compra${v.purchases>1?'s':''}</strong>` +
+      (v.roas!=null ? `, com ROAS de <strong>${v.roas.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</strong> — para cada R$ 1,00 investido, retornaram ${fmt(v.roas)} em valor de conversão` : '') + '.');
+  } else if (v) {
+    parts.push('As campanhas de vendas ainda não registraram compras no período.');
+  }
+  if (a) parts.push(`No alcance, a unidade impactou <strong>${fmtN(a.reach)} pessoas</strong> a um custo de ${a.costPerReach!=null?fmt(a.costPerReach):'—'} por 1.000 alcançadas.`);
+  if (t && (t.linkClicks||t.clicks) > 0) parts.push(`O tráfego gerou <strong>${fmtN(t.linkClicks||t.clicks)} cliques</strong>${t.cpc!=null?` a ${fmt(t.cpc)} por clique`:''}.`);
+  if (e && e.follows > 0) parts.push(`Engajamento somou <strong>${fmtN(e.follows)} novos seguidores/curtidas</strong>.`);
+  if (!parts.length) return '';
+  return `<div class="rel-resumo"><span class="r-chip">Resumo:</span><p>${parts.join(' ')}</p></div>`;
 }
 
 function unitIcon(name) {
   const n = name.toLowerCase();
   if (n.includes('moc')) return '🏪';
-  if (n.includes('delivery') || n.includes('aracaju') || n.includes('recife') || n.includes('maceió') || n.includes('maceio') || n.includes('salvador')) return '🌴';
+  if (n.includes('aracaju') || n.includes('recife') || n.includes('maceió') || n.includes('maceio') || n.includes('salvador')) return '🌴';
   if (n.includes('savassi') || n.includes('contagem') || n.includes('uberaba') || n.includes('anápolis') || n.includes('anapolis')) return '🏙️';
   return '🍦';
 }
 
-function renderRelUnit(acc, insights, topAds, campaigns, hasData) {
+function renderRelUnit(acc, insights, topAds, campaigns, hasData, unitErr) {
   const card = document.createElement('div');
   card.className = 'rel-unit-card';
-
   const displayName = acc.name.replace(/berry's\s*/i, '').trim().toUpperCase();
+  const groups = aggregateByObjective(campaigns);
+  const groupKeys = Object.keys(groups).sort((x,y) => OBJ_GROUPS[x].order - OBJ_GROUPS[y].order);
+
+  const objBadges = groupKeys.length
+    ? `<div class="rel-obj-badges">${groupKeys.map((k,i) =>
+        `<span class="rel-obj-badge${i>0?' alt':''}">${OBJ_GROUPS[k].icon} ${OBJ_GROUPS[k].label}</span>`).join('')}</div>`
+    : '';
 
   const header = `<div class="rel-card-header">
     <div class="rel-card-icon-wrap">${unitIcon(acc.name)}</div>
     <div class="rel-card-title">${displayName}</div>
     ${acc.mgr ? `<a class="rel-card-mgr" href="${acc.mgr}" target="_blank">↗ Gerenciador</a>` : ''}
+    ${objBadges}
   </div>`;
 
   if (!hasData) {
-    card.innerHTML = header + `<div class="rel-nodata">Nenhuma métrica encontrada para o período selecionado.</div>`;
+    const msg = unitErr
+      ? `⚠️ Erro ao consultar a API: <span style="color:#c0392b;">${unitErr}</span>`
+      : 'Nenhuma métrica encontrada para o período selecionado.';
+    card.innerHTML = header + `<div class="rel-nodata">${msg}</div>`;
     return card;
   }
 
-  const metricsList = `<div class="rel-metrics-list">
-    <div class="rel-metric-row">
-      <div class="rel-m-icon">💰</div>
-      <div class="rel-m-text">Investimento: <strong>${fmt(insights.spend)}</strong></div>
-    </div>
-    <div class="rel-metric-row">
-      <div class="rel-m-icon">👥</div>
-      <div class="rel-m-text">Alcance: <strong>${fmtN(insights.reach)} pessoas</strong></div>
-    </div>
-    <div class="rel-metric-row">
-      <div class="rel-m-icon">👁</div>
-      <div class="rel-m-text">Impressões: <strong>${fmtN(insights.impressions)}</strong></div>
-    </div>
-    <div class="rel-metric-row">
-      <div class="rel-m-icon">🖱</div>
-      <div class="rel-m-text">Cliques no link: <strong>${fmtN(insights.clicks)}</strong></div>
-    </div>
-    <div class="rel-metric-row">
-      <div class="rel-m-icon">📊</div>
-      <div class="rel-m-text">Custo por 1.000 pessoas: <strong>${fmt(insights.cpm)}</strong></div>
-    </div>
-    <div class="rel-metric-row">
-      <div class="rel-m-icon">📈</div>
-      <div class="rel-m-text">CTR: <strong>${fmtPct(insights.ctr)}</strong>&nbsp;&nbsp;CPC: <strong>${fmt(insights.cpc)}</strong></div>
-    </div>
-  </div>`;
+  // blocos por objetivo — cada um só com as métricas que fazem sentido
+  let objBlocks = groupKeys.map(k => renderObjBlock(k, groups[k])).join('');
+  if (!groupKeys.length) {
+    // sem detalhamento de campanha: mostra visão geral da conta
+    objBlocks = `<div class="rel-obj-block">
+      <div class="rel-obj-block-head"><div class="rel-obj-pill">📦 VISÃO GERAL DA CONTA</div>
+      <div class="rel-obj-invest">Investimento: <strong>${fmt(insights.spend)}</strong></div></div>
+      ${mrow('👥','Alcance', fmtN(insights.reach)+' pessoas')}
+      ${mrow('👁️','Impressões', fmtN(insights.impressions))}
+      ${mrow('🖱️','Cliques', fmtN(insights.clicks))}
+      ${mrow('🧾','CPM', fmt(insights.cpm))}
+    </div>`;
+  }
 
-  // Temas detectados
+  const resumo = buildResumo(displayName, groups);
+
   const themes = classifyCampaigns(campaigns);
   const themePills = themes.length
     ? themes.map(t => `<span class="rel-theme-pill" style="color:${t.color};background:${t.bg};">${t.label}</span>`).join('')
-    : `<span style="font-size:11px;color:#ccc;font-weight:700;">Nenhum tema identificado</span>`;
-
+    : `<span style="font-size:11px;color:#b8d2e4;font-weight:800;">Nenhum tema identificado</span>`;
   const themesBlock = `<div class="rel-themes-section">
     <div class="rel-section-lbl">Temas veiculados no período</div>
     <div class="rel-themes-row">${themePills}</div>
   </div>`;
 
-  // Campanhas colapsável
-  const statusDot = s => s === 'ACTIVE' ? '#27ae60' : s === 'PAUSED' ? '#f5a623' : '#bbb';
+  const statusDot = st => st === 'ACTIVE' ? '#27ae60' : st === 'PAUSED' ? '#f5a623' : '#bbb';
+  const objShort = { vendas:'Vendas', alcance:'Alcance', trafego:'Tráfego', engaj:'Engaj.', leads:'Leads', outros:'Outro' };
   const campRows = campaigns.map(c => {
     const sp = parseFloat(c.insights?.data?.[0]?.spend || 0);
     return `<div class="rel-camp-row">
       <div class="rel-camp-dot" style="background:${statusDot(c.status)}"></div>
       <div class="rel-camp-name" title="${c.name}">${c.name}</div>
+      <span class="rel-camp-obj">${objShort[classifyObjective(c)]}</span>
       ${sp > 0 ? `<div class="rel-camp-spend">${fmt(sp)}</div>` : ''}
     </div>`;
   }).join('');
-
   const n = campaigns.length;
   const campsBlock = n ? `<div class="rel-camps-section">
     <div class="rel-section-lbl">Campanhas</div>
@@ -1551,28 +1812,27 @@ function renderRelUnit(acc, insights, topAds, campaigns, hasData) {
     <div class="rel-camp-list">${campRows}</div>
   </div>` : '';
 
-  // Top ads
   const rankCls = ['r1','r2','r3'];
   const adsRows = topAds.length ? topAds.map((ad, i) => {
     const ins = ad.insights.data[0];
     const thumb = ad.creative?.thumbnail_url;
     const sp  = parseFloat(ins.spend) || 0;
     const rch = parseInt(ins.reach) || 0;
-    const imp = parseInt(ins.impressions) || 0;
     const clk = parseInt(ins.clicks) || 0;
+    const pur = getAct(ins.actions, A_PURCHASE);
     return `<div class="rel-ad-item">
       <div class="rel-ad-rank ${rankCls[i]}">${i+1}</div>
       ${thumb ? `<img class="rel-ad-thumb" src="${thumb}" onerror="this.style.display='none'" loading="lazy"/>` : `<div class="rel-ad-thumb"></div>`}
       <div class="rel-ad-info">
         <div class="rel-ad-name">${ad.name}</div>
-        <div class="rel-ad-metrics">${fmt(sp)} · ${fmtN(rch)} alcance · ${fmtN(imp)} imp. · ${fmtN(clk)} cliques</div>
+        <div class="rel-ad-metrics">${fmt(sp)} · ${fmtN(rch)} alcance · ${fmtN(clk)} cliques${pur>0?` · 🛍️ ${fmtN(pur)} compras`:''}</div>
       </div>
     </div>`;
   }).join('') : `<div class="rel-nodata" style="padding:8px 0 0;">Nenhum anúncio com gasto no período.</div>`;
 
-  card.innerHTML = header + metricsList + themesBlock + campsBlock + `
+  card.innerHTML = header + objBlocks + resumo + themesBlock + campsBlock + `
     <div class="rel-ads-section">
-      <div class="rel-ads-badge-wrap"><div class="rel-ads-badge">🏆 Melhores Anúncios</div></div>
+      <div class="rel-ads-badge-wrap"><div class="rel-ads-badge">🏆 MELHORES ANÚNCIOS</div></div>
       ${adsRows}
     </div>`;
   return card;
@@ -1592,8 +1852,11 @@ async function relFetch() {
   pw.classList.add('show');
   pf.style.width = '0%';
 
-  let totalSpend = 0, totalReach = 0, totalImpr = 0, totalClicks = 0;
+  let totalSpend = 0, totalReach = 0, totalImpr = 0, totalClicks = 0, totalPurch = 0, totalConvVal = 0;
   let done = 0;
+  const relErrors = [];
+  const errEl = document.getElementById('rel-err-banner');
+  if (errEl) { errEl.style.display = 'none'; errEl.innerHTML = ''; }
 
   for (let i = 0; i < valid.length; i += 3) {
     await Promise.all(valid.slice(i, i + 3).map(async acc => {
@@ -1603,37 +1866,50 @@ async function relFetch() {
         <div class="rel-unit-loading"><span class="spin"></span> Carregando…</div>`;
       wrap.appendChild(placeholder);
 
-      let ins = {}, topAds = [], campaigns = [];
-      try {
-        [ins, topAds, campaigns] = await Promise.all([
-          fetchRelInsights(acc.id, dateParams),
-          fetchRelTopAds(acc.id, dateParams),
-          fetchRelCampaigns(acc.id, dateParams)
-        ]);
-      } catch(e) { console.warn('[rel]', acc.name, e.message); }
+      let ins = {}, topAds = [], campaigns = [], unitErr = null;
+      const results = await Promise.allSettled([
+        fetchRelInsights(acc.id, dateParams),
+        fetchRelTopAds(acc.id, dateParams),
+        fetchRelCampaigns(acc.id, dateParams)
+      ]);
+      if (results[0].status === 'fulfilled') ins = results[0].value; else unitErr = results[0].reason?.message || 'erro na API';
+      if (results[1].status === 'fulfilled') topAds = results[1].value;
+      if (results[2].status === 'fulfilled') campaigns = results[2].value;
 
       const hasData = ins.spend > 0 || ins.impressions > 0;
+      if (unitErr) relErrors.push(acc.name + ': ' + unitErr);
       totalSpend  += ins.spend  || 0;
       totalReach  += ins.reach  || 0;
       totalImpr   += ins.impressions || 0;
       totalClicks += ins.clicks || 0;
+      campaigns.forEach(c => {
+        const ci = c.insights?.data?.[0];
+        if (!ci) return;
+        totalPurch   += getAct(ci.actions, A_PURCHASE);
+        totalConvVal += getAct(ci.action_values, A_PURCHASE);
+      });
 
-      const card = renderRelUnit(acc, ins, topAds, campaigns, hasData);
+      const card = renderRelUnit(acc, ins, topAds, campaigns, hasData, unitErr);
       wrap.replaceChild(card, placeholder);
 
       done++;
       pf.style.width = (done / valid.length * 100) + '%';
       pl.textContent = `${done} / ${valid.length} unidades…`;
 
-      document.getElementById('rel-total-spend').textContent  = fmt(totalSpend);
-      document.getElementById('rel-total-reach').textContent  = fmtN(totalReach);
-      document.getElementById('rel-total-impr').textContent   = fmtN(totalImpr);
-      document.getElementById('rel-total-clicks').textContent = fmtN(totalClicks);
+      document.getElementById('rel-total-spend').textContent   = fmt(totalSpend);
+      document.getElementById('rel-total-reach').textContent   = fmtN(totalReach);
+      document.getElementById('rel-total-impr').textContent    = fmtN(totalImpr);
+      document.getElementById('rel-total-clicks').textContent  = fmtN(totalClicks);
+      document.getElementById('rel-total-purch').textContent   = fmtN(Math.round(totalPurch));
+      document.getElementById('rel-total-convval').textContent = fmt(totalConvVal);
     }));
   }
 
   pw.classList.remove('show');
-
+  if (relErrors.length && errEl) {
+    errEl.style.display = 'block';
+    errEl.innerHTML = '<strong>⚠️ ' + relErrors.length + ' unidade(s) com erro na API</strong> — abra o console (F12) para detalhes.<br><span style="font-weight:600;font-size:11px;">' + relErrors.slice(0,5).join(' · ') + (relErrors.length>5?' · …':'') + '</span>';
+  }
   const sel = document.getElementById('rel-preset');
   document.getElementById('rel-period-sub').textContent = sel.options[sel.selectedIndex].text.toLowerCase();
   document.getElementById('rel-last-up').textContent = 'Atualizado às ' + new Date().toLocaleTimeString('pt-BR');
