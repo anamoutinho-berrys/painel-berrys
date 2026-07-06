@@ -180,13 +180,18 @@
     .rel-sec-sub{font-size:14px;color:var(--ry-2);font-weight:800;margin-top:4px;}
     .rel-sec-sub::after{content:"";display:block;width:170px;height:2.5px;background:var(--ry-2);border-radius:2px;margin-top:7px;}
     /* Grid de unidades */
-    .rel-units-wrap{padding:16px 28px 34px;display:grid;grid-template-columns:repeat(auto-fill,minmax(430px,1fr));gap:22px;}
+    .rel-units-wrap{padding:16px 28px 34px;columns:430px;column-gap:22px;}
     /* Card da unidade */
-    .rel-unit-card{background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 8px 30px rgba(22,86,192,.12);border:2px solid var(--ry-bd);display:flex;flex-direction:column;}
+    .rel-unit-card{background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 8px 30px rgba(22,86,192,.12);border:2px solid var(--ry-bd);break-inside:avoid;margin-bottom:22px;}
     .rel-card-header{padding:18px 20px 12px;display:flex;align-items:center;gap:13px;flex-wrap:wrap;}
     .rel-card-icon-wrap{width:52px;height:52px;background:var(--ry-lt);border:2px solid var(--ry-bd);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
     .rel-card-title{font-family:'Bebas Neue',cursive;font-size:26px;color:var(--ry);letter-spacing:1px;flex:1;line-height:1.05;min-width:120px;}
-    .rel-obj-badges{display:flex;gap:6px;flex-wrap:wrap;width:100%;padding-left:65px;margin-top:-4px;}
+    .rel-head-kpis{display:flex;gap:8px;flex-wrap:wrap;width:100%;padding-left:65px;margin-top:2px;}
+    .rel-head-kpi{display:inline-flex;align-items:center;gap:6px;background:#F5FAFE;border:1.5px solid var(--ry-bd);border-radius:12px;padding:5px 12px;}
+    .rel-head-kpi .k-ico{font-size:13px;}
+    .rel-head-kpi .k-lbl{font-size:9px;font-weight:900;color:var(--ry-2);text-transform:uppercase;letter-spacing:.5px;}
+    .rel-head-kpi .k-val{font-family:'Bebas Neue',cursive;font-size:17px;color:var(--ry-navy);letter-spacing:.5px;line-height:1;}
+    .rel-obj-badges{display:flex;gap:6px;flex-wrap:wrap;width:100%;padding-left:65px;margin-top:2px;}
     .rel-obj-badge{display:inline-flex;align-items:center;gap:5px;background:var(--ry);color:#fff;font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;padding:4px 12px;border-radius:20px;}
     .rel-obj-badge.alt{background:var(--ry-lt);color:var(--ry);border:1.5px solid var(--ry-bd);}
     .rel-card-mgr{font-size:10px;color:var(--ry-2);font-weight:800;text-decoration:none;white-space:nowrap;border:1.5px solid var(--ry-bd);border-radius:20px;padding:4px 10px;background:var(--ry-lt);}
@@ -232,7 +237,7 @@
     .rel-camp-obj{font-size:9px;font-weight:900;color:var(--ry);background:var(--ry-lt);border-radius:8px;padding:1px 7px;white-space:nowrap;}
     .rel-camp-spend{color:var(--ry-navy);font-weight:900;white-space:nowrap;}
     /* Melhores anúncios */
-    .rel-ads-section{padding:6px 18px 16px;margin-top:auto;}
+    .rel-ads-section{padding:6px 18px 16px;}
     .rel-ads-badge-wrap{display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
     .rel-ads-badge{background:var(--ry);color:#fff;font-family:'Bebas Neue',cursive;font-size:13px;letter-spacing:2px;padding:5px 20px;border-radius:20px;}
     .rel-ad-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #EDF6FC;}
@@ -260,7 +265,7 @@
     .rel-prog-fill{height:100%;background:linear-gradient(90deg,var(--ry-2),var(--ry));border-radius:3px;transition:.3s;}
     .rel-autorefresh-lbl{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;cursor:pointer;margin-left:4px;}
     .rel-autorefresh-lbl input{cursor:pointer;}
-    @media(max-width:920px){.rel-units-wrap{grid-template-columns:1fr;}}
+    @media(max-width:920px){.rel-units-wrap{columns:1;}}
     @media(max-width:768px){
       .topbar{padding:0 14px;}
       .tab-btn{padding:0 12px;font-size:11px;}
@@ -1485,7 +1490,7 @@ const A_PURCHASE = ['omni_purchase','purchase','offsite_conversion.fb_pixel_purc
 const A_LPV      = ['landing_page_view'];
 const A_LINK     = ['link_click'];
 const A_ENG      = ['post_engagement'];
-const A_FOLLOW   = ['follow','like','page_like'];
+const A_FOLLOW   = ['follow','onsite_conversion.follow','instagram_profile_follow','like','page_like'];
 const A_LEAD     = ['lead','onsite_conversion.lead_grouped'];
 const A_MSG      = ['onsite_conversion.messaging_conversation_started_7d'];
 const A_THRU     = ['video_thruplay_watched_actions'];
@@ -1693,10 +1698,10 @@ function renderObjBlock(key, g) {
     </div>`;
   } else if (key === 'engaj') {
     body = `<div class="rel-tiles">
-      ${tile('👥','Engajamentos', fmtN(g.engagement), true)}
+      ${tile('➕','Novos seguidores', g.follows>0?fmtN(g.follows):'—', true)}
+      ${tile('🧾','Custo por seguidor', g.costPerFollow!=null?fmt(g.costPerFollow):'—', true)}
+      ${tile('👥','Engajamentos', fmtN(g.engagement))}
       ${tile('🏷️','Custo por engajamento', g.costPerEng!=null?fmt(g.costPerEng):'—')}
-      ${g.follows>0?tile('➕','Seguidores / curtidas', fmtN(g.follows)):''}
-      ${g.costPerFollow!=null?tile('🧾','Custo por seguidor', fmt(g.costPerFollow)):''}
       ${g.msgs>0?tile('💬','Conversas iniciadas', fmtN(g.msgs)):''}
       ${tile('👤','Alcance', fmtN(g.reach))}
       ${tile('👁️','Impressões', fmtN(g.impressions))}
@@ -1738,7 +1743,7 @@ function buildResumo(displayName, groups) {
   }
   if (a) parts.push(`No alcance, a unidade impactou <strong>${fmtN(a.reach)} pessoas</strong> a um custo de ${a.costPerReach!=null?fmt(a.costPerReach):'—'} por 1.000 alcançadas.`);
   if (t && (t.linkClicks||t.clicks) > 0) parts.push(`O tráfego gerou <strong>${fmtN(t.linkClicks||t.clicks)} cliques</strong>${t.cpc!=null?` a ${fmt(t.cpc)} por clique`:''}.`);
-  if (e && e.follows > 0) parts.push(`Engajamento somou <strong>${fmtN(e.follows)} novos seguidores/curtidas</strong>.`);
+  if (e && e.follows > 0) parts.push(`Engajamento somou <strong>${fmtN(e.follows)} novos seguidores</strong>${e.costPerFollow!=null?` a ${fmt(e.costPerFollow)} por seguidor`:''}.`);
   if (!parts.length) return '';
   return `<div class="rel-resumo"><span class="r-chip">Resumo:</span><p>${parts.join(' ')}</p></div>`;
 }
@@ -1763,12 +1768,23 @@ function renderRelUnit(acc, insights, topAds, campaigns, hasData, unitErr) {
         `<span class="rel-obj-badge${i>0?' alt':''}">${OBJ_GROUPS[k].icon} ${OBJ_GROUPS[k].label}</span>`).join('')}</div>`
     : '';
 
+  const headKpis = hasData ? `<div class="rel-head-kpis">
+    <div class="rel-head-kpi"><span class="k-ico">💰</span><span><div class="k-lbl">Investimento total</div><div class="k-val">${fmt(insights.spend)}</div></span></div>
+    <div class="rel-head-kpi"><span class="k-ico">👥</span><span><div class="k-lbl">Alcance da conta</div><div class="k-val">${fmtN(insights.reach)}</div></span></div>
+  </div>` : '';
+
   const header = `<div class="rel-card-header">
     <div class="rel-card-icon-wrap">${unitIcon(acc.name)}</div>
     <div class="rel-card-title">${displayName}</div>
     ${acc.mgr ? `<a class="rel-card-mgr" href="${acc.mgr}" target="_blank">↗ Gerenciador</a>` : ''}
+    ${headKpis}
     ${objBadges}
   </div>`;
+
+  // chave p/ agrupar unidades com mix de campanhas parecido
+  card.dataset.sig   = groupKeys.length ? groupKeys.join('|') : 'zz-none';
+  card.dataset.nobj  = groupKeys.length;
+  card.dataset.spend = insights.spend || 0;
 
   if (!hasData) {
     const msg = unitErr
@@ -1915,6 +1931,18 @@ async function relFetch() {
   }
 
   pw.classList.remove('show');
+
+  // agrupa unidades com o mesmo mix de objetivos; dentro do grupo, maior investimento primeiro
+  const cards = [...wrap.querySelectorAll('.rel-unit-card')];
+  cards.sort((a, b) => {
+    const na = +(b.dataset.nobj||0) - (+(a.dataset.nobj||0));   // mais objetivos primeiro
+    if (na) return na;
+    const sig = (a.dataset.sig||'').localeCompare(b.dataset.sig||''); // mesmo mix junto
+    if (sig) return sig;
+    return (+(b.dataset.spend||0)) - (+(a.dataset.spend||0));   // maior investimento primeiro
+  });
+  cards.forEach(c => wrap.appendChild(c));
+
   if (relErrors.length && errEl) {
     errEl.style.display = 'block';
     errEl.innerHTML = '<strong>⚠️ ' + relErrors.length + ' unidade(s) com erro na API</strong> — abra o console (F12) para detalhes.<br><span style="font-weight:600;font-size:11px;">' + relErrors.slice(0,5).join(' · ') + (relErrors.length>5?' · …':'') + '</span>';
