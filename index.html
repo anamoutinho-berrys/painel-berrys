@@ -1149,25 +1149,33 @@ async function apiFetch(account, path, params={}) {
   return j;
 }
 
+// Extrai valor monetário de textos como "Saldo disponível (R$1.500,00)"
+// ou "Available Balance (R$1,500.00)". Retorna null se não houver valor.
+function parseMoney(str) {
+  if (!str) return null;
+  const m = String(str).match(/(?:R\$|BRL|US\$|\$)\s*([\d][\d.,]*)/);
+  if (!m) return null;
+  let s = m[1];
+  const lc = s.lastIndexOf(','), ld = s.lastIndexOf('.');
+  if (lc > ld) s = s.replace(/\./g, '').replace(',', '.'); // formato pt-BR: 1.500,00
+  else         s = s.replace(/,/g, '');                    // formato en-US: 1,500.00
+  const v = parseFloat(s);
+  return isNaN(v) ? null : v;
+}
+
+// IMPORTANTE: a API da Meta NÃO tem campo numérico com o saldo pré-pago.
+// - "balance" na conta = valor DEVIDO (fatura em aberto), não saldo disponível.
+// - O nó funding_source não é acessível diretamente (erro de permissão).
+// O saldo pré-pago (boletos pagos) só aparece em funding_source_details.display_string,
+// ex.: "Saldo disponível (R$1.500,00)" — por isso lemos e interpretamos esse texto.
 async function fetchBal(id) {
-  const acct = await apiFetch(id, '', { fields: 'funding_source' });
-  if (acct.funding_source) {
-    try {
-      const qs = new URLSearchParams({ account: id, node: acct.funding_source, fields: 'balance' });
-      const r = await fetch(`/api/meta?${qs}`);
-      const fs = await r.json();
-      if (!fs.error && fs.balance != null) {
-        const raw = parseFloat(fs.balance);
-        if (!isNaN(raw)) return raw / 100;
-      }
-    } catch(e) {
-      console.warn('[funding_source balance]', e.message);
-    }
-  }
-  const j = await apiFetch(id, '', { fields: 'balance' });
-  const raw = parseFloat(j.balance);
-  if (isNaN(raw)) throw new Error('balance indisponível');
-  return raw / 100;
+  const acct = await apiFetch(id, '', { fields: 'funding_source_details,is_prepay_account' });
+  const fsd  = acct.funding_source_details || {};
+  const v    = parseMoney(fsd.display_string);
+  if (v != null) return { balance: v };
+  if (acct.is_prepay_account === false) return { postpaid: true }; // conta pós-paga (cartão/fatura)
+  if (!acct.funding_source_details) throw new Error('sem forma de pagamento');
+  throw new Error('saldo não exposto: ' + (fsd.display_string || 'sem detalhe'));
 }
 
 async function fetchSpend(id, preset) {
@@ -1203,7 +1211,7 @@ async function fetchCampaigns(id, preset) {
 async function fetchAccountData(id, preset, fields=[]) {
   const out = {};
   const proms = [];
-  if (fields.includes('balance'))  proms.push(fetchBal(id).then(v=>out.balance=v).catch(e=>{out.balance=0;out.balErr=e.message;}));
+  if (fields.includes('balance'))  proms.push(fetchBal(id).then(v=>Object.assign(out,v)).catch(e=>{out.balErr=e.message;}));
   if (fields.includes('spend'))    proms.push(fetchSpend(id,preset).then(v=>out.spend=v).catch(e=>out.spendErr=e.message));
   if (fields.includes('insights')) proms.push(fetchInsights(id,preset).then(v=>Object.assign(out,v)).catch(()=>{}));
   if (fields.includes('campaigns'))proms.push(fetchCampaigns(id,preset).then(v=>out.campaigns=v).catch(()=>out.campaigns=[]));
@@ -1276,6 +1284,7 @@ function paintBalance(td, acc, d) {
     td.innerHTML=`<span style="color:#fc8181;font-size:11px;font-weight:800;">⚠ ${errLabel(d.balErr)}</span>`;
     return;
   }
+  if (d.postpaid) { td.style.textAlign='center'; td.innerHTML='<span class="pill pill-card">pós-pago</span>'; return; }
   if (d.balance!==undefined) { td.className=d.balance>0?'num bal':'num zero'; td.textContent=fmt(d.balance); return; }
   td.innerHTML='<span class="cell-na">—</span>';
 }
