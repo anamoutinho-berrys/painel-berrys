@@ -42,15 +42,17 @@
   <div class="tbl-wrap">
     <table>
       <thead><tr>
-        <th>#</th><th>Unidade</th>
-        <th class="r">Valor Mensal</th>
-        <th class="r">Após Imposto <span style="opacity:.5;font-weight:400">(−12%)</span></th>
-        <th class="r">Qto Investiu <span style="opacity:.5;font-weight:400">/ período</span></th>
-        <th class="r">Saldo Disponível <span style="opacity:.5;font-weight:400">/ conta</span></th>
+        <th>#</th>
+        <th class="th-sort" onclick="onSortClick('name')">Unidade<span class="sort-arrow" id="arrow-name"></span></th>
+        <th class="r th-sort" onclick="onSortClick('mensal')">Valor Mensal<span class="sort-arrow" id="arrow-mensal"></span></th>
+        <th class="r th-sort" onclick="onSortClick('tax')">Após Imposto <span style="opacity:.5;font-weight:400">(−12%)</span><span class="sort-arrow" id="arrow-tax"></span></th>
+        <th class="r th-sort" onclick="onSortClick('spend')">Qto Investiu <span style="opacity:.5;font-weight:400">/ período</span><span class="sort-arrow" id="arrow-spend"></span></th>
+        <th class="r th-sort" onclick="onSortClick('balance')">Saldo Disponível <span style="opacity:.5;font-weight:400">/ conta</span><span class="sort-arrow" id="arrow-balance"></span></th>
       </tr></thead>
       <tbody id="tbl-body"></tbody>
     </table>
   </div>
   <div style="padding:0 28px 20px;font-size:11px;color:#ccc;text-align:right;font-weight:700;">
-    * Saldo = crédito pré-pago disponível. Contas "cartão" = pós-pago.
+    * Saldo = crédito pré-pago disponível. Contas "cartão" = pós-pago. &nbsp;·&nbsp;
+    <span style="color:#fc8181;font-weight:800;">Saldo em vermelho</span> = abaixo de R$ 200,00, unidade precisa de recarga.
   </div>
