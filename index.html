@@ -19,12 +19,11 @@
   </div>
   <nav class="tabs-nav">
     <button class="tab-btn active" onclick="goTab('saldos',this)">💰 Saldos <span class="badge">LIVE</span></button>
+    <button class="tab-btn" onclick="goTab('relatorio',this)">📈 Dash - Tempo Real <span class="badge">LIVE</span></button>
     <button class="tab-btn" onclick="goTab('dash',this)">📊 Acompanhamento</button>
-    <button class="tab-btn" onclick="goTab('insights',this)">💡 Insights</button>
-    <button class="tab-btn" onclick="goTab('campanhas',this)">📋 Campanhas</button>
+    <button class="tab-btn" onclick="goTab('criativos',this)">🎨 Planejamento de Criativos</button>
     <button class="tab-btn" onclick="goTab('links',this)">🔗 Central de Links</button>
     <button class="tab-btn" onclick="goTab('trafego-julho',this)">🗓️ Estrutura de Tráfego — Julho</button>
-    <button class="tab-btn" onclick="goTab('relatorio',this)">📈 Relatório Real-Time <span class="badge">LIVE</span></button>
   </nav>
   <div class="srv-status"><div class="srv-dot"></div>API conectada</div>
 </div>
@@ -32,12 +31,11 @@
 <!-- Cada <div id="tab-*"> começa vazio: o conteúdo de tabs/<aba>.html é injetado
      sob demanda pelo loadTab() em core.js, na primeira vez que a aba é aberta. -->
 <div id="tab-saldos" class="tab-page active"></div>
+<div id="tab-relatorio" class="tab-page"></div>
 <div id="tab-dash" class="tab-page"></div>
-<div id="tab-insights" class="tab-page"></div>
-<div id="tab-campanhas" class="tab-page"></div>
+<div id="tab-criativos" class="tab-page"></div>
 <div id="tab-links" class="tab-page"></div>
 <div id="tab-trafego-julho" class="tab-page"></div>
-<div id="tab-relatorio" class="tab-page"></div>
 
 <!-- Bibliotecas compartilhadas: sempre carregadas -->
 <script src="assets/core.js"></script>
@@ -52,12 +50,11 @@
 // chave da aba (a mesma usada em goTab/onclick) -> nome-base do arquivo em tabs/
 const TAB_FILE = {
   'saldos':        'saldos',
+  'relatorio':      'relatorio',
   'dash':           'acompanhamento',
-  'insights':       'insights',
-  'campanhas':      'campanhas',
+  'criativos':      'criativos',
   'links':          'links',
   'trafego-julho':  'trafego',
-  'relatorio':      'relatorio',
 };
 
 const loadedTabs = new Set();
@@ -97,15 +94,21 @@ async function loadTab(key) {
 }
 
 async function goTab(name, btn) {
+  if (!TAB_FILE[name]) name = 'saldos';
   document.querySelectorAll('.tab-page').forEach(e => e.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(e => e.classList.remove('active'));
   await loadTab(name);
   document.getElementById('tab-' + name).classList.add('active');
+  if (!btn) btn = document.querySelector(`[onclick="goTab('${name}',this)"]`);
   if (btn) btn.classList.add('active');
+  if (history.replaceState) history.replaceState(null, '', '#' + name);
 }
 
+// Deep-link: abrir direto numa aba específica via #chave-da-aba na URL
+// (ex.: index.html#criativos), pra poder mandar o link caindo direto nela.
 document.addEventListener('DOMContentLoaded', () => {
-  goTab('saldos');
+  const key = location.hash.replace('#', '');
+  goTab(TAB_FILE[key] ? key : 'saldos');
 });
 </script>
 </body>

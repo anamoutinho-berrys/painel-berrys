@@ -1,0 +1,32 @@
+  <div class="subheader">
+    <div>
+      <div class="sh-title">Planejamento de Criativos</div>
+      <div class="sh-sub">Board compartilhado — o que vai ser produzido, pra quem e quando</div>
+    </div>
+    <div class="sh-right" id="criativos-date-display"></div>
+  </div>
+  <div class="err-banner" id="criativos-err-banner">⚠️ <span id="criativos-err-msg"></span></div>
+  <div class="controls">
+    <button class="btn btn-blue" onclick="addCriativo()">➕ Novo criativo</button>
+    <button class="btn btn-dark" onclick="saveCriativos()">💾 Salvar alterações</button>
+    <div class="last-up" id="criativos-last-up"></div>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Unidade</th>
+        <th>Criativo</th>
+        <th>Formato</th>
+        <th>Status</th>
+        <th>Data prevista</th>
+        <th>Responsável</th>
+        <th>Link</th>
+        <th>Obs.</th>
+        <th></th>
+      </tr></thead>
+      <tbody id="criativos-body"></tbody>
+    </table>
+  </div>
+  <div style="padding:0 28px 20px;font-size:11px;color:#ccc;text-align:right;font-weight:700;">
+    Link direto pra essa aba: <code>/criativos.html</code> — pode mandar pra quem for produzir sem precisar navegar no painel.
+  </div>

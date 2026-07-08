@@ -72,7 +72,8 @@
     .inp-m:focus{outline:none;border-color:var(--b1);background:#fff;box-shadow:0 0 0 3px rgba(69,185,230,.15);}
     .num{text-align:right;font-weight:700;}
     .num.tax{color:#6a8a9a;}
-    .num.spend{color:var(--red);}
+    .num.spend{color:var(--dark);}
+    .num.spend-warn{color:var(--red);font-weight:800;}
     .num.bal{color:var(--green);}
     .num.zero{color:#bbb;}
 .num.bal-low{color:var(--red);font-weight:800;}

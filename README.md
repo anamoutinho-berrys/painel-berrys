@@ -10,25 +10,39 @@ index.html                 → "shell": navegação + injeta cada aba sob demand
 assets/
   core.css                 → todo o CSS (variáveis, layout, componentes)
   core.js                  → dados/utilitários usados por TODAS as abas:
-                              lista de contas (ACCOUNTS), autenticação com a
-                              API (apiFetch), formatação (fmt/fmtN/fmtPct),
-                              saldo (parseMoney/fetchBal) e os fetchers
-                              genéricos usados por Saldos + Acompanhamento +
-                              Campanhas (fetchAccountData e afins).
-  objectives.js             → lib compartilhada só entre "Relatório Real-Time"
-                              e "Insights": classificação de campanha por
-                              objetivo (vendas/alcance/tráfego/engajamento/
-                              leads) e os fetchers fetchRelInsights/
+                              lista de contas (ACCOUNTS, com valor mensal
+                              contratado), autenticação com a API (apiFetch),
+                              formatação (fmt/fmtN/fmtPct), saldo
+                              (parseMoney/fetchBal), persistência simples
+                              (storeGet/storeSet) e os fetchers genéricos
+                              usados por Saldos + Acompanhamento.
+  objectives.js             → lib usada pelo "Dash - Tempo Real": classificação
+                              de campanha por objetivo (vendas/alcance/tráfego/
+                              engajamento/leads) e os fetchers fetchRelInsights/
                               fetchRelCampaigns/fetchRelTopAds.
 tabs/
   saldos.html + saldos.js               → aba "Saldos"
+  relatorio.html + .js                  → aba "Dash - Tempo Real"
   acompanhamento.html + .js             → aba "Acompanhamento"
-  insights.html + .js                   → aba "Insights"
-  campanhas.html + .js                  → aba "Campanhas"
+  criativos.html + .js                  → aba "Planejamento de Criativos"
   links.html + .js                      → aba "Central de Links" (sem JS próprio)
   trafego.html + .js                    → aba "Estrutura de Tráfego" (sem JS próprio)
-  relatorio.html + .js                  → aba "Relatório Real-Time"
+api/
+  meta.js                               → proxy pra API da Meta (lê META_TOKEN)
+  store.js                              → persistência simples: lê/grava
+                                           data/<file>.json no próprio repo via
+                                           GitHub Contents API. Usado pelo
+                                           histórico de boletos (Saldos) e pelo
+                                           board de Criativos.
 ```
+
+## Variáveis de ambiente (Vercel)
+
+- `META_TOKEN` — token da Graph API da Meta, usado por `api/meta.js`.
+- `GITHUB_TOKEN` — Personal Access Token do GitHub com permissão de escrita
+  no repositório, usado por `api/store.js` pra gravar `data/*.json`.
+- `GITHUB_REPO` — `owner/repo` do repositório (ex.: `anamoutinho-berrys/painel-berrys`).
+- `GITHUB_BRANCH` — opcional, branch onde `data/*.json` é gravado (default `main`).
 
 ## Regra de ouro
 
@@ -37,16 +51,22 @@ tabs/
   separados.
 - **Mudar algo que vale para o painel inteiro** (lista de contas, formato de
   moeda, chamada à API) → `assets/core.js`.
-- **Mudar a classificação de objetivo/campanha** (usada tanto no Relatório
-  quanto no Insights) → `assets/objectives.js`. Depois de editar, confira as
-  duas abas antes de publicar, já que ambas dependem desse arquivo.
+- **Mudar a classificação de objetivo/campanha** (usada no "Dash - Tempo
+  Real") → `assets/objectives.js`.
 - **Mudar a navegação em si** (nomes das abas, ordem, mecanismo de troca) →
   `index.html`.
 
+## Link direto pra uma aba
+
+`index.html` lê `location.hash` no carregamento e ao trocar de aba atualiza a
+URL (ex.: `index.html#criativos`). Pra mandar um link que já abre direto no
+Planejamento de Criativos, existe também o atalho `criativos.html` na raiz,
+que redireciona pra `index.html#criativos` — mais curto de compartilhar.
+
 ## Como funciona o carregamento
 
-O `index.html` não tem mais o conteúdo de cada aba embutido. Ele só tem os
-7 `<div id="tab-*">` vazios e um pequeno *loader*: na primeira vez que uma
+O `index.html` não tem mais o conteúdo de cada aba embutido. Ele só tem as
+`<div id="tab-*">` vazias (uma por aba) e um pequeno *loader*: na primeira vez que uma
 aba é aberta, o loader busca `tabs/<aba>.html`, injeta como HTML dentro da
 div, e carrega `tabs/<aba>.js` dinamicamente (que define as funções daquela
 aba e — se existir — chama `init_<aba>()` para preparar a tela).
