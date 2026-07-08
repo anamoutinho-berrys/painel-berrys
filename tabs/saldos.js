@@ -86,6 +86,42 @@ function errLabel(msg) {
   return msg.length>38 ? msg.slice(0,38)+'…' : msg;
 }
 
+// Nº de dias cobertos pelo período selecionado, usado para calcular o
+// investimento proporcional esperado (mensal/30 * dias). Retorna null para
+// períodos sem duração clara (ano/máximo/custom incompleto) — nesses casos
+// não damos alerta de margem, só o de saldo zerado.
+function periodDays(preset) {
+  const today = new Date();
+  switch (preset) {
+    case 'today': case 'yesterday': return 1;
+    case 'last_7d':  return 7;
+    case 'last_14d': return 14;
+    case 'last_30d': return 30;
+    case 'this_month': return today.getDate();
+    case 'last_month': return new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+    case 'custom': {
+      const s = document.getElementById('dt-since')?.value;
+      const u = document.getElementById('dt-until')?.value;
+      if (!s || !u) return null;
+      return Math.max(1, Math.round((new Date(u)-new Date(s))/86400000)+1);
+    }
+    default: return null; // this_year, maximum
+  }
+}
+
+// Vermelho só quando o valor investido é 0, ou quando foge >10% do
+// proporcional esperado pro período com base no valor mensal contratado.
+function isSpendWarn(acc, spend) {
+  if (!spend) return true;
+  if (!acc.mensal) return false;
+  const preset = document.getElementById('date-preset')?.value;
+  const days = periodDays(preset);
+  if (days == null) return false;
+  const expected = acc.mensal/30*days;
+  if (expected <= 0) return false;
+  return spend < expected*0.9 || spend > expected*1.1;
+}
+
 function paintSpend(td, acc, d) {
   if (!acc.id) { td.innerHTML='<span class="cell-na">—</span>'; return; }
   if (d.loading) { td.innerHTML='<div class="cell-load"><span class="spin"></span></div>'; return; }
@@ -95,7 +131,11 @@ function paintSpend(td, acc, d) {
     td.innerHTML=`<span style="color:#fc8181;font-size:11px;font-weight:800;">⚠ ${errLabel(d.spendErr)}</span>`;
     return;
   }
-  if (d.spend!==undefined) { td.className='num spend'; td.textContent=fmt(d.spend); return; }
+  if (d.spend!==undefined) {
+    td.className = isSpendWarn(acc, d.spend) ? 'num spend-warn' : 'num spend';
+    td.textContent = fmt(d.spend);
+    return;
+  }
   td.innerHTML='<span class="cell-na">—</span>';
 }
 
@@ -112,6 +152,75 @@ function paintBalance(td, acc, d) {
   if (d.postpaid) { td.style.textAlign='center'; td.innerHTML='<span class="pill pill-card">pós-pago</span>'; return; }
   if (d.balance!==undefined) { td.className=d.balance<200?'num bal-low':'num bal'; td.textContent=fmt(d.balance); return; }
   td.innerHTML='<span class="cell-na">—</span>';
+}
+
+// ----------------------------------------------------------------------------
+// Histórico de pagamento de boleto: sempre que o saldo de uma conta sobe de
+// forma relevante (recarga/boleto compensado), registramos a data. Guardado
+// em data/boleto-log.json no repo (via api/store.js), compartilhado entre
+// todo mundo que abre o painel — não é por navegador.
+// ----------------------------------------------------------------------------
+let boletoLog = null;        // { data: {accId: {lastBalance, lastCheckedDate, payments[]}}, sha }
+let boletoLogChanged = false;
+let boletoLogPromise = null; // promise da 1ª carga, pra fetchAll aguardar antes de checar pagamentos
+const BOLETO_JUMP_MIN = 10;  // R$ mínimo de aumento pra contar como pagamento (evita ruído)
+
+async function loadBoletoLog() {
+  try {
+    const r = await storeGet('boleto-log');
+    boletoLog = { data: r.data || {}, sha: r.sha || null };
+  } catch (e) {
+    console.warn('[boleto] falha ao carregar histórico', e);
+    boletoLog = { data: {}, sha: null };
+  }
+  renderBoletoHistory();
+}
+
+function checkBoletoPayment(acc, newBalance) {
+  if (!boletoLog || newBalance==null || isNaN(newBalance)) return;
+  const today = new Date().toISOString().slice(0,10);
+  const entry = boletoLog.data[acc.id] || { lastBalance:null, lastCheckedDate:null, payments:[] };
+  if (entry.lastCheckedDate === today) return; // já conferido hoje, não repete
+  const prev = entry.lastBalance;
+  if (prev!=null && newBalance - prev >= BOLETO_JUMP_MIN) {
+    entry.payments = [{ date:today, from:prev, to:newBalance }, ...(entry.payments||[])].slice(0,50);
+  }
+  if (prev !== newBalance) boletoLogChanged = true;
+  entry.lastBalance = newBalance;
+  entry.lastCheckedDate = today;
+  boletoLog.data[acc.id] = entry;
+}
+
+async function flushBoletoLog() {
+  if (!boletoLogChanged || !boletoLog) return;
+  try {
+    const r = await storeSet('boleto-log', boletoLog.data, boletoLog.sha);
+    if (r.sha) boletoLog.sha = r.sha;
+    boletoLogChanged = false;
+    renderBoletoHistory();
+  } catch (e) {
+    console.warn('[boleto] falha ao salvar histórico', e);
+  }
+}
+
+function renderBoletoHistory() {
+  const wrap = document.getElementById('boleto-history-wrap');
+  const tb   = document.getElementById('boleto-history-body');
+  if (!wrap || !tb || !boletoLog) return;
+  const rows = [];
+  Object.entries(boletoLog.data).forEach(([id, entry]) => {
+    const acc = ACCOUNTS.find(a=>a.id===id);
+    (entry.payments||[]).forEach(p => rows.push({ name: acc?acc.name:id, ...p }));
+  });
+  rows.sort((a,b) => b.date.localeCompare(a.date));
+  if (!rows.length) { wrap.style.display='none'; return; }
+  wrap.style.display='';
+  tb.innerHTML = rows.slice(0,15).map(r => `<tr>
+    <td>${new Date(r.date+'T00:00:00').toLocaleDateString('pt-BR')}</td>
+    <td>${r.name}</td>
+    <td class="num">${fmt(r.from)}</td>
+    <td class="num" style="color:var(--green);font-weight:800;">${fmt(r.to)}</td>
+  </tr>`).join('');
 }
 
 function onDateChange() {
@@ -145,6 +254,15 @@ async function fetchAll() {
     document.getElementById('err-msg').textContent='Token não configurado no servidor. Adicione META_TOKEN nas variáveis de ambiente do Vercel.';
     eb.classList.add('show');
   } else { eb.classList.remove('show'); }
+
+  if (boletoLogPromise) await boletoLogPromise;
+  if (boletoLog) {
+    valid.forEach(acc => {
+      const bal = fetchedData[acc.id]?.balance;
+      if (bal!==undefined) checkBoletoPayment(acc, bal);
+    });
+    await flushBoletoLog();
+  }
 }
 
 function refreshCells(id) {
@@ -176,6 +294,7 @@ function updateSaldosSummary() {
 
 function init_saldos() {
   paintTodayDate('date-display');
+  boletoLogPromise = loadBoletoLog();
   renderSaldosTable();
   updateSaldosSummary();
   fetchAll();

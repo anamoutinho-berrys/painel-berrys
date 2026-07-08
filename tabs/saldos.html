@@ -54,5 +54,13 @@
   </div>
   <div style="padding:0 28px 20px;font-size:11px;color:#ccc;text-align:right;font-weight:700;">
     * Saldo = crédito pré-pago disponível. Contas "cartão" = pós-pago. &nbsp;·&nbsp;
-    <span style="color:#fc8181;font-weight:800;">Saldo em vermelho</span> = abaixo de R$ 200,00, unidade precisa de recarga.
+    <span style="color:#fc8181;font-weight:800;">Saldo em vermelho</span> = abaixo de R$ 200,00, unidade precisa de recarga. &nbsp;·&nbsp;
+    <span style="color:#fc8181;font-weight:800;">Investido em vermelho</span> = zerado ou fora de 10% do proporcional esperado pro período.
+  </div>
+  <div class="tbl-wrap" id="boleto-history-wrap" style="display:none;">
+    <div style="padding:14px 4px 8px;font-weight:800;color:var(--dark);font-size:13px;">💳 Últimos pagamentos de boleto detectados</div>
+    <table>
+      <thead><tr><th>Data</th><th>Unidade</th><th class="r">Saldo antes</th><th class="r">Saldo depois</th></tr></thead>
+      <tbody id="boleto-history-body"></tbody>
+    </table>
   </div>

@@ -58,6 +58,22 @@ async function apiFetch(account, path, params={}) {
   return j;
 }
 
+// Persistência simples e compartilhada (sem banco): lê/grava data/<file>.json
+// no repositório GitHub via api/store.js. Usado por Saldos (histórico de
+// boletos) e Planejamento de Criativos.
+async function storeGet(file) {
+  const r = await fetch(`/api/store?file=${file}`);
+  return r.json();
+}
+async function storeSet(file, data, sha) {
+  const r = await fetch(`/api/store?file=${file}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ data, sha }),
+  });
+  return r.json();
+}
+
 // Extrai valor monetário de textos como "Saldo disponível (R$1.500,00)"
 // ou "Available Balance (R$1,500.00)". Retorna null se não houver valor.
 
@@ -111,21 +127,12 @@ async function fetchInsights(id, preset) {
            clicks:parseInt(d.clicks)||0, cpm:parseFloat(d.cpm)||0, ctr:parseFloat(d.ctr)||0, cpc:parseFloat(d.cpc)||0 };
 }
 
-async function fetchCampaigns(id, preset) {
-  const j = await apiFetch(id, 'campaigns', {
-    fields: 'name,status,objective,daily_budget,insights{spend,impressions,clicks,ctr,cpc}',
-    preset, limit: 20
-  });
-  return j.data || [];
-}
-
 async function fetchAccountData(id, preset, fields=[]) {
   const out = {};
   const proms = [];
   if (fields.includes('balance'))  proms.push(fetchBal(id).then(v=>Object.assign(out,v)).catch(e=>{out.balErr=e.message;}));
   if (fields.includes('spend'))    proms.push(fetchSpend(id,preset).then(v=>out.spend=v).catch(e=>out.spendErr=e.message));
   if (fields.includes('insights')) proms.push(fetchInsights(id,preset).then(v=>Object.assign(out,v)).catch(()=>{}));
-  if (fields.includes('campaigns'))proms.push(fetchCampaigns(id,preset).then(v=>out.campaigns=v).catch(()=>out.campaigns=[]));
   await Promise.all(proms);
   return out;
 }
