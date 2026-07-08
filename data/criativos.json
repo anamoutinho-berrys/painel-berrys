@@ -1,13 +1,101 @@
 [
   {
-    "id": "c-shotlist-mok-jul26",
+    "id": "c-1-1",
     "unidade": "—",
-    "nome": "Shot List — Diária de Captação MOK (cenas de vídeo)",
+    "nome": "1.1 · Monte Seu Berry's — POV montagem (2 sabores + toppings + calda)",
     "formato": "Vídeo",
     "status": "Ideia",
     "data": "",
     "resp": "",
     "link": "",
-    "obs": "8 cenas de vídeo em 5 blocos de setup: 1) Monte Seu Berry's (POV montagem + esquete indeciso), 2) Calda Quente (slow motion brownie + embalagem térmica), 3) Brownie na Chapa (preparo completo), 4) Delivery/POV Cliente (chegada do pedido + açaí no iFood), 5) Açaí (montagem em camadas). Definir unidade MOC correta (Avenida/Centro/Shopping) antes de gravar."
+    "obs": "Cena 01 do shot list MOK. Câmera POV/macro, 15–20s, sem falas. Gravar múltiplos takes com toppings diferentes."
+  },
+  {
+    "id": "c-1-3",
+    "unidade": "—",
+    "nome": "1.3 · Monte Seu Berry's — Esquete humor (indeciso entre 2 sabores)",
+    "formato": "Vídeo",
+    "status": "Ideia",
+    "data": "",
+    "resp": "",
+    "link": "",
+    "obs": "Cena 02 do shot list MOK. Plano médio, 10–15s, atuação leve. Gravar 2-3 variações de expressão."
+  },
+  {
+    "id": "c-2-1",
+    "unidade": "—",
+    "nome": "2.1 · Calda Quente — Slow motion calda escorrendo no brownie (hero-shot)",
+    "formato": "Vídeo",
+    "status": "Ideia",
+    "data": "",
+    "resp": "",
+    "link": "",
+    "obs": "Cena 03 do shot list MOK ★ prioritária. Slow motion 60-120fps, macro, vapor visível, sem texto — só textura e som."
+  },
+  {
+    "id": "c-2-5",
+    "unidade": "—",
+    "nome": "2.5 · Calda Quente — Embalagem térmica (\"chega quente, chega gelado\")",
+    "formato": "Vídeo",
+    "status": "Ideia",
+    "data": "",
+    "resp": "",
+    "link": "",
+    "obs": "Cena 04 do shot list MOK. 10–15s, plano aberto → close, mostrar os 2 compartimentos (brownie quente / sorvete gelado)."
+  },
+  {
+    "id": "c-3-1",
+    "unidade": "—",
+    "nome": "3.1 · Brownie na Chapa — Preparo completo do zero",
+    "formato": "Vídeo",
+    "status": "Ideia",
+    "data": "",
+    "resp": "",
+    "link": "",
+    "obs": "Cena 05 do shot list MOK ★ prioritária. 20–30s, macro + plano geral, áudio direcional obrigatório (ASMR da chapa), vapor visível."
+  },
+  {
+    "id": "c-2-8",
+    "unidade": "—",
+    "nome": "2.8 · Delivery/POV — Pedido de brownie chegando à noite",
+    "formato": "Vídeo",
+    "status": "Ideia",
+    "data": "",
+    "resp": "",
+    "link": "",
+    "obs": "Cena 06 do shot list MOK. POV/mão com celular, 15–20s, luz baixa/aconchegante, sem falas."
+  },
+  {
+    "id": "c-4-6",
+    "unidade": "—",
+    "nome": "4.6 · Delivery/POV — Abrindo o app e recebendo o açaí",
+    "formato": "Vídeo",
+    "status": "Ideia",
+    "data": "",
+    "resp": "",
+    "link": "",
+    "obs": "Cena 07 do shot list MOK. Mesma locação/luz da cena 2.8, POV/mão com celular, 15–20s, sem falas."
+  },
+  {
+    "id": "c-4-1",
+    "unidade": "—",
+    "nome": "4.1 · Açaí — Montagem em camadas",
+    "formato": "Vídeo",
+    "status": "Ideia",
+    "data": "",
+    "resp": "",
+    "link": "",
+    "obs": "Cena 08 do shot list MOK. Macro, 12–18s, copo transparente, câmera lenta na granola caindo."
+  },
+  {
+    "id": "c-3-2",
+    "unidade": "—",
+    "nome": "3.2 · Loja cheia no sábado",
+    "formato": "Vídeo",
+    "status": "Ideia",
+    "data": "",
+    "resp": "",
+    "link": "",
+    "obs": "Fora da diária de captação principal — precisa de movimento orgânico de clientes. Gravar num sábado de pico (13h), separado das outras cenas."
   }
 ]
