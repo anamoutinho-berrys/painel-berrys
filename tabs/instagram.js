@@ -20,14 +20,12 @@ function igDateStr(d) {
 }
 function igDaysAgo(n) { const d = new Date(); d.setDate(d.getDate() - n); return igDateStr(d); }
 
-// Busca a conta de IG de uma unidade. O vínculo pode existir em lugares
-// diferentes dependendo de como a conta foi configurada no Business Manager,
-// então tenta em cadeia:
-//   1. IG vinculado direto à conta de anúncio (act_<id>/instagram_accounts)
-//   2. IG business conectado à conta (act_<id>/connected_instagram_accounts)
-//   3. IG conectado à PÁGINA promovida pela conta (promote_pages →
-//      page.instagram_business_account) — caso mais comum quando o Instagram
-//      foi conectado pela página do Facebook.
+// Busca a conta de IG de uma unidade. O caminho que funciona com o
+// META_TOKEN atual é act_<id>/connected_instagram_accounts (retorna
+// followers_count); instagram_accounts fica como fonte extra de candidatos
+// (às vezes vem sem o nº de seguidores). Alguns campos (media_count) não
+// existem em todas as combinações de edge/conta, então cada chamada tem
+// fallback com menos campos, e por último consulta o nó do IG diretamente.
 function igNorm(username, followers, media) {
   return {
     username: username || null,
@@ -35,32 +33,40 @@ function igNorm(username, followers, media) {
     media: media != null ? Number(media) : null,
   };
 }
+const igCount = ig => ig.followers_count != null ? ig.followers_count : ig.followed_by_count;
 
 async function igFetchAccount(acc) {
   const errs = [];
-  try {
-    const j = await apiFetch(acc.id, 'instagram_accounts', { fields: 'username,followed_by_count,media_count' });
-    const ig = j.data && j.data[0];
-    if (ig && ig.followed_by_count != null) return igNorm(ig.username, ig.followed_by_count, ig.media_count);
-  } catch (e) { errs.push(e.message); }
-  try {
-    const j = await apiFetch(acc.id, 'connected_instagram_accounts', { fields: 'username,followers_count,media_count' });
-    const ig = j.data && j.data[0];
-    if (ig && ig.followers_count != null) return igNorm(ig.username, ig.followers_count, ig.media_count);
-  } catch (e) { errs.push(e.message); }
-  try {
-    const pages = await apiFetch(acc.id, 'promote_pages', { fields: 'id,name' });
-    for (const p of (pages.data || [])) {
-      const pg = await apiFetch(acc.id, '', {
-        node: p.id,
-        fields: 'instagram_business_account{username,followers_count,media_count},connected_instagram_account{username,followers_count,media_count}',
-      });
-      const ig = pg.instagram_business_account || pg.connected_instagram_account;
-      if (ig) return igNorm(ig.username, ig.followers_count, ig.media_count);
+  const candidates = [];
+  const EDGES = [
+    ['connected_instagram_accounts', ['username,followers_count,media_count', 'username,followers_count']],
+    ['instagram_accounts',           ['username,followed_by_count,media_count', 'username,followed_by_count']],
+  ];
+  for (const [path, fieldsets] of EDGES) {
+    for (const fields of fieldsets) {
+      try {
+        const j = await apiFetch(acc.id, path, { fields });
+        (j.data || []).forEach(ig => candidates.push(ig));
+        break; // esse fieldset funcionou; não precisa do reduzido
+      } catch (e) { errs.push(e.message); }
     }
-  } catch (e) { errs.push(e.message); }
-  // sem vínculo encontrado: mostra o erro da API se houve (ex.: permissão
-  // faltando no token), senão a mensagem genérica
+    const ok = candidates.find(ig => igCount(ig) != null);
+    if (ok) return igNorm(ok.username, igCount(ok), ok.media_count);
+  }
+  // achou a conta mas sem o nº de seguidores no edge: consulta o nó direto
+  for (const ig of candidates) {
+    if (!ig.id) continue;
+    for (const fields of ['username,followers_count,media_count', 'username,followers_count']) {
+      try {
+        const d = await apiFetch(acc.id, '', { node: ig.id, fields });
+        if (d.followers_count != null) return igNorm(d.username || ig.username, d.followers_count, d.media_count);
+        break;
+      } catch (e) { errs.push(e.message); }
+    }
+  }
+  if (candidates.length) return igNorm(candidates[0].username, null, candidates[0].media_count);
+  // nada encontrado: mostra o erro da API se houve (ex.: permissão faltando
+  // no token), senão a mensagem genérica
   throw new Error(errs.length ? errs[errs.length - 1] : 'sem Instagram vinculado');
 }
 
