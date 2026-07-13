@@ -20,18 +20,48 @@ function igDateStr(d) {
 }
 function igDaysAgo(n) { const d = new Date(); d.setDate(d.getDate() - n); return igDateStr(d); }
 
-// Busca a conta de IG vinculada à conta de anúncio (username + seguidores).
-async function igFetchAccount(acc) {
-  const j = await apiFetch(acc.id, 'instagram_accounts', {
-    fields: 'username,followed_by_count,media_count',
-  });
-  const ig = j.data && j.data[0];
-  if (!ig) throw new Error('sem Instagram vinculado');
+// Busca a conta de IG de uma unidade. O vínculo pode existir em lugares
+// diferentes dependendo de como a conta foi configurada no Business Manager,
+// então tenta em cadeia:
+//   1. IG vinculado direto à conta de anúncio (act_<id>/instagram_accounts)
+//   2. IG business conectado à conta (act_<id>/connected_instagram_accounts)
+//   3. IG conectado à PÁGINA promovida pela conta (promote_pages →
+//      page.instagram_business_account) — caso mais comum quando o Instagram
+//      foi conectado pela página do Facebook.
+function igNorm(username, followers, media) {
   return {
-    username: ig.username || null,
-    followers: ig.followed_by_count != null ? Number(ig.followed_by_count) : null,
-    media: ig.media_count != null ? Number(ig.media_count) : null,
+    username: username || null,
+    followers: followers != null ? Number(followers) : null,
+    media: media != null ? Number(media) : null,
   };
+}
+
+async function igFetchAccount(acc) {
+  const errs = [];
+  try {
+    const j = await apiFetch(acc.id, 'instagram_accounts', { fields: 'username,followed_by_count,media_count' });
+    const ig = j.data && j.data[0];
+    if (ig && ig.followed_by_count != null) return igNorm(ig.username, ig.followed_by_count, ig.media_count);
+  } catch (e) { errs.push(e.message); }
+  try {
+    const j = await apiFetch(acc.id, 'connected_instagram_accounts', { fields: 'username,followers_count,media_count' });
+    const ig = j.data && j.data[0];
+    if (ig && ig.followers_count != null) return igNorm(ig.username, ig.followers_count, ig.media_count);
+  } catch (e) { errs.push(e.message); }
+  try {
+    const pages = await apiFetch(acc.id, 'promote_pages', { fields: 'id,name' });
+    for (const p of (pages.data || [])) {
+      const pg = await apiFetch(acc.id, '', {
+        node: p.id,
+        fields: 'instagram_business_account{username,followers_count,media_count},connected_instagram_account{username,followers_count,media_count}',
+      });
+      const ig = pg.instagram_business_account || pg.connected_instagram_account;
+      if (ig) return igNorm(ig.username, ig.followers_count, ig.media_count);
+    }
+  } catch (e) { errs.push(e.message); }
+  // sem vínculo encontrado: mostra o erro da API se houve (ex.: permissão
+  // faltando no token), senão a mensagem genérica
+  throw new Error(errs.length ? errs[errs.length - 1] : 'sem Instagram vinculado');
 }
 
 // Valor do snapshot mais recente que seja <= data alvo (ou null se o
