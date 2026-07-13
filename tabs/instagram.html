@@ -24,17 +24,20 @@
   <div class="err-banner" id="ig-err"></div>
 
   <div class="cards-grid">
-    <div class="card">    <div class="lbl">Seguidores Totais</div>  <div class="val" id="ig-total">— —</div><div class="sub">soma de todas as unidades</div></div>
-    <div class="card c2"><div class="lbl">Crescimento 7 dias</div> <div class="val" id="ig-g7">— —</div>   <div class="sub" id="ig-g7-sub">vs. semana passada</div></div>
-    <div class="card c3"><div class="lbl">Crescimento 30 dias</div><div class="val" id="ig-g30">— —</div>  <div class="sub" id="ig-g30-sub">vs. mês passado</div></div>
-    <div class="card c4"><div class="lbl">Unidades Monitoradas</div><div class="val" id="ig-count">— —</div><div class="sub">com Instagram vinculado</div></div>
+    <div class="card">    <div class="lbl">Seguidores Totais</div>       <div class="val" id="ig-total">— —</div><div class="sub">soma de todas as unidades</div></div>
+    <div class="card c3"><div class="lbl">Novos Seguidores (28d)</div>  <div class="val" id="ig-new28">— —</div><div class="sub" id="ig-new28-sub">insights da Meta</div></div>
+    <div class="card c2"><div class="lbl">Deixaram de Seguir (28d)</div><div class="val" id="ig-unf28">— —</div><div class="sub" id="ig-unf28-sub">insights da Meta</div></div>
+    <div class="card c2"><div class="lbl">Crescimento 7 dias</div>      <div class="val" id="ig-g7">— —</div>   <div class="sub" id="ig-g7-sub">vs. semana passada</div></div>
+    <div class="card c3"><div class="lbl">Crescimento 30 dias</div>     <div class="val" id="ig-g30">— —</div>  <div class="sub" id="ig-g30-sub">vs. mês passado</div></div>
+    <div class="card c4"><div class="lbl">Unidades Monitoradas</div>    <div class="val" id="ig-count">— —</div><div class="sub">com Instagram vinculado</div></div>
   </div>
 
   <div class="ig-note">
-    📌 O nº de seguidores vem ao vivo da conta de Instagram vinculada a cada conta de anúncio.
-    A API da Meta não fornece histórico retroativo de seguidores, então o painel grava um
-    <b>snapshot diário</b> (em <code>data/instagram.json</code>) toda vez que esta aba é aberta —
-    as colunas de crescimento vão se preenchendo conforme o histórico acumula.
+    📌 <b>Novos / Deixaram de seguir (28d)</b> e a <b>tendência</b> vêm dos insights oficiais da
+    Meta (mesmos números da tela "Público → Tendências" do Business Suite; a API só disponibiliza
+    os últimos 30 dias). Já as colunas <b>Δ 7/30 dias</b> usam o histórico próprio do painel: um
+    <b>snapshot diário</b> gravado em <code>data/instagram.json</code> toda vez que esta aba é
+    aberta — elas se preenchem conforme o histórico acumula.
   </div>
 
   <div class="tbl-wrap">
@@ -42,14 +45,16 @@
       <thead><tr>
         <th>Unidade</th>
         <th class="r">Seguidores</th>
+        <th class="r">Novos (28d)</th>
+        <th class="r">Deixaram (28d)</th>
         <th class="r">Δ 7 dias</th>
         <th class="r">Δ 30 dias</th>
         <th class="r">Desde o 1º registro</th>
-        <th>Tendência (30d)</th>
+        <th>Tendência (28d)</th>
         <th class="r">Posts</th>
       </tr></thead>
       <tbody id="ig-tbody">
-        <tr><td colspan="7" style="padding:40px;text-align:center;color:#bbb;font-weight:700;"><span class="spin"></span> Carregando contas de Instagram…</td></tr>
+        <tr><td colspan="9" style="padding:40px;text-align:center;color:#bbb;font-weight:700;"><span class="spin"></span> Carregando contas de Instagram…</td></tr>
       </tbody>
     </table>
   </div>
