@@ -17,7 +17,7 @@
   </div>
 
   <div class="controls">
-    <button class="btn btn-dark" onclick="igRefresh()">🔄 Atualizar</button>
+    <button class="btn btn-dark" onclick="igRefresh();igCampFetch()">🔄 Atualizar</button>
     <div class="last-up" id="ig-last-up"></div>
   </div>
 
@@ -52,4 +52,46 @@
         <tr><td colspan="7" style="padding:40px;text-align:center;color:#bbb;font-weight:700;"><span class="spin"></span> Carregando contas de Instagram…</td></tr>
       </tbody>
     </table>
+  </div>
+
+  <div class="section-title">👥 Campanhas de Seguidores (Meta Ads)</div>
+  <div class="controls" style="border-top:none;">
+    <label>📅 Período:</label>
+    <select class="sel" id="ig-camp-preset" onchange="igCampFetch()">
+      <option value="last_month" selected>Mês passado</option>
+      <option value="this_month">Este mês</option>
+      <option value="last_30d">Últimos 30 dias</option>
+      <option value="last_7d">Últimos 7 dias</option>
+    </select>
+    <div class="last-up" id="ig-camp-last-up"></div>
+  </div>
+
+  <div class="cards-grid" style="padding-top:0;">
+    <div class="card">    <div class="lbl">Investido em Seguidores</div><div class="val" id="igc-spend">— —</div><div class="sub">campanhas de seguidores/engajamento</div></div>
+    <div class="card c2"><div class="lbl">Novos Seguidores (Ads)</div> <div class="val" id="igc-follows">— —</div><div class="sub">resultado reportado pela Meta</div></div>
+    <div class="card c3"><div class="lbl">Custo por Seguidor</div>     <div class="val" id="igc-cpf">— —</div>    <div class="sub">média geral do período</div></div>
+    <div class="card c4"><div class="lbl">Unidades com Campanha</div>  <div class="val" id="igc-count">— —</div>  <div class="sub">investiram em seguidores no período</div></div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Unidade</th>
+        <th>Campanhas</th>
+        <th class="r">Investido</th>
+        <th class="r">Novos Seguidores</th>
+        <th class="r">Custo / Seguidor</th>
+        <th class="r">Alcance</th>
+        <th class="r">Engajamento</th>
+      </tr></thead>
+      <tbody id="ig-camp-tbody">
+        <tr><td colspan="7" style="padding:40px;text-align:center;color:#bbb;font-weight:700;"><span class="spin"></span> Carregando campanhas…</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="ig-note" style="margin-top:0;">
+    ℹ️ São consideradas campanhas de <b>engajamento/seguidores</b> (objetivo da Meta ou nome com
+    "seguidores"/"perfil"/"follow"). "Novos Seguidores" usa as ações de follow/curtida de página
+    reportadas nos insights da campanha — compare com a coluna "Δ 30 dias" da tabela de cima pra
+    ver o efeito líquido no perfil.
   </div>

@@ -160,7 +160,89 @@ async function igRefresh() {
   document.getElementById('ig-last-up').textContent = 'Atualizado às ' + new Date().toLocaleTimeString('pt-BR');
 }
 
+// ── Campanhas de Seguidores (Meta Ads) ──────────────────────────────────────
+// Usa os helpers globais de objectives.js: fetchRelCampaigns, classifyObjective,
+// getAct e A_FOLLOW/A_ENG. Considera "campanha de seguidores" a que tem
+// objetivo de engajamento OU nome com seguidor/perfil/follow, e soma as ações
+// de follow reportadas pelos insights da Meta no período escolhido.
+
+function igIsFollowerCampaign(c) {
+  if (/seguidor|perfil|follow/i.test(c.name || '')) return true;
+  return classifyObjective(c) === 'engaj';
+}
+
+// getAct cobre os action types conhecidos (A_FOLLOW); o fallback varre
+// qualquer action_type que contenha "follow" (a Meta varia a nomenclatura).
+function igFollowActions(actions) {
+  const known = getAct(actions, A_FOLLOW);
+  if (known) return known;
+  if (!Array.isArray(actions)) return 0;
+  return actions.filter(a => /follow/i.test(a.action_type || ''))
+                .reduce((s, a) => s + (parseFloat(a.value) || 0), 0);
+}
+
+async function igCampFetch() {
+  const preset = document.getElementById('ig-camp-preset').value;
+  const tbody = document.getElementById('ig-camp-tbody');
+  tbody.innerHTML = '<tr><td colspan="7" style="padding:40px;text-align:center;color:#bbb;font-weight:700;"><span class="spin"></span> Carregando campanhas…</td></tr>';
+
+  const valid = ACCOUNTS.filter(a => a.id);
+  const results = [];
+  for (let i = 0; i < valid.length; i += 4) {
+    const chunk = await Promise.all(valid.slice(i, i + 4).map(async acc => {
+      try {
+        const camps = (await fetchRelCampaigns(acc.id, { preset }))
+          .filter(igIsFollowerCampaign)
+          .map(c => {
+            const ins = c.insights?.data?.[0] || {};
+            return {
+              name: c.name,
+              spend: parseFloat(ins.spend) || 0,
+              follows: igFollowActions(ins.actions),
+              engagement: getAct(ins.actions, A_ENG),
+              reach: parseInt(ins.reach) || 0,
+            };
+          })
+          .filter(c => c.spend > 0);
+        return { ...acc, camps };
+      } catch (e) { return { ...acc, err: e.message, camps: [] }; }
+    }));
+    results.push(...chunk);
+  }
+
+  let tSpend = 0, tFollows = 0, tCount = 0;
+  tbody.innerHTML = '';
+  results.forEach(r => {
+    if (!r.camps.length) return;
+    const spend = r.camps.reduce((s, c) => s + c.spend, 0);
+    const follows = r.camps.reduce((s, c) => s + c.follows, 0);
+    const engagement = r.camps.reduce((s, c) => s + c.engagement, 0);
+    const reach = r.camps.reduce((s, c) => s + c.reach, 0);
+    tSpend += spend; tFollows += follows; tCount++;
+    const names = r.camps.map(c =>
+      `<div style="font-size:11px;color:#888;font-weight:600;">• ${c.name}</div>`).join('');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><span class="sname">${r.name}</span></td>
+      <td>${names}</td>
+      <td class="num spend">${fmt(spend)}</td>
+      <td class="num">${follows ? '<span class="ig-delta up">▲ +' + fmtN(follows) + '</span>' : '<span class="ig-delta na" title="a Meta não reportou ações de follow nessas campanhas">—</span>'}</td>
+      <td class="num">${follows ? fmt(spend / follows) : '—'}</td>
+      <td class="num">${fmtN(reach)}</td>
+      <td class="num">${fmtN(engagement)}</td>`;
+    tbody.appendChild(tr);
+  });
+  if (!tbody.children.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="padding:40px;text-align:center;color:#bbb;font-weight:700;">Nenhuma campanha de seguidores com investimento no período.</td></tr>';
+  }
+
+  document.getElementById('igc-spend').textContent   = fmt(tSpend);
+  document.getElementById('igc-follows').textContent = tFollows ? '+' + fmtN(tFollows) : '—';
+  document.getElementById('igc-cpf').textContent     = tFollows ? fmt(tSpend / tFollows) : '—';
+  document.getElementById('igc-count').textContent   = fmtN(tCount) + ' / ' + valid.length;
+  document.getElementById('ig-camp-last-up').textContent = 'Atualizado às ' + new Date().toLocaleTimeString('pt-BR');
+}
+
 function init_instagram() {
   paintTodayDate('ig-date');
-  igRefresh();
+  igRefresh().then(igCampFetch);
 }
