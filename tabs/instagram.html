@@ -1,0 +1,97 @@
+  <style>
+    /* estilos exclusivos da aba Instagram */
+    .ig-delta{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:800;letter-spacing:.3px;}
+    .ig-delta.up{background:#e6f9ef;color:var(--green,#27ae60);}
+    .ig-delta.down{background:#fdecec;color:var(--red,#e94560);}
+    .ig-delta.flat{background:#f5f5f5;color:#999;}
+    .ig-delta.na{background:transparent;color:#ccc;font-weight:700;}
+    .ig-spark{display:block;}
+    .ig-user{color:#c13584;font-size:11px;font-weight:700;display:block;margin-top:1px;text-decoration:none;}
+    .ig-user:hover{text-decoration:underline;}
+    .ig-note{margin:0 28px 14px;background:#f0f8fc;border:1.5px solid var(--b5,#d6eefa);border-radius:10px;padding:10px 16px;font-size:12px;color:#557;font-weight:600;line-height:1.5;}
+  </style>
+
+  <div class="subheader">
+    <div><div class="sh-title">Crescimento do Instagram</div><div class="sh-sub">Seguidores e evolução das contas de cada unidade</div></div>
+    <div class="sh-right" id="ig-date"></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-dark" onclick="igRefresh();igCampFetch()">🔄 Atualizar</button>
+    <div class="last-up" id="ig-last-up"></div>
+  </div>
+
+  <div class="err-banner" id="ig-err"></div>
+
+  <div class="cards-grid">
+    <div class="card">    <div class="lbl">Seguidores Totais</div>  <div class="val" id="ig-total">— —</div><div class="sub">soma de todas as unidades</div></div>
+    <div class="card c2"><div class="lbl">Crescimento 7 dias</div> <div class="val" id="ig-g7">— —</div>   <div class="sub" id="ig-g7-sub">vs. semana passada</div></div>
+    <div class="card c3"><div class="lbl">Crescimento 30 dias</div><div class="val" id="ig-g30">— —</div>  <div class="sub" id="ig-g30-sub">vs. mês passado</div></div>
+    <div class="card c4"><div class="lbl">Unidades Monitoradas</div><div class="val" id="ig-count">— —</div><div class="sub">com Instagram vinculado</div></div>
+  </div>
+
+  <div class="ig-note">
+    📌 O nº de seguidores vem ao vivo da conta de Instagram vinculada a cada conta de anúncio.
+    A API da Meta não fornece histórico retroativo de seguidores, então o painel grava um
+    <b>snapshot diário</b> (em <code>data/instagram.json</code>) toda vez que esta aba é aberta —
+    as colunas de crescimento vão se preenchendo conforme o histórico acumula.
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Unidade</th>
+        <th class="r">Seguidores</th>
+        <th class="r">Δ 7 dias</th>
+        <th class="r">Δ 30 dias</th>
+        <th class="r">Desde o 1º registro</th>
+        <th>Tendência (30d)</th>
+        <th class="r">Posts</th>
+      </tr></thead>
+      <tbody id="ig-tbody">
+        <tr><td colspan="7" style="padding:40px;text-align:center;color:#bbb;font-weight:700;"><span class="spin"></span> Carregando contas de Instagram…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">👥 Campanhas de Seguidores (Meta Ads)</div>
+  <div class="controls" style="border-top:none;">
+    <label>📅 Período:</label>
+    <select class="sel" id="ig-camp-preset" onchange="igCampFetch()">
+      <option value="last_month" selected>Mês passado</option>
+      <option value="this_month">Este mês</option>
+      <option value="last_30d">Últimos 30 dias</option>
+      <option value="last_7d">Últimos 7 dias</option>
+    </select>
+    <div class="last-up" id="ig-camp-last-up"></div>
+  </div>
+
+  <div class="cards-grid" style="padding-top:0;">
+    <div class="card">    <div class="lbl">Investido em Seguidores</div><div class="val" id="igc-spend">— —</div><div class="sub">campanhas de seguidores/engajamento</div></div>
+    <div class="card c2"><div class="lbl">Novos Seguidores (Ads)</div> <div class="val" id="igc-follows">— —</div><div class="sub">resultado reportado pela Meta</div></div>
+    <div class="card c3"><div class="lbl">Custo por Seguidor</div>     <div class="val" id="igc-cpf">— —</div>    <div class="sub">média geral do período</div></div>
+    <div class="card c4"><div class="lbl">Unidades com Campanha</div>  <div class="val" id="igc-count">— —</div>  <div class="sub">investiram em seguidores no período</div></div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Unidade</th>
+        <th>Campanhas</th>
+        <th class="r">Investido</th>
+        <th class="r">Novos Seguidores</th>
+        <th class="r">Custo / Seguidor</th>
+        <th class="r">Alcance</th>
+        <th class="r">Engajamento</th>
+      </tr></thead>
+      <tbody id="ig-camp-tbody">
+        <tr><td colspan="7" style="padding:40px;text-align:center;color:#bbb;font-weight:700;"><span class="spin"></span> Carregando campanhas…</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="ig-note" style="margin-top:0;">
+    ℹ️ São consideradas campanhas de <b>engajamento/seguidores</b> (objetivo da Meta ou nome com
+    "seguidores"/"perfil"/"follow"). "Novos Seguidores" usa as ações de follow/curtida de página
+    reportadas nos insights da campanha — compare com a coluna "Δ 30 dias" da tabela de cima pra
+    ver o efeito líquido no perfil.
+  </div>
