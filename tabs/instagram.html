@@ -24,17 +24,20 @@
   <div class="err-banner" id="ig-err"></div>
 
   <div class="cards-grid">
-    <div class="card">    <div class="lbl">Seguidores Totais</div>  <div class="val" id="ig-total">— —</div><div class="sub">soma de todas as unidades</div></div>
-    <div class="card c2"><div class="lbl">Crescimento 7 dias</div> <div class="val" id="ig-g7">— —</div>   <div class="sub" id="ig-g7-sub">vs. semana passada</div></div>
-    <div class="card c3"><div class="lbl">Crescimento 30 dias</div><div class="val" id="ig-g30">— —</div>  <div class="sub" id="ig-g30-sub">vs. mês passado</div></div>
-    <div class="card c4"><div class="lbl">Unidades Monitoradas</div><div class="val" id="ig-count">— —</div><div class="sub">com Instagram vinculado</div></div>
+    <div class="card">    <div class="lbl">Seguidores Totais</div>       <div class="val" id="ig-total">— —</div><div class="sub">soma de todas as unidades</div></div>
+    <div class="card c3"><div class="lbl">Novos Seguidores (28d)</div>  <div class="val" id="ig-new28">— —</div><div class="sub" id="ig-new28-sub">insights da Meta</div></div>
+    <div class="card c2"><div class="lbl">Deixaram de Seguir (28d)</div><div class="val" id="ig-unf28">— —</div><div class="sub" id="ig-unf28-sub">insights da Meta</div></div>
+    <div class="card c2"><div class="lbl">Crescimento 7 dias</div>      <div class="val" id="ig-g7">— —</div>   <div class="sub" id="ig-g7-sub">vs. semana passada</div></div>
+    <div class="card c3"><div class="lbl">Crescimento 30 dias</div>     <div class="val" id="ig-g30">— —</div>  <div class="sub" id="ig-g30-sub">vs. mês passado</div></div>
+    <div class="card c4"><div class="lbl">Unidades Monitoradas</div>    <div class="val" id="ig-count">— —</div><div class="sub">com Instagram vinculado</div></div>
   </div>
 
   <div class="ig-note">
-    📌 O nº de seguidores vem ao vivo da conta de Instagram vinculada a cada conta de anúncio.
-    A API da Meta não fornece histórico retroativo de seguidores, então o painel grava um
-    <b>snapshot diário</b> (em <code>data/instagram.json</code>) toda vez que esta aba é aberta —
-    as colunas de crescimento vão se preenchendo conforme o histórico acumula.
+    📌 <b>Novos / Deixaram de seguir (28d)</b> e a <b>tendência</b> vêm dos insights oficiais da
+    Meta (mesmos números da tela "Público → Tendências" do Business Suite; a API só disponibiliza
+    os últimos 30 dias). Já as colunas <b>Δ 7/30 dias</b> usam o histórico próprio do painel: um
+    <b>snapshot diário</b> gravado em <code>data/instagram.json</code> toda vez que esta aba é
+    aberta — elas se preenchem conforme o histórico acumula.
   </div>
 
   <div class="tbl-wrap">
@@ -42,14 +45,16 @@
       <thead><tr>
         <th>Unidade</th>
         <th class="r">Seguidores</th>
+        <th class="r">Novos (28d)</th>
+        <th class="r">Deixaram (28d)</th>
         <th class="r">Δ 7 dias</th>
         <th class="r">Δ 30 dias</th>
         <th class="r">Desde o 1º registro</th>
-        <th>Tendência (30d)</th>
+        <th>Tendência (28d)</th>
         <th class="r">Posts</th>
       </tr></thead>
       <tbody id="ig-tbody">
-        <tr><td colspan="7" style="padding:40px;text-align:center;color:#bbb;font-weight:700;"><span class="spin"></span> Carregando contas de Instagram…</td></tr>
+        <tr><td colspan="9" style="padding:40px;text-align:center;color:#bbb;font-weight:700;"><span class="spin"></span> Carregando contas de Instagram…</td></tr>
       </tbody>
     </table>
   </div>
@@ -68,7 +73,7 @@
 
   <div class="cards-grid" style="padding-top:0;">
     <div class="card">    <div class="lbl">Investido em Seguidores</div><div class="val" id="igc-spend">— —</div><div class="sub">campanhas de seguidores/engajamento</div></div>
-    <div class="card c2"><div class="lbl">Novos Seguidores (Ads)</div> <div class="val" id="igc-follows">— —</div><div class="sub">resultado reportado pela Meta</div></div>
+    <div class="card c2"><div class="lbl">Novos Seguidores (Ads)</div> <div class="val" id="igc-follows">— —</div><div class="sub">quando exposto pela API da Meta</div></div>
     <div class="card c3"><div class="lbl">Custo por Seguidor</div>     <div class="val" id="igc-cpf">— —</div>    <div class="sub">média geral do período</div></div>
     <div class="card c4"><div class="lbl">Unidades com Campanha</div>  <div class="val" id="igc-count">— —</div>  <div class="sub">investiram em seguidores no período</div></div>
   </div>
@@ -91,7 +96,11 @@
   </div>
   <div class="ig-note" style="margin-top:0;">
     ℹ️ São consideradas campanhas de <b>engajamento/seguidores</b> (objetivo da Meta ou nome com
-    "seguidores"/"perfil"/"follow"). "Novos Seguidores" usa as ações de follow/curtida de página
-    reportadas nos insights da campanha — compare com a coluna "Δ 30 dias" da tabela de cima pra
-    ver o efeito líquido no perfil.
+    "seguidores"/"perfil"/"follow"). ⚠️ A coluna <b>"Seguidores no Instagram"</b> do Gerenciador é
+    uma métrica que a Meta lançou em 2025 e <b>ainda não expõe na API</b> — por isso "Novos
+    Seguidores" pode aparecer como "—" mesmo com resultados no Gerenciador (o painel testa o campo
+    a cada carregamento e passa a exibir automaticamente quando a Meta liberar). Enquanto isso, o
+    efeito real das campanhas aparece nas colunas <b>Novos (28d)</b> e <b>Δ 30 dias</b> da tabela
+    de cima, que vêm do perfil do Instagram. Curtidas de página do Facebook não são contadas como
+    seguidores.
   </div>
