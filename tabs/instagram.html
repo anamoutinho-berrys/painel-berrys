@@ -73,7 +73,7 @@
 
   <div class="cards-grid" style="padding-top:0;">
     <div class="card">    <div class="lbl">Investido em Seguidores</div><div class="val" id="igc-spend">— —</div><div class="sub">campanhas de seguidores/engajamento</div></div>
-    <div class="card c2"><div class="lbl">Novos Seguidores (Ads)</div> <div class="val" id="igc-follows">— —</div><div class="sub">resultado reportado pela Meta</div></div>
+    <div class="card c2"><div class="lbl">Novos Seguidores (Ads)</div> <div class="val" id="igc-follows">— —</div><div class="sub">quando exposto pela API da Meta</div></div>
     <div class="card c3"><div class="lbl">Custo por Seguidor</div>     <div class="val" id="igc-cpf">— —</div>    <div class="sub">média geral do período</div></div>
     <div class="card c4"><div class="lbl">Unidades com Campanha</div>  <div class="val" id="igc-count">— —</div>  <div class="sub">investiram em seguidores no período</div></div>
   </div>
@@ -96,7 +96,11 @@
   </div>
   <div class="ig-note" style="margin-top:0;">
     ℹ️ São consideradas campanhas de <b>engajamento/seguidores</b> (objetivo da Meta ou nome com
-    "seguidores"/"perfil"/"follow"). "Novos Seguidores" usa as ações de follow/curtida de página
-    reportadas nos insights da campanha — compare com a coluna "Δ 30 dias" da tabela de cima pra
-    ver o efeito líquido no perfil.
+    "seguidores"/"perfil"/"follow"). ⚠️ A coluna <b>"Seguidores no Instagram"</b> do Gerenciador é
+    uma métrica que a Meta lançou em 2025 e <b>ainda não expõe na API</b> — por isso "Novos
+    Seguidores" pode aparecer como "—" mesmo com resultados no Gerenciador (o painel testa o campo
+    a cada carregamento e passa a exibir automaticamente quando a Meta liberar). Enquanto isso, o
+    efeito real das campanhas aparece nas colunas <b>Novos (28d)</b> e <b>Δ 30 dias</b> da tabela
+    de cima, que vêm do perfil do Instagram. Curtidas de página do Facebook não são contadas como
+    seguidores.
   </div>

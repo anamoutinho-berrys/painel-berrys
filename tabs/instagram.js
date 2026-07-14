@@ -270,14 +270,37 @@ function igIsFollowerCampaign(c) {
   return classifyObjective(c) === 'engaj';
 }
 
-// getAct cobre os action types conhecidos (A_FOLLOW); o fallback varre
-// qualquer action_type que contenha "follow" (a Meta varia a nomenclatura).
-function igFollowActions(actions) {
-  const known = getAct(actions, A_FOLLOW);
-  if (known) return known;
-  if (!Array.isArray(actions)) return 0;
-  return actions.filter(a => /follow/i.test(a.action_type || ''))
-                .reduce((s, a) => s + (parseFloat(a.value) || 0), 0);
+// "Seguidores no Instagram" do Gerenciador: métrica lançada pela Meta em
+// jul/2025 que (até a última verificação) NÃO é exposta na Marketing API —
+// diagnóstico real mostrou que não existe nenhum action_type de follow nas
+// respostas. Estratégia: tenta o campo dedicado instagram_follows (se a Meta
+// liberar na API, passa a funcionar sozinho) e aceita action types com
+// "follow" explícito. Curtidas de página (like/page_like) NÃO contam — são
+// seguidores da página do Facebook, não do Instagram.
+function igCampFollows(ins) {
+  if (ins.instagram_follows != null) return Number(ins.instagram_follows) || 0;
+  const acts = Array.isArray(ins.actions) ? ins.actions : [];
+  return acts.filter(a => /follow/i.test(a.action_type || '') && !/unfollow/i.test(a.action_type || ''))
+             .reduce((s, a) => s + (parseFloat(a.value) || 0), 0);
+}
+
+// Busca campanhas tentando incluir instagram_follows; a API v22 rejeita o
+// campo ("is not valid for fields param" — verificado em produção), então o
+// resultado do primeiro probe vale pro carregamento inteiro: se falhar, as
+// demais contas vão direto pro fetcher padrão (objectives.js), sem ele.
+let igFollowsFieldOk = null; // null = ainda não testado nesta sessão
+async function igFetchCampaigns(id, preset) {
+  if (igFollowsFieldOk !== false) {
+    try {
+      const j = await apiFetch(id, 'campaigns', {
+        fields: 'name,status,objective,insights{spend,reach,actions,instagram_follows}',
+        limit: 50, preset,
+      });
+      igFollowsFieldOk = true;
+      return j.data || [];
+    } catch (e) { igFollowsFieldOk = false; }
+  }
+  return fetchRelCampaigns(id, { preset });
 }
 
 async function igCampFetch() {
@@ -290,14 +313,14 @@ async function igCampFetch() {
   for (let i = 0; i < valid.length; i += 4) {
     const chunk = await Promise.all(valid.slice(i, i + 4).map(async acc => {
       try {
-        const camps = (await fetchRelCampaigns(acc.id, { preset }))
+        const camps = (await igFetchCampaigns(acc.id, preset))
           .filter(igIsFollowerCampaign)
           .map(c => {
             const ins = c.insights?.data?.[0] || {};
             return {
               name: c.name,
               spend: parseFloat(ins.spend) || 0,
-              follows: igFollowActions(ins.actions),
+              follows: igCampFollows(ins),
               engagement: getAct(ins.actions, A_ENG),
               reach: parseInt(ins.reach) || 0,
             };
@@ -324,7 +347,7 @@ async function igCampFetch() {
     tr.innerHTML = `<td><span class="sname">${r.name}</span></td>
       <td>${names}</td>
       <td class="num spend">${fmt(spend)}</td>
-      <td class="num">${follows ? '<span class="ig-delta up">▲ +' + fmtN(follows) + '</span>' : '<span class="ig-delta na" title="a Meta não reportou ações de follow nessas campanhas">—</span>'}</td>
+      <td class="num">${follows ? '<span class="ig-delta up">▲ +' + fmtN(follows) + '</span>' : '<span class="ig-delta na" title="a métrica \'Seguidores no Instagram\' existe no Gerenciador, mas a Meta ainda não a expõe na API">—</span>'}</td>
       <td class="num">${follows ? fmt(spend / follows) : '—'}</td>
       <td class="num">${fmtN(reach)}</td>
       <td class="num">${fmtN(engagement)}</td>`;
