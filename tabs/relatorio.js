@@ -256,6 +256,7 @@ function computeNetworkTopCreatives(unitsAds) {
     });
   });
   return [...map.values()]
+    .filter(c => c.units.size > 1) // só criativos que se destacaram em mais de uma unidade
     .sort((a, b) => (b.units.size - a.units.size) || (b.spend - a.spend))
     .slice(0, 10);
 }
@@ -264,17 +265,20 @@ function renderNetworkTopCreatives(list) {
   const wrap = document.getElementById('rel-top-creatives');
   if (!wrap) return;
   if (!list.length) {
-    wrap.innerHTML = `<div class="rel-nodata">Nenhum criativo com gasto no período.</div>`;
+    wrap.innerHTML = `<div class="rel-nodata">Nenhum criativo se destacou em mais de uma unidade no período.</div>`;
     return;
   }
   const rankCls = ['r1', 'r2', 'r3'];
   wrap.innerHTML = list.map((c, i) => `
-    <div class="rel-ad-item">
-      <div class="rel-ad-rank ${rankCls[i] || 'rn'}">${i + 1}</div>
-      ${c.thumb ? `<img class="rel-ad-thumb" src="${c.thumb}" onerror="this.style.display='none'" loading="lazy"/>` : `<div class="rel-ad-thumb"></div>`}
-      <div class="rel-ad-info">
-        <div class="rel-ad-name">${c.name}</div>
-        <div class="rel-ad-metrics">🏬 top em ${c.units.size} unidade${c.units.size > 1 ? 's' : ''} · ${fmt(c.spend)} · ${fmtN(c.reach)} alcance · ${fmtN(c.clicks)} cliques${c.purchases > 0 ? ` · 🛍️ ${fmtN(c.purchases)} compras` : ''}</div>
+    <div class="rel-net-creative-card">
+      <div class="rel-net-creative-thumb-wrap">
+        <div class="rel-net-creative-rank ${rankCls[i] || 'rn'}">${i + 1}</div>
+        <div class="rel-net-creative-units">🏬 ${c.units.size} unidades</div>
+        ${c.thumb ? `<img class="rel-net-creative-thumb" src="${c.thumb}" onerror="this.style.display='none'" loading="lazy"/>` : ''}
+      </div>
+      <div class="rel-net-creative-body">
+        <div class="rel-net-creative-name" title="${c.name}">${c.name}</div>
+        <div class="rel-net-creative-metrics">${fmt(c.spend)} · ${fmtN(c.reach)} alcance · ${fmtN(c.clicks)} cliques${c.purchases > 0 ? ` · 🛍️ ${fmtN(c.purchases)} compras` : ''}</div>
       </div>
     </div>
   `).join('');
