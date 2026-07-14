@@ -190,9 +190,9 @@
     .rel-sec-sub{font-size:14px;color:var(--ry-2);font-weight:800;margin-top:4px;}
     .rel-sec-sub::after{content:"";display:block;width:170px;height:2.5px;background:var(--ry-2);border-radius:2px;margin-top:7px;}
     /* Grid de unidades */
-    .rel-units-wrap{padding:16px 28px 34px;columns:430px;column-gap:22px;}
+    .rel-units-wrap{padding:16px 28px 34px;display:grid;grid-template-columns:repeat(auto-fill,minmax(430px,1fr));gap:22px;align-items:start;}
     /* Card da unidade */
-    .rel-unit-card{background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 8px 30px rgba(22,86,192,.12);border:2px solid var(--ry-bd);break-inside:avoid;margin-bottom:22px;}
+    .rel-unit-card{background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 8px 30px rgba(22,86,192,.12);border:2px solid var(--ry-bd);}
     .rel-card-header{padding:18px 20px 12px;display:flex;align-items:center;gap:13px;flex-wrap:wrap;}
     .rel-card-icon-wrap{width:52px;height:52px;background:var(--ry-lt);border:2px solid var(--ry-bd);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
     .rel-card-title{font-family:'Bebas Neue',cursive;font-size:26px;color:var(--ry);letter-spacing:1px;flex:1;line-height:1.05;min-width:120px;}
@@ -256,6 +256,9 @@
     .rel-ad-rank.r1{background:#f5a623;color:#fff;}
     .rel-ad-rank.r2{background:#9b9b9b;color:#fff;}
     .rel-ad-rank.r3{background:#cd7f32;color:#fff;}
+    .rel-ad-rank.rn{background:var(--ry-2);color:#fff;}
+    .rel-top-creatives-wrap{padding:6px 28px 10px;}
+    .rel-top-creatives-card{max-width:900px;margin:0 auto;}
     .rel-ad-thumb{width:44px;height:44px;object-fit:cover;border-radius:10px;flex-shrink:0;background:var(--ry-lt);border:1.5px solid var(--ry-bd);}
     .rel-ad-info{flex:1;min-width:0;}
     .rel-ad-name{font-weight:800;font-size:12px;color:var(--ry-navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}

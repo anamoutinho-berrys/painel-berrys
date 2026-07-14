@@ -234,6 +234,52 @@ function renderRelUnit(acc, insights, topAds, campaigns, hasData, unitErr) {
   return card;
 }
 
+// agrega os "melhores anúncios" (já top-3 por unidade) numa lista única da rede,
+// contando em quantas unidades cada criativo apareceu como destaque
+function computeNetworkTopCreatives(unitsAds) {
+  const map = new Map();
+  unitsAds.forEach(({ accName, ads }) => {
+    ads.forEach(ad => {
+      const ins = ad.insights?.data?.[0];
+      if (!ins) return;
+      const key = ad.name;
+      if (!map.has(key)) {
+        map.set(key, { name: ad.name, thumb: ad.creative?.thumbnail_url, units: new Set(), spend: 0, reach: 0, clicks: 0, purchases: 0 });
+      }
+      const e = map.get(key);
+      e.units.add(accName);
+      e.spend     += parseFloat(ins.spend) || 0;
+      e.reach     += parseInt(ins.reach) || 0;
+      e.clicks    += parseInt(ins.clicks) || 0;
+      e.purchases += getAct(ins.actions, A_PURCHASE);
+      if (!e.thumb && ad.creative?.thumbnail_url) e.thumb = ad.creative.thumbnail_url;
+    });
+  });
+  return [...map.values()]
+    .sort((a, b) => (b.units.size - a.units.size) || (b.spend - a.spend))
+    .slice(0, 10);
+}
+
+function renderNetworkTopCreatives(list) {
+  const wrap = document.getElementById('rel-top-creatives');
+  if (!wrap) return;
+  if (!list.length) {
+    wrap.innerHTML = `<div class="rel-nodata">Nenhum criativo com gasto no período.</div>`;
+    return;
+  }
+  const rankCls = ['r1', 'r2', 'r3'];
+  wrap.innerHTML = list.map((c, i) => `
+    <div class="rel-ad-item">
+      <div class="rel-ad-rank ${rankCls[i] || 'rn'}">${i + 1}</div>
+      ${c.thumb ? `<img class="rel-ad-thumb" src="${c.thumb}" onerror="this.style.display='none'" loading="lazy"/>` : `<div class="rel-ad-thumb"></div>`}
+      <div class="rel-ad-info">
+        <div class="rel-ad-name">${c.name}</div>
+        <div class="rel-ad-metrics">🏬 top em ${c.units.size} unidade${c.units.size > 1 ? 's' : ''} · ${fmt(c.spend)} · ${fmtN(c.reach)} alcance · ${fmtN(c.clicks)} cliques${c.purchases > 0 ? ` · 🛍️ ${fmtN(c.purchases)} compras` : ''}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
 async function relFetch() {
   const dateParams = getRelDateParams();
   if (!dateParams) { alert('Preencha as datas de início e fim.'); return; }
@@ -241,6 +287,7 @@ async function relFetch() {
   const valid = ACCOUNTS.filter(a => a.id && !a.card);
   const wrap  = document.getElementById('rel-units-wrap');
   wrap.innerHTML = '';
+  const networkAdsData = [];
 
   const pw = document.getElementById('rel-prog-wrap');
   const pf = document.getElementById('rel-prog-fill');
@@ -271,6 +318,7 @@ async function relFetch() {
       if (results[0].status === 'fulfilled') ins = results[0].value; else unitErr = results[0].reason?.message || 'erro na API';
       if (results[1].status === 'fulfilled') topAds = results[1].value;
       if (results[2].status === 'fulfilled') campaigns = results[2].value;
+      if (topAds.length) networkAdsData.push({ accName: acc.name, ads: topAds });
 
       const hasData = ins.spend > 0 || ins.impressions > 0;
       if (unitErr) relErrors.push(acc.name + ': ' + unitErr);
@@ -313,6 +361,8 @@ async function relFetch() {
     return (+(b.dataset.spend||0)) - (+(a.dataset.spend||0));   // maior investimento primeiro
   });
   cards.forEach(c => wrap.appendChild(c));
+
+  renderNetworkTopCreatives(computeNetworkTopCreatives(networkAdsData));
 
   if (relErrors.length && errEl) {
     errEl.style.display = 'block';
