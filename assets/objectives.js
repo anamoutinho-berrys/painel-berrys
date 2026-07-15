@@ -99,6 +99,22 @@ async function fetchRelInsights(id, dateParams) {
   throw lastErr || new Error('insights indisponíveis');
 }
 
+// IMPORTANTE: date_preset/time_range passados como parâmetro de query no
+// nível do request (ex.: ?date_preset=last_7d) NÃO se propagam para uma
+// edge aninhada via field-expansion como "insights{spend,...}" — a Graph API
+// exige o escopo de data dentro da própria expansão (insights.date_preset(x){...}
+// ou insights.time_range({...}){...}). Sem isso, o "insights" de campaigns/ads
+// sempre volta com o período padrão da API (não o período selecionado no
+// filtro), o que explica valores de campanha/anúncio que não batem com os
+// totais gerais da conta (que usam o endpoint insights direto, sem aninhamento).
+function scopeInsightsField(fieldsTpl, dateParams) {
+  if (!dateParams) return fieldsTpl;
+  let scope = '';
+  if (dateParams.time_range) scope = `.time_range(${dateParams.time_range})`;
+  else if (dateParams.preset) scope = `.date_preset(${dateParams.preset})`;
+  return fieldsTpl.replace('insights{', `insights${scope}{`);
+}
+
 const REL_CAMPAIGN_FIELDSETS = [
   // completo: métricas de conversão para exibir compras/ROAS por objetivo
   'name,status,objective,insights{spend,impressions,reach,frequency,clicks,inline_link_clicks,cpm,ctr,cpc,actions,action_values,purchase_roas}',
@@ -110,7 +126,7 @@ const REL_CAMPAIGN_FIELDSETS = [
 async function fetchRelCampaigns(id, dateParams) {
   for (const fields of REL_CAMPAIGN_FIELDSETS) {
     try {
-      const j = await apiFetch(id, 'campaigns', { fields, limit: 50, ...dateParams });
+      const j = await apiFetch(id, 'campaigns', { fields: scopeInsightsField(fields, dateParams), limit: 200, ...dateParams });
       return (j.data || []).filter(c =>
         parseFloat(c.insights?.data?.[0]?.spend || 0) > 0 || c.status === 'ACTIVE'
       );
@@ -126,7 +142,7 @@ const REL_AD_FIELDSETS = [
 async function fetchRelTopAds(id, dateParams) {
   for (const fields of REL_AD_FIELDSETS) {
     try {
-      const j = await apiFetch(id, 'ads', { fields, limit: 50, ...dateParams });
+      const j = await apiFetch(id, 'ads', { fields: scopeInsightsField(fields, dateParams), limit: 200, ...dateParams });
       const ads = (j.data || []).filter(a => a.insights?.data?.[0]?.spend > 0);
       return ads.sort((a, b) =>
         (parseFloat(b.insights.data[0].spend) || 0) - (parseFloat(a.insights.data[0].spend) || 0)
