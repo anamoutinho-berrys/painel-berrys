@@ -88,7 +88,10 @@ const CAMPAIGN_THEMES = [
   { label:'🎉 Sabor Junino',        color:'#e07b00', bg:'#fff5e8', netGroup:true, keys:['junino','junina','arraiá','arraial','festa jun','são joão','sao joao'] },
   { label:'👥 Influenciador',       color:'#9b59b6', bg:'#f8f0ff', keys:['influenciador','influencer','ugc'] },
   { label:'👤 Seguidores / Visitas',color:'#27ae60', bg:'#edfdf5', keys:['seguidores','visitas','visitas ao perfil','novos seguidores','perfil'] },
-  { label:'🥞 Brownie na Chapa',    color:'#7c5c2e', bg:'#fdf5eb', netGroup:true, keys:['brownie','chapa'] },
+  // duas sobremesas diferentes — "com Calda Quente" (delivery) vem antes para
+  // que o nome dela não caia no grupo "na Chapa" pela palavra "brownie"
+  { label:'🍫 Brownie com Calda Quente', color:'#8b4513', bg:'#fdf0e6', netGroup:true, keys:['calda quente','brownie com calda','brownie calda'] },
+  { label:'🥞 Brownie na Chapa',    color:'#7c5c2e', bg:'#fdf5eb', netGroup:true, keys:['brownie na chapa','na chapa','chapa'] },
   // delivery com objetivo ambíguo (não é vendas nem tráfego) — iFood e Anota
   // Aí são resolvidos à parte em classifyCampaigns() via deliveryPlatformFor()
   DELIVERY_GENERIC_THEME,
