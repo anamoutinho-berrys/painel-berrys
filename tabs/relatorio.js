@@ -128,15 +128,15 @@ function unitIcon(name) {
 }
 
 // plataforma(s) de delivery em que a unidade está anunciando no período,
-// detectadas pelo nome das campanhas com gasto (Anota Aí e/ou iFood)
+// detectadas pelo nome das campanhas com gasto (Anota Aí e/ou iFood) — usa a
+// mesma tabela DELIVERY_PLATFORMS (objectives.js) pra manter cor/ícone
+// consistentes com os pills de "temas veiculados no período"
 function detectDeliveryPlatforms(campaigns) {
   const norm = s => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   const active = campaigns.filter(c => parseFloat(c.insights?.data?.[0]?.spend || 0) > 0);
   const text = active.map(c => norm(c.name)).join(' | ');
-  const platforms = [];
-  if (/anota\s*ai/.test(text)) platforms.push({ key: 'anotaai', icon: '🧾', label: 'Anota Aí' });
-  if (/ifood/.test(text)) platforms.push({ key: 'ifood', icon: '🛵', label: 'iFood' });
-  return platforms;
+  return DELIVERY_PLATFORMS.filter(p => p.keys.some(k => text.includes(norm(k))))
+    .map(p => ({ key: p.key, icon: p.icon, label: p.name, color: p.color }));
 }
 
 function renderRelUnit(acc, insights, topAds, campaigns, hasData, unitErr) {
@@ -154,7 +154,7 @@ function renderRelUnit(acc, insights, topAds, campaigns, hasData, unitErr) {
   const deliveryPlatforms = detectDeliveryPlatforms(campaigns);
   const deliveryBadges = deliveryPlatforms.length
     ? `<div class="rel-delivery-badges">${deliveryPlatforms.map(p =>
-        `<span class="rel-delivery-badge">${p.icon} ${p.label}</span>`).join('')}</div>`
+        `<span class="rel-delivery-badge" style="background:${p.color};">${p.icon} ${p.label}</span>`).join('')}</div>`
     : '';
 
   const headKpis = hasData ? `<div class="rel-head-kpis">
@@ -202,13 +202,16 @@ function renderRelUnit(acc, insights, topAds, campaigns, hasData, unitErr) {
   const resumo = buildResumo(displayName, groups);
 
   // só entram temas de campanhas que de fato tiveram gasto no período — uma
-  // campanha ACTIVE sem investimento na janela selecionada não "veiculou" nela
-  const themes = classifyCampaigns(campaigns.filter(c => parseFloat(c.insights?.data?.[0]?.spend || 0) > 0));
+  // campanha ACTIVE sem investimento na janela selecionada não "veiculou" nela.
+  // iFood e Anota Aí sempre aparecem separados (e diferenciados de tráfego puro
+  // pra plataforma) — ver DELIVERY_PLATFORMS/classifyCampaigns em objectives.js
+  const spentCampaigns = campaigns.filter(c => parseFloat(c.insights?.data?.[0]?.spend || 0) > 0);
+  const themes = classifyCampaigns(spentCampaigns);
   const themePills = themes.length
     ? themes.map(t => `<span class="rel-theme-pill" style="color:${t.color};background:${t.bg};">${t.label}</span>`).join('')
-    : `<span style="font-size:11px;color:#b8d2e4;font-weight:800;">Nenhum tema identificado</span>`;
+    : `<span style="font-size:11px;color:#b8d2e4;font-weight:800;">Nenhuma campanha com investimento neste período</span>`;
   const themesBlock = `<div class="rel-themes-section">
-    <div class="rel-section-lbl">Temas veiculados no período</div>
+    <div class="rel-section-lbl">O que rodou nesta unidade no período (${spentCampaigns.length} campanha${spentCampaigns.length===1?'':'s'} com investimento)</div>
     <div class="rel-themes-row">${themePills}</div>
   </div>`;
 
@@ -429,6 +432,24 @@ async function relFetch() {
   document.getElementById('rel-date-display').textContent = new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
 }
 
+// bannerzinho lateral com o nome de cada unidade, estilo selo do app do
+// iFood (ícone vermelho arredondado + nome em caixa alta) — estático, não
+// depende do fetch do relatório, só da lista de contas
+function renderNetworkUnitsPanel() {
+  const wrap = document.getElementById('rel-network-units-list');
+  if (!wrap) return;
+  const units = ACCOUNTS.filter(a => a.id && !a.card);
+  wrap.innerHTML = units.map(acc => {
+    const displayName = acc.name.replace(/berry's\s*/i, '').trim();
+    const initials = displayName.slice(0, 2).toUpperCase();
+    return `<div class="rel-network-unit-badge" title="${displayName}">
+      <div class="u-ico">${initials}</div>
+      <div class="u-name">${displayName}</div>
+    </div>`;
+  }).join('');
+}
+
 function init_relatorio() {
   // a aba só carrega dados quando o usuário clica em "Atualizar" (relFetch)
+  renderNetworkUnitsPanel();
 }

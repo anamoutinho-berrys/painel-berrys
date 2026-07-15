@@ -39,15 +39,25 @@ function classifyObjective(c) {
   if (['OUTCOME_TRAFFIC','LINK_CLICKS'].includes(o)) return 'trafego';
   if (['OUTCOME_ENGAGEMENT','POST_ENGAGEMENT','PAGE_LIKES','VIDEO_VIEWS','EVENT_RESPONSES','MESSAGES'].includes(o)) return 'engaj';
   if (['OUTCOME_LEADS','LEAD_GENERATION'].includes(o)) return 'leads';
-  // fallback pelo nome da campanha
+  // fallback pelo nome da campanha — tráfego é checado antes de vendas/delivery
+  // pra não cair no grupo "VENDAS/DELIVERY" só por citar "ifood"/"anota" no nome
+  // (ex.: "Tráfego — Visitas ao Perfil — iFood" é tráfego, não venda por delivery)
   const n = (c.name || '').toLowerCase();
+  if (/tr[aá]fego|visitas ao perfil|perfil|site/.test(n)) return 'trafego';
   if (/vendas|convers|delivery|ifood|anota|compra|l2p1|leve 2/.test(n)) return 'vendas';
   if (/alcance|awareness|divulga/.test(n)) return 'alcance';
-  if (/tr[aá]fego|visitas ao perfil|perfil|site/.test(n)) return 'trafego';
   if (/seguidor|engaj|curtida|mensag/.test(n)) return 'engaj';
   if (/lead|cadastro/.test(n)) return 'leads';
   return 'outros';
 }
+
+// plataformas de delivery reconhecidas pelo nome da campanha — usadas tanto
+// pra decidir o tema (delivery de verdade vs. tráfego pra plataforma) quanto
+// pra colorir badges/pills de forma consistente em toda a aba
+const DELIVERY_PLATFORMS = [
+  { key:'ifood',   keys:['ifood'],              icon:'🛵', name:'iFood',    color:'#EA1D2C', bg:'#fdeaec' },
+  { key:'anotaai', keys:['anota ai','anota aí'], icon:'🧾', name:'Anota Aí', color:'#e07b00', bg:'#fff3e2' },
+];
 
 const CAMPAIGN_THEMES = [
   { label:'🏆 Delivery Copa',       color:'#b8860b', bg:'#fff8e8', keys:['copa do mundo','copa mundo','copa 2026','copa2026','delivery copa'] },
@@ -57,18 +67,33 @@ const CAMPAIGN_THEMES = [
   { label:'👥 Influenciador',       color:'#9b59b6', bg:'#f8f0ff', keys:['influenciador','influencer','ugc'] },
   { label:'👤 Seguidores / Visitas',color:'#27ae60', bg:'#edfdf5', keys:['seguidores','visitas','visitas ao perfil','novos seguidores','perfil'] },
   { label:'🥞 Brownie na Chapa',    color:'#7c5c2e', bg:'#fdf5eb', keys:['brownie','chapa'] },
-  { label:'🚚 Delivery Padrão',     color:'#2292c4', bg:'#eaf4fb', keys:['delivery','ifood','anota ai','anota aí','pedido'] },
+  // delivery genérico (sem citar a plataforma) — iFood e Anota Aí são
+  // classificados à parte em classifyCampaigns() via DELIVERY_PLATFORMS
+  { label:'🚚 Delivery (outro)',    color:'#2292c4', bg:'#eaf4fb', keys:['delivery','pedido'] },
   { label:'📅 Evento',              color:'#9b59b6', bg:'#f8f0ff', keys:['evento','event','inauguração','inauguracao','pre inaugura','pré inaugura'] },
   { label:'🎨 Temática',            color:'#f5a623', bg:'#fff8e8', keys:['temátic','tematica','thematic','vv ','[vv]'] },
   { label:'🛍️ L2P1',               color:'#27ae60', bg:'#edfdf5', keys:['leve 2','l2p1','leve2','2 por 1','2x1'] },
 ];
 function classifyCampaigns(campaigns) {
+  const norm = s => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
   const found = [], seen = new Set();
   campaigns.forEach(c => {
-    const n = (c.name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    const n = norm(c.name);
+    const isSales = classifyObjective(c) === 'vendas';
+    // iFood e Anota A\u00ed ganham tema pr\u00f3prio, e diferenciado conforme a campanha
+    // seja de fato venda/pedido via delivery ou s\u00f3 tr\u00e1fego levando pra plataforma
+    // (ex.: campanha de visitas ao perfil que menciona iFood na legenda)
+    DELIVERY_PLATFORMS.forEach(p => {
+      const label = isSales ? `${p.icon} Delivery ${p.name}` : `\ud83d\uddb1\ufe0f Tr\u00e1fego \u2192 ${p.name}`;
+      if (seen.has(label)) return;
+      if (p.keys.some(k => n.includes(norm(k)))) {
+        found.push({ label, color: p.color, bg: p.bg });
+        seen.add(label);
+      }
+    });
     for (const theme of CAMPAIGN_THEMES) {
       if (seen.has(theme.label)) continue;
-      if (theme.keys.some(k => n.includes(k.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')))) {
+      if (theme.keys.some(k => n.includes(norm(k)))) {
         found.push(theme); seen.add(theme.label);
       }
     }
