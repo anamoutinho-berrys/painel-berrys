@@ -178,7 +178,8 @@ async function fetchRelCampaigns(id, dateParams) {
 }
 
 const REL_AD_FIELDSETS = [
-  'name,creative{thumbnail_url},insights{spend,reach,impressions,clicks,actions}',
+  'name,creative{thumbnail_url},insights{spend,reach,impressions,clicks,actions,action_values}',
+  'name,creative{thumbnail_url},insights{spend,reach,impressions,clicks,actions}', // fallback: sem action_values
   'name,creative{thumbnail_url},insights{spend,reach,impressions,clicks}'  // fallback: conjunto original
 ];
 async function fetchRelTopAds(id, dateParams) {

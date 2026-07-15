@@ -291,7 +291,7 @@ function computeNetworkTopCreatives(unitsAds) {
       const theme = themeKeyForAdName(ad.name);
       const key = theme || ad.name;
       if (!map.has(key)) {
-        map.set(key, { name: ad.name, theme, thumb: ad.creative?.thumbnail_url, units: new Set(), spend: 0, reach: 0, clicks: 0, purchases: 0 });
+        map.set(key, { name: ad.name, theme, thumb: ad.creative?.thumbnail_url, units: new Set(), spend: 0, reach: 0, clicks: 0, purchases: 0, convValue: 0 });
       }
       const e = map.get(key);
       e.units.add(accName);
@@ -299,6 +299,7 @@ function computeNetworkTopCreatives(unitsAds) {
       e.reach     += parseInt(ins.reach) || 0;
       e.clicks    += parseInt(ins.clicks) || 0;
       e.purchases += getAct(ins.actions, A_PURCHASE);
+      e.convValue += getAct(ins.action_values, A_PURCHASE);
       if (!e.thumb && ad.creative?.thumbnail_url) e.thumb = ad.creative.thumbnail_url;
     });
   });
@@ -322,6 +323,19 @@ function computeNetworkTopCreatives(unitsAds) {
 // nome curto de exibição de uma unidade (sem o prefixo "Berry's")
 function unitDisplayName(accName) {
   return accName.replace(/berry's\s*/i, '').trim();
+}
+
+// linha de métricas do card de criativo da rede. Criativo de campanha de
+// vendas (tem valor de conversão rastreado) mostra ROAS e valor em compras
+// no lugar de cliques; os demais mantêm cliques.
+function netCreativeMetrics(c) {
+  const base = `${fmt(c.spend)} · ${fmtN(c.reach)} alcance`;
+  if (c.convValue > 0) {
+    const roas = c.spend > 0 ? c.convValue / c.spend : 0;
+    const roasTxt = roas > 0 ? ` · ROAS ${roas.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '';
+    return `${base}${roasTxt} · ${fmt(c.convValue)} em compras${c.purchases > 0 ? ` · 🛍️ ${fmtN(c.purchases)} compras` : ''}`;
+  }
+  return `${base} · ${fmtN(c.clicks)} cliques${c.purchases > 0 ? ` · 🛍️ ${fmtN(c.purchases)} compras` : ''}`;
 }
 
 function renderNetworkTopCreatives(list) {
@@ -348,7 +362,7 @@ function renderNetworkTopCreatives(list) {
       </div>
       <div class="rel-net-creative-body">
         <div class="rel-net-creative-name" title="${c.name}">${c.name}</div>
-        <div class="rel-net-creative-metrics">${fmt(c.spend)} · ${fmtN(c.reach)} alcance · ${fmtN(c.clicks)} cliques${c.purchases > 0 ? ` · 🛍️ ${fmtN(c.purchases)} compras` : ''}</div>
+        <div class="rel-net-creative-metrics">${netCreativeMetrics(c)}</div>
       </div>
     </div>
   `;
