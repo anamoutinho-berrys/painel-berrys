@@ -260,27 +260,22 @@
     .rel-ad-rank.r3{background:#cd7f32;color:#fff;}
     .rel-ad-rank.rn{background:var(--ry-2);color:#fff;}
     /* Melhores criativos da rede — estilo cartão igual aos big numbers do topo */
-    .rel-top-creatives-wrap{padding:6px 28px 24px;display:flex;gap:20px;align-items:flex-start;}
-    .rel-net-creatives-main{flex:1;min-width:0;}
+    .rel-top-creatives-wrap{padding:6px 28px 24px;}
     .rel-net-creatives-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;}
-    /* Bannerzinho lateral com as unidades da rede, estilo selo/ícone iFood */
-    .rel-network-units-panel{width:196px;flex-shrink:0;background:#fff;border:2px solid var(--ry-bd);border-radius:18px;padding:14px 12px;box-shadow:0 4px 16px rgba(22,86,192,.08);max-height:560px;overflow-y:auto;}
-    .rel-network-units-title{font-family:'Bebas Neue',cursive;font-size:15px;letter-spacing:1px;color:var(--ry);margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--ry-lt);}
-    .rel-network-unit-badge{display:flex;align-items:center;gap:8px;padding:4px 4px;margin-bottom:5px;border-radius:10px;}
-    .rel-network-unit-badge:hover{background:var(--ry-lt);}
-    .rel-network-unit-badge .u-ico{width:24px;height:24px;border-radius:7px;background:#EA1D2C;color:#fff;font-family:'Bebas Neue',cursive;font-size:12px;letter-spacing:.3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 4px rgba(234,29,44,.35);}
-    .rel-network-unit-badge .u-name{font-size:11px;font-weight:800;color:var(--ry-navy);letter-spacing:.2px;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-    @media (max-width:900px){ .rel-top-creatives-wrap{flex-direction:column;} .rel-network-units-panel{width:100%;max-height:none;} }
     .rel-net-creative-card{background:#fff;border:2px solid var(--ry-bd);border-radius:18px;box-shadow:0 4px 16px rgba(22,86,192,.08);overflow:hidden;text-align:center;transition:.2s;}
     .rel-net-creative-card:hover{transform:translateY(-2px);}
-    .rel-net-creative-thumb-wrap{position:relative;width:100%;aspect-ratio:1/1;background:var(--ry-lt);}
+    /* Selinho de cada unidade em que o criativo foi destaque, em cima do card,
+       estilo selo do app do iFood (ícone vermelho arredondado + nome) */
+    .rel-net-creative-units-row{display:flex;flex-wrap:wrap;gap:4px;padding:10px 10px 0;}
+    .rel-net-creative-unit-badge{display:inline-flex;align-items:center;gap:4px;background:var(--ry-lt);border:1px solid var(--ry-bd);border-radius:20px;padding:2px 8px 2px 2px;font-size:9.5px;font-weight:800;color:var(--ry-navy);text-transform:uppercase;letter-spacing:.2px;}
+    .rel-net-creative-unit-badge .u-ico{width:16px;height:16px;border-radius:5px;background:#EA1D2C;color:#fff;font-family:'Bebas Neue',cursive;font-size:8.5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .rel-net-creative-thumb-wrap{position:relative;width:100%;aspect-ratio:1/1;background:var(--ry-lt);margin-top:8px;}
     .rel-net-creative-thumb{width:100%;height:100%;object-fit:cover;display:block;}
     .rel-net-creative-rank{position:absolute;top:10px;left:10px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.25);}
     .rel-net-creative-rank.r1{background:#f5a623;}
     .rel-net-creative-rank.r2{background:#9b9b9b;}
     .rel-net-creative-rank.r3{background:#cd7f32;}
     .rel-net-creative-rank.rn{background:var(--ry-2);}
-    .rel-net-creative-units{position:absolute;top:10px;right:10px;background:var(--ry);color:#fff;font-size:10px;font-weight:900;letter-spacing:.3px;text-transform:uppercase;padding:4px 10px;border-radius:20px;box-shadow:0 2px 6px rgba(0,0,0,.2);}
     .rel-net-creative-body{padding:14px 16px 18px;}
     .rel-net-creative-name{font-weight:800;font-size:13px;color:var(--ry-navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:6px;}
     .rel-net-creative-metrics{font-size:11.5px;color:#7d9cb8;font-weight:700;line-height:1.5;}

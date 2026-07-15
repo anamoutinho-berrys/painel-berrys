@@ -316,6 +316,11 @@ function computeNetworkTopCreatives(unitsAds) {
   return result;
 }
 
+// nome curto de exibição de uma unidade (sem o prefixo "Berry's")
+function unitDisplayName(accName) {
+  return accName.replace(/berry's\s*/i, '').trim();
+}
+
 function renderNetworkTopCreatives(list) {
   const wrap = document.getElementById('rel-top-creatives');
   if (!wrap) return;
@@ -324,11 +329,18 @@ function renderNetworkTopCreatives(list) {
     return;
   }
   const rankCls = ['r1', 'r2', 'r3'];
-  wrap.innerHTML = list.map((c, i) => `
+  wrap.innerHTML = list.map((c, i) => {
+    // nome de cada unidade em que ESTE criativo específico foi destaque,
+    // estilo selo do app do iFood — em cima do card, não uma lista genérica
+    const unitBadges = [...c.units].sort().map(u => {
+      const name = unitDisplayName(u);
+      return `<span class="rel-net-creative-unit-badge" title="${name}"><span class="u-ico">${name.slice(0, 2).toUpperCase()}</span>${name}</span>`;
+    }).join('');
+    return `
     <div class="rel-net-creative-card">
+      <div class="rel-net-creative-units-row">${unitBadges}</div>
       <div class="rel-net-creative-thumb-wrap">
         <div class="rel-net-creative-rank ${rankCls[i] || 'rn'}">${i + 1}</div>
-        <div class="rel-net-creative-units">🏬 ${c.units.size} unidades</div>
         ${c.thumb ? `<img class="rel-net-creative-thumb" src="${c.thumb}" onerror="this.style.display='none'" loading="lazy"/>` : ''}
       </div>
       <div class="rel-net-creative-body">
@@ -336,7 +348,8 @@ function renderNetworkTopCreatives(list) {
         <div class="rel-net-creative-metrics">${fmt(c.spend)} · ${fmtN(c.reach)} alcance · ${fmtN(c.clicks)} cliques${c.purchases > 0 ? ` · 🛍️ ${fmtN(c.purchases)} compras` : ''}</div>
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 async function relFetch() {
@@ -433,24 +446,6 @@ async function relFetch() {
   document.getElementById('rel-date-display').textContent = new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
 }
 
-// bannerzinho lateral com o nome de cada unidade, estilo selo do app do
-// iFood (ícone vermelho arredondado + nome em caixa alta) — estático, não
-// depende do fetch do relatório, só da lista de contas
-function renderNetworkUnitsPanel() {
-  const wrap = document.getElementById('rel-network-units-list');
-  if (!wrap) return;
-  const units = ACCOUNTS.filter(a => a.id && !a.card);
-  wrap.innerHTML = units.map(acc => {
-    const displayName = acc.name.replace(/berry's\s*/i, '').trim();
-    const initials = displayName.slice(0, 2).toUpperCase();
-    return `<div class="rel-network-unit-badge" title="${displayName}">
-      <div class="u-ico">${initials}</div>
-      <div class="u-name">${displayName}</div>
-    </div>`;
-  }).join('');
-}
-
 function init_relatorio() {
   // a aba só carrega dados quando o usuário clica em "Atualizar" (relFetch)
-  renderNetworkUnitsPanel();
 }
