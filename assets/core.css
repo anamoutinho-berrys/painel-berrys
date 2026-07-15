@@ -260,8 +260,17 @@
     .rel-ad-rank.r3{background:#cd7f32;color:#fff;}
     .rel-ad-rank.rn{background:var(--ry-2);color:#fff;}
     /* Melhores criativos da rede — estilo cartão igual aos big numbers do topo */
-    .rel-top-creatives-wrap{padding:6px 28px 24px;}
+    .rel-top-creatives-wrap{padding:6px 28px 24px;display:flex;gap:20px;align-items:flex-start;}
+    .rel-net-creatives-main{flex:1;min-width:0;}
     .rel-net-creatives-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;}
+    /* Bannerzinho lateral com as unidades da rede, estilo selo/ícone iFood */
+    .rel-network-units-panel{width:196px;flex-shrink:0;background:#fff;border:2px solid var(--ry-bd);border-radius:18px;padding:14px 12px;box-shadow:0 4px 16px rgba(22,86,192,.08);max-height:560px;overflow-y:auto;}
+    .rel-network-units-title{font-family:'Bebas Neue',cursive;font-size:15px;letter-spacing:1px;color:var(--ry);margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--ry-lt);}
+    .rel-network-unit-badge{display:flex;align-items:center;gap:8px;padding:4px 4px;margin-bottom:5px;border-radius:10px;}
+    .rel-network-unit-badge:hover{background:var(--ry-lt);}
+    .rel-network-unit-badge .u-ico{width:24px;height:24px;border-radius:7px;background:#EA1D2C;color:#fff;font-family:'Bebas Neue',cursive;font-size:12px;letter-spacing:.3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 4px rgba(234,29,44,.35);}
+    .rel-network-unit-badge .u-name{font-size:11px;font-weight:800;color:var(--ry-navy);letter-spacing:.2px;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    @media (max-width:900px){ .rel-top-creatives-wrap{flex-direction:column;} .rel-network-units-panel{width:100%;max-height:none;} }
     .rel-net-creative-card{background:#fff;border:2px solid var(--ry-bd);border-radius:18px;box-shadow:0 4px 16px rgba(22,86,192,.08);overflow:hidden;text-align:center;transition:.2s;}
     .rel-net-creative-card:hover{transform:translateY(-2px);}
     .rel-net-creative-thumb-wrap{position:relative;width:100%;aspect-ratio:1/1;background:var(--ry-lt);}
