@@ -23,13 +23,11 @@ assets/
 tabs/
   saldos.html + saldos.js               → aba "Saldos"
   relatorio.html + .js                  → aba "Dash - Tempo Real"
-  acompanhamento.html + .js             → aba "Acompanhamento"
   instagram.html + .js                  → aba "Instagram" (seguidores ao vivo
                                            por unidade + snapshot diário em
                                            data/instagram.json pra calcular
                                            o crescimento ao longo do tempo)
   criativos.html + .js                  → aba "Planejamento de Criativos"
-  links.html + .js                      → aba "Central de Links" (sem JS próprio)
   trafego.html + .js                    → aba "Estrutura de Tráfego" (sem JS próprio)
 api/
   meta.js                               → proxy pra API da Meta (lê META_TOKEN)
