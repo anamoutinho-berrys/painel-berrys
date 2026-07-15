@@ -77,20 +77,24 @@ function deliveryPlatformFor(c) {
 }
 
 const DELIVERY_GENERIC_THEME = { label:'🚚 Delivery (outro)', color:'#2292c4', bg:'#eaf4fb', keys:['delivery','pedido'] };
+// netGroup: campanhas de rede — o MESMO criativo roda em várias unidades, então
+// no ranking "Melhores Criativos da Rede" as variações por unidade são somadas
+// numa entrada só. Temas SEM netGroup são categorias (ex.: Influenciador — cada
+// unidade tem um vídeo diferente) e não devem ser agrupados entre unidades.
 const CAMPAIGN_THEMES = [
-  { label:'🏆 Delivery Copa',       color:'#b8860b', bg:'#fff8e8', keys:['copa do mundo','copa mundo','copa 2026','copa2026','delivery copa'] },
-  { label:'❄️ Festival de Inverno', color:'#2292c4', bg:'#e8f4fb', keys:['inverno','winter','festival de inv','festival inv'] },
-  { label:'💕 Dia dos Namorados',   color:'#e94560', bg:'#fff0f3', keys:['namorado'] },
-  { label:'🎉 Sabor Junino',        color:'#e07b00', bg:'#fff5e8', keys:['junino','junina','arraiá','arraial','festa jun','são joão','sao joao'] },
+  { label:'🏆 Delivery Copa',       color:'#b8860b', bg:'#fff8e8', netGroup:true, keys:['copa do mundo','copa mundo','copa 2026','copa2026','delivery copa'] },
+  { label:'❄️ Festival de Inverno', color:'#2292c4', bg:'#e8f4fb', netGroup:true, keys:['inverno','winter','festival de inv','festival inv'] },
+  { label:'💕 Dia dos Namorados',   color:'#e94560', bg:'#fff0f3', netGroup:true, keys:['namorado'] },
+  { label:'🎉 Sabor Junino',        color:'#e07b00', bg:'#fff5e8', netGroup:true, keys:['junino','junina','arraiá','arraial','festa jun','são joão','sao joao'] },
   { label:'👥 Influenciador',       color:'#9b59b6', bg:'#f8f0ff', keys:['influenciador','influencer','ugc'] },
   { label:'👤 Seguidores / Visitas',color:'#27ae60', bg:'#edfdf5', keys:['seguidores','visitas','visitas ao perfil','novos seguidores','perfil'] },
-  { label:'🥞 Brownie na Chapa',    color:'#7c5c2e', bg:'#fdf5eb', keys:['brownie','chapa'] },
+  { label:'🥞 Brownie na Chapa',    color:'#7c5c2e', bg:'#fdf5eb', netGroup:true, keys:['brownie','chapa'] },
   // delivery com objetivo ambíguo (não é vendas nem tráfego) — iFood e Anota
   // Aí são resolvidos à parte em classifyCampaigns() via deliveryPlatformFor()
   DELIVERY_GENERIC_THEME,
   { label:'📅 Evento',              color:'#9b59b6', bg:'#f8f0ff', keys:['evento','event','inauguração','inauguracao','pre inaugura','pré inaugura'] },
   { label:'🎨 Temática',            color:'#f5a623', bg:'#fff8e8', keys:['temátic','tematica','thematic','vv ','[vv]'] },
-  { label:'🛍️ L2P1',               color:'#27ae60', bg:'#edfdf5', keys:['leve 2','l2p1','leve2','2 por 1','2x1'] },
+  { label:'🛍️ L2P1',               color:'#27ae60', bg:'#edfdf5', netGroup:true, keys:['leve 2','l2p1','leve2','2 por 1','2x1'] },
 ];
 function classifyCampaigns(campaigns) {
   const found = [], seen = new Set();
