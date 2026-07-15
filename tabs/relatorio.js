@@ -127,6 +127,18 @@ function unitIcon(name) {
   return '🍦';
 }
 
+// plataforma(s) de delivery em que a unidade está anunciando no período,
+// detectadas pelo nome das campanhas com gasto (Anota Aí e/ou iFood)
+function detectDeliveryPlatforms(campaigns) {
+  const norm = s => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const active = campaigns.filter(c => parseFloat(c.insights?.data?.[0]?.spend || 0) > 0);
+  const text = active.map(c => norm(c.name)).join(' | ');
+  const platforms = [];
+  if (/anota\s*ai/.test(text)) platforms.push({ key: 'anotaai', icon: '🧾', label: 'Anota Aí' });
+  if (/ifood/.test(text)) platforms.push({ key: 'ifood', icon: '🛵', label: 'iFood' });
+  return platforms;
+}
+
 function renderRelUnit(acc, insights, topAds, campaigns, hasData, unitErr) {
   const card = document.createElement('div');
   card.className = 'rel-unit-card';
@@ -139,6 +151,12 @@ function renderRelUnit(acc, insights, topAds, campaigns, hasData, unitErr) {
         `<span class="rel-obj-badge${i>0?' alt':''}">${OBJ_GROUPS[k].icon} ${OBJ_GROUPS[k].label}</span>`).join('')}</div>`
     : '';
 
+  const deliveryPlatforms = detectDeliveryPlatforms(campaigns);
+  const deliveryBadges = deliveryPlatforms.length
+    ? `<div class="rel-delivery-badges">${deliveryPlatforms.map(p =>
+        `<span class="rel-delivery-badge">${p.icon} ${p.label}</span>`).join('')}</div>`
+    : '';
+
   const headKpis = hasData ? `<div class="rel-head-kpis">
     <div class="rel-head-kpi"><span class="k-ico">💰</span><span><div class="k-lbl">Investimento total</div><div class="k-val">${fmt(insights.spend)}</div></span></div>
     <div class="rel-head-kpi"><span class="k-ico">👥</span><span><div class="k-lbl">Alcance da conta</div><div class="k-val">${fmtN(insights.reach)}</div></span></div>
@@ -148,6 +166,7 @@ function renderRelUnit(acc, insights, topAds, campaigns, hasData, unitErr) {
     <div class="rel-card-icon-wrap">${unitIcon(acc.name)}</div>
     <div class="rel-card-title">${displayName}</div>
     ${acc.mgr ? `<a class="rel-card-mgr" href="${acc.mgr}" target="_blank">↗ Gerenciador</a>` : ''}
+    ${deliveryBadges}
     ${headKpis}
     ${objBadges}
   </div>`;
@@ -156,6 +175,7 @@ function renderRelUnit(acc, insights, topAds, campaigns, hasData, unitErr) {
   card.dataset.sig   = groupKeys.length ? groupKeys.join('|') : 'zz-none';
   card.dataset.nobj  = groupKeys.length;
   card.dataset.spend = insights.spend || 0;
+  if (deliveryPlatforms.length) card.dataset.delivery = deliveryPlatforms.map(p => p.key).join('|');
 
   if (!hasData) {
     const msg = unitErr
@@ -181,7 +201,9 @@ function renderRelUnit(acc, insights, topAds, campaigns, hasData, unitErr) {
 
   const resumo = buildResumo(displayName, groups);
 
-  const themes = classifyCampaigns(campaigns);
+  // só entram temas de campanhas que de fato tiveram gasto no período — uma
+  // campanha ACTIVE sem investimento na janela selecionada não "veiculou" nela
+  const themes = classifyCampaigns(campaigns.filter(c => parseFloat(c.insights?.data?.[0]?.spend || 0) > 0));
   const themePills = themes.length
     ? themes.map(t => `<span class="rel-theme-pill" style="color:${t.color};background:${t.bg};">${t.label}</span>`).join('')
     : `<span style="font-size:11px;color:#b8d2e4;font-weight:800;">Nenhum tema identificado</span>`;
@@ -234,17 +256,35 @@ function renderRelUnit(acc, insights, topAds, campaigns, hasData, unitErr) {
   return card;
 }
 
+// tema da campanha/criativo (mesma lógica de CAMPAIGN_THEMES em objectives.js) —
+// usado para agrupar variações do mesmo criativo (ex.: "Festival de Inverno")
+// que tenham nomes literais diferentes entre unidades
+function themeKeyForAdName(name) {
+  const n = (name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  for (const theme of CAMPAIGN_THEMES) {
+    if (theme.keys.some(k => n.includes(k.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')))) {
+      return theme.label;
+    }
+  }
+  return null;
+}
+
 // agrega os "melhores anúncios" (já top-3 por unidade) numa lista única da rede,
-// contando em quantas unidades cada criativo apareceu como destaque
+// contando em quantas unidades cada criativo apareceu como destaque. Criativos
+// reconhecidos como o mesmo tema (ex.: variações do "Festival de Inverno" com
+// nomes diferentes por unidade) são agrupados numa única entrada, e o ranking
+// final não repete o mesmo tema em mais de uma posição — a vaga vai para o
+// próximo melhor criativo de um tema/objetivo diferente.
 function computeNetworkTopCreatives(unitsAds) {
   const map = new Map();
   unitsAds.forEach(({ accName, ads }) => {
     ads.forEach(ad => {
       const ins = ad.insights?.data?.[0];
       if (!ins) return;
-      const key = ad.name;
+      const theme = themeKeyForAdName(ad.name);
+      const key = theme || ad.name;
       if (!map.has(key)) {
-        map.set(key, { name: ad.name, thumb: ad.creative?.thumbnail_url, units: new Set(), spend: 0, reach: 0, clicks: 0, purchases: 0 });
+        map.set(key, { name: ad.name, theme, thumb: ad.creative?.thumbnail_url, units: new Set(), spend: 0, reach: 0, clicks: 0, purchases: 0 });
       }
       const e = map.get(key);
       e.units.add(accName);
@@ -255,10 +295,21 @@ function computeNetworkTopCreatives(unitsAds) {
       if (!e.thumb && ad.creative?.thumbnail_url) e.thumb = ad.creative.thumbnail_url;
     });
   });
-  return [...map.values()]
+
+  const ranked = [...map.values()]
     .filter(c => c.units.size > 1) // só criativos que se destacaram em mais de uma unidade
-    .sort((a, b) => (b.units.size - a.units.size) || (b.spend - a.spend))
-    .slice(0, 10);
+    .sort((a, b) => (b.units.size - a.units.size) || (b.spend - a.spend));
+
+  const result = [], seenThemes = new Set();
+  for (const c of ranked) {
+    if (c.theme) {
+      if (seenThemes.has(c.theme)) continue; // já ocupou uma vaga com esse tema
+      seenThemes.add(c.theme);
+    }
+    result.push(c);
+    if (result.length >= 10) break;
+  }
+  return result;
 }
 
 function renderNetworkTopCreatives(list) {
