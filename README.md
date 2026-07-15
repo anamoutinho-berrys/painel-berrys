@@ -16,13 +16,20 @@ assets/
                               (parseMoney/fetchBal), persistência simples
                               (storeGet/storeSet) e os fetchers genéricos
                               usados por Saldos + Acompanhamento.
-  objectives.js             → lib usada pelo "Dash - Tempo Real": classificação
-                              de campanha por objetivo (vendas/alcance/tráfego/
-                              engajamento/leads) e os fetchers fetchRelInsights/
-                              fetchRelCampaigns/fetchRelTopAds.
+  objectives.js             → lib usada pelo "Dash - Tempo Real" e pelo
+                              "Dash Brasil": classificação de campanha por
+                              objetivo (vendas/alcance/tráfego/engajamento/
+                              leads), os fetchers fetchRelInsights/
+                              fetchRelCampaigns/fetchRelTopAds e o card de
+                              unidade (renderRelUnit) compartilhado pelas
+                              duas abas.
 tabs/
   saldos.html + saldos.js               → aba "Saldos"
   relatorio.html + .js                  → aba "Dash - Tempo Real"
+  brasil.html + .js                     → aba "Dash Brasil" (mesmo dash em
+                                           tempo real, mas só com as contas
+                                           Berry's Brasil Principal e
+                                           Bernardo Berry's)
   acompanhamento.html + .js             → aba "Acompanhamento"
   instagram.html + .js                  → aba "Instagram" (seguidores ao vivo
                                            por unidade + snapshot diário em
