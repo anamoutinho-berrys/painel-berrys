@@ -30,6 +30,21 @@ const BR_ACCOUNTS = [
 // a conta do Bernardo acompanha essa coluna no Gerenciador
 const BR_A_LEAD = ['lead','onsite_conversion.lead_grouped','offsite_conversion.fb_pixel_complete_registration','complete_registration'];
 
+// A campanha principal de Berry's Brasil está configurada como "vendas" no
+// Gerenciador, mas na prática é conversão para landing page — gera LEADS de
+// interessados em adquirir uma franquia, não compras. Nesta aba, portanto,
+// campanhas de vendas/conversão entram no grupo de leads.
+function brClassifyObjective(c) {
+  const g = classifyObjective(c);
+  return g === 'vendas' ? 'leads' : g;
+}
+
+// rótulos próprios desta aba — leads viram o grupo principal (expansão da rede)
+const BR_OBJ_META = {
+  ...OBJ_GROUPS,
+  leads: { key:'leads', label:'CONVERSÃO / LEADS DE FRANQUIA', icon:'🎯', order:0 },
+};
+
 let brAutoTimer = null;
 
 function onBrDateChange() {
@@ -62,7 +77,7 @@ function brAggregateByObjective(campaigns) {
   campaigns.forEach(c => {
     const ins = c.insights?.data?.[0];
     if (!ins || !(parseFloat(ins.spend) > 0)) return;
-    const g = classifyObjective(c);
+    const g = brClassifyObjective(c);
     if (!groups[g]) groups[g] = {
       spend:0, impressions:0, reach:0, clicks:0, linkClicks:0,
       purchases:0, convValue:0, lpv:0, engagement:0, follows:0,
@@ -103,7 +118,7 @@ function brAggregateByObjective(campaigns) {
 
 /* ── bloco de métricas conforme o objetivo (cópia local) ── */
 function brRenderObjBlock(key, g) {
-  const meta = OBJ_GROUPS[key];
+  const meta = BR_OBJ_META[key];
   let body = '';
   if (key === 'vendas') {
     body = `<div class="rel-tiles">
@@ -151,10 +166,16 @@ function brRenderObjBlock(key, g) {
   } else if (key === 'leads') {
     body = `<div class="rel-tiles">
       ${tile('📋','Cadastros / Leads', fmtN(g.leads), true)}
-      ${tile('🏷️','Custo por cadastro', g.costPerLead!=null?fmt(g.costPerLead):'—')}
+      ${tile('🏷️','Custo por cadastro', g.costPerLead!=null?fmt(g.costPerLead):'—', true)}
+      ${g.lpv>0?tile('📄','Visualizações da página', fmtN(g.lpv)):''}
+      ${g.costPerLpv!=null?tile('🧾','Custo por visualização', fmt(g.costPerLpv)):''}
       ${tile('🖱️','Cliques', fmtN(g.clicks))}
       ${tile('📊','CTR', fmtPct(g.ctr))}
+      ${tile('💸','CPC', g.cpc!=null?fmt(g.cpc):'—')}
       ${tile('👥','Alcance', fmtN(g.reach))}
+      ${tile('👁️','Impressões', fmtN(g.impressions))}
+      ${g.purchases>0?tile('🛍️','Compras no site', fmtN(g.purchases)):''}
+      ${g.msgs>0?tile('💬','Conversas iniciadas', fmtN(g.msgs)):''}
     </div>`;
   } else {
     body = `<div class="rel-tiles">
@@ -175,17 +196,15 @@ function brRenderObjBlock(key, g) {
 
 function brBuildResumo(displayName, groups) {
   const parts = [];
-  const v = groups.vendas, a = groups.alcance, t = groups.trafego, e = groups.engaj, l = groups.leads;
-  if (v && v.purchases > 0) {
-    parts.push(`As campanhas de vendas geraram <strong>${fmtN(v.purchases)} compra${v.purchases>1?'s':''}</strong>` +
-      (v.roas!=null ? `, com ROAS de <strong>${v.roas.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</strong> — para cada R$ 1,00 investido, retornaram ${fmt(v.roas)} em valor de conversão` : '') + '.');
-  } else if (v) {
-    parts.push('As campanhas de vendas ainda não registraram compras no período.');
+  const a = groups.alcance, t = groups.trafego, e = groups.engaj, l = groups.leads;
+  if (l && l.leads > 0) {
+    parts.push(`As campanhas de conversão geraram <strong>${fmtN(l.leads)} lead${l.leads>1?'s':''} de interessados na franquia</strong>${l.costPerLead!=null?` a ${fmt(l.costPerLead)} por cadastro`:''}.`);
+  } else if (l) {
+    parts.push('As campanhas de conversão ainda não registraram leads no período.');
   }
   if (a) parts.push(`No alcance, a conta impactou <strong>${fmtN(a.reach)} pessoas</strong> a um custo de ${a.costPerReach!=null?fmt(a.costPerReach):'—'} por 1.000 alcançadas.`);
   if (t && (t.linkClicks||t.clicks) > 0) parts.push(`O tráfego gerou <strong>${fmtN(t.linkClicks||t.clicks)} cliques</strong>${t.cpc!=null?` a ${fmt(t.cpc)} por clique`:''}.`);
   if (e && e.follows > 0) parts.push(`Engajamento somou <strong>${fmtN(e.follows)} novos seguidores</strong>${e.costPerFollow!=null?` a ${fmt(e.costPerFollow)} por seguidor`:''}.`);
-  if (l && l.leads > 0) parts.push(`As campanhas de cadastro geraram <strong>${fmtN(l.leads)} registro${l.leads>1?'s':''}</strong>${l.costPerLead!=null?` a ${fmt(l.costPerLead)} por cadastro`:''}.`);
   if (!parts.length) return '';
   return `<div class="rel-resumo"><span class="r-chip">Resumo:</span><p>${parts.join(' ')}</p></div>`;
 }
@@ -206,11 +225,12 @@ function brRenderUnit(acc, insights, topAds, campaigns, hasData, unitErr) {
   card.className = 'rel-unit-card';
   const displayName = acc.name.replace(/berry's\s*/i, '').trim().toUpperCase();
   const groups = brAggregateByObjective(campaigns);
-  const groupKeys = Object.keys(groups).sort((x,y) => OBJ_GROUPS[x].order - OBJ_GROUPS[y].order);
+  const groupKeys = Object.keys(groups).sort((x,y) => BR_OBJ_META[x].order - BR_OBJ_META[y].order);
 
-  const objBadges = groupKeys.length
-    ? `<div class="rel-obj-badges">${groupKeys.map((k,i) =>
-        `<span class="rel-obj-badge${i>0?' alt':''}">${OBJ_GROUPS[k].icon} ${OBJ_GROUPS[k].label}</span>`).join('')}</div>`
+  // faixa horizontal de objetivos (formato paisagem): primeiro sólido, demais outline
+  const objStrip = groupKeys.length
+    ? `<div class="br-obj-strip">${groupKeys.map((k,i) =>
+        `<span class="br-obj-tab${i>0?' alt':''}">${BR_OBJ_META[k].icon} ${BR_OBJ_META[k].label}</span>`).join('')}</div>`
     : '';
 
   const deliveryPlatforms = brDetectDeliveryPlatforms(campaigns);
@@ -227,10 +247,9 @@ function brRenderUnit(acc, insights, topAds, campaigns, hasData, unitErr) {
   const header = `<div class="rel-card-header">
     <div class="rel-card-icon-wrap">🇧🇷</div>
     <div class="rel-card-title">${displayName}</div>
-    ${acc.mgr ? `<a class="rel-card-mgr" href="${acc.mgr}" target="_blank">↗ Gerenciador</a>` : ''}
     ${deliveryBadges}
     ${headKpis}
-    ${objBadges}
+    ${acc.mgr ? `<a class="rel-card-mgr" href="${acc.mgr}" target="_blank">↗ Gerenciador</a>` : ''}
   </div>`;
 
   card.dataset.spend = insights.spend || 0;
@@ -277,7 +296,7 @@ function brRenderUnit(acc, insights, topAds, campaigns, hasData, unitErr) {
     return `<div class="rel-camp-row">
       <div class="rel-camp-dot" style="background:${statusDot(c.status)}"></div>
       <div class="rel-camp-name" title="${c.name}">${c.name}</div>
-      <span class="rel-camp-obj">${objShort[classifyObjective(c)]}</span>
+      <span class="rel-camp-obj">${objShort[brClassifyObjective(c)]}</span>
       ${sp > 0 ? `<div class="rel-camp-spend">${fmt(sp)}</div>` : ''}
     </div>`;
   }).join('');
@@ -307,10 +326,15 @@ function brRenderUnit(acc, insights, topAds, campaigns, hasData, unitErr) {
     </div>`;
   }).join('') : `<div class="rel-nodata" style="padding:8px 0 0;">Nenhum anúncio com gasto no período.</div>`;
 
-  card.innerHTML = header + objBlocks + resumo + themesBlock + campsBlock + `
-    <div class="rel-ads-section">
-      <div class="rel-ads-badge-wrap"><div class="rel-ads-badge">🏆 MELHORES ANÚNCIOS</div></div>
-      ${adsRows}
+  // paisagem: blocos de objetivo lado a lado; embaixo, campanhas à esquerda e
+  // melhores anúncios à direita
+  card.innerHTML = header + objStrip + `<div class="br-obj-grid">${objBlocks}</div>` + resumo + `
+    <div class="br-bottom">
+      <div class="br-bottom-left">${themesBlock}${campsBlock}</div>
+      <div class="br-ads-panel">
+        <div class="rel-ads-badge-wrap"><div class="rel-ads-badge">🏆 MELHORES ANÚNCIOS</div></div>
+        <div class="br-ads-row">${adsRows}</div>
+      </div>
     </div>`;
   return card;
 }

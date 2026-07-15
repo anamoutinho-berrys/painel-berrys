@@ -1,3 +1,31 @@
+  <style>
+    /* ── Layout paisagem/web — SÓ do Dash Franqueadora (escopado em #tab-brasil
+         e classes br-*; não afeta o Dash Unidades, que segue com os cards
+         verticais de tabs/relatorio.html) ── */
+    #tab-brasil .rel-units-wrap{grid-template-columns:1fr;gap:26px;}
+    #tab-brasil .rel-card-header{padding:20px 24px 14px;}
+    #tab-brasil .rel-card-title{flex:0 1 auto;font-size:30px;margin-right:8px;}
+    #tab-brasil .rel-head-kpis{width:auto;padding-left:0;margin:0 0 0 auto;}
+    #tab-brasil .rel-head-kpi{padding:8px 16px;}
+    #tab-brasil .rel-head-kpi .k-val{font-size:20px;}
+    #tab-brasil .rel-delivery-badges{width:auto;padding-left:0;}
+    #tab-brasil .rel-resumo{margin:0 24px 14px;}
+    .br-obj-strip{display:flex;gap:12px;margin:2px 24px 14px;}
+    .br-obj-tab{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--ry);color:#fff;font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:1.5px;padding:10px 14px;border-radius:12px;box-shadow:0 4px 12px rgba(22,86,192,.25);}
+    .br-obj-tab.alt{background:#fff;color:var(--ry);border:2px solid var(--ry-bd);box-shadow:none;}
+    .br-obj-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin:0 24px 14px;align-items:start;}
+    .br-obj-grid .rel-obj-block{margin:0;}
+    .br-bottom{display:grid;grid-template-columns:minmax(280px,1fr) 1.8fr;gap:14px;margin:0 24px 20px;align-items:start;}
+    .br-bottom-left{border:1.5px solid var(--ry-bd);border-radius:18px;padding:13px 16px;}
+    .br-bottom-left .rel-themes-section,.br-bottom-left .rel-camps-section{padding:0 0 10px;}
+    .br-ads-panel{border:1.5px solid var(--ry-bd);border-radius:18px;padding:13px 16px;}
+    .br-ads-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px 18px;}
+    .br-ads-row .rel-ad-item{border-bottom:none;}
+    @media(max-width:1000px){
+      .br-obj-strip{flex-direction:column;}
+      .br-bottom{grid-template-columns:1fr;}
+    }
+  </style>
   <div class="subheader">
     <div>
       <div class="sh-title">DASH FRANQUEADORA – TEMPO REAL</div>
@@ -45,8 +73,8 @@
     <div class="card"><div class="lbl">Alcance Total</div><div class="val" id="br-total-reach">— —</div><div class="sub">pessoas únicas</div></div>
     <div class="card"><div class="lbl">Impressões Totais</div><div class="val" id="br-total-impr">— —</div><div class="sub">nas duas contas</div></div>
     <div class="card"><div class="lbl">Cliques Totais</div><div class="val" id="br-total-clicks">— —</div><div class="sub">em todos os anúncios</div></div>
-    <div class="card"><div class="lbl">Compras no Site</div><div class="val" id="br-total-purch">— —</div><div class="sub">campanhas de vendas</div></div>
-    <div class="card"><div class="lbl">Cadastros / Leads</div><div class="val" id="br-total-leads">— —</div><div class="sub">registros concluídos</div></div>
+    <div class="card"><div class="lbl">Compras no Site</div><div class="val" id="br-total-purch">— —</div><div class="sub">via pixel das contas</div></div>
+    <div class="card"><div class="lbl">Cadastros / Leads</div><div class="val" id="br-total-leads">— —</div><div class="sub">interessados na franquia</div></div>
   </div>
   <div class="rel-sec-head">
     <div class="rel-sec-title">RESULTADOS POR CONTA</div>
