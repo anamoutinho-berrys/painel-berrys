@@ -51,14 +51,32 @@ function classifyObjective(c) {
   return 'outros';
 }
 
-// plataformas de delivery reconhecidas pelo nome da campanha — usadas tanto
-// pra decidir o tema (delivery de verdade vs. tráfego pra plataforma) quanto
-// pra colorir badges/pills de forma consistente em toda a aba
-const DELIVERY_PLATFORMS = [
-  { key:'ifood',   keys:['ifood'],              icon:'🛵', name:'iFood',    color:'#EA1D2C', bg:'#fdeaec' },
-  { key:'anotaai', keys:['anota ai','anota aí'], icon:'🧾', name:'Anota Aí', color:'#e07b00', bg:'#fff3e2' },
-];
+// regra de negócio: delivery com campanha de VENDAS/CONVERSÃO é Anota Aí
+// (tem checkout com pixel de compra); delivery com campanha de TRÁFEGO é
+// iFood (só leva visita até o app, sem conversão rastreável). Não depende
+// do texto "ifood"/"anota" no nome da campanha — só do objetivo real.
+const DELIVERY_KEYS = ['delivery','ifood','anota ai','anota aí','pedido'];
+const ANOTAAI = { key:'anotaai', icon:'🧾', name:'Anota Aí', color:'#e07b00', bg:'#fff3e2' };
+const IFOOD   = { key:'ifood',   icon:'🛵', name:'iFood',    color:'#EA1D2C', bg:'#fdeaec' };
 
+function normTxt(s) { return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+
+function isDeliveryCampaign(c) {
+  const n = normTxt(c.name);
+  return DELIVERY_KEYS.some(k => n.includes(normTxt(k)));
+}
+
+// devolve ANOTAAI, IFOOD ou null (delivery com objetivo ambíguo — alcance,
+// engajamento, leads — cai no tema genérico "Delivery (outro)")
+function deliveryPlatformFor(c) {
+  if (!isDeliveryCampaign(c)) return null;
+  const obj = classifyObjective(c);
+  if (obj === 'vendas') return ANOTAAI;
+  if (obj === 'trafego') return IFOOD;
+  return null;
+}
+
+const DELIVERY_GENERIC_THEME = { label:'🚚 Delivery (outro)', color:'#2292c4', bg:'#eaf4fb', keys:['delivery','pedido'] };
 const CAMPAIGN_THEMES = [
   { label:'🏆 Delivery Copa',       color:'#b8860b', bg:'#fff8e8', keys:['copa do mundo','copa mundo','copa 2026','copa2026','delivery copa'] },
   { label:'❄️ Festival de Inverno', color:'#2292c4', bg:'#e8f4fb', keys:['inverno','winter','festival de inv','festival inv'] },
@@ -67,33 +85,28 @@ const CAMPAIGN_THEMES = [
   { label:'👥 Influenciador',       color:'#9b59b6', bg:'#f8f0ff', keys:['influenciador','influencer','ugc'] },
   { label:'👤 Seguidores / Visitas',color:'#27ae60', bg:'#edfdf5', keys:['seguidores','visitas','visitas ao perfil','novos seguidores','perfil'] },
   { label:'🥞 Brownie na Chapa',    color:'#7c5c2e', bg:'#fdf5eb', keys:['brownie','chapa'] },
-  // delivery genérico (sem citar a plataforma) — iFood e Anota Aí são
-  // classificados à parte em classifyCampaigns() via DELIVERY_PLATFORMS
-  { label:'🚚 Delivery (outro)',    color:'#2292c4', bg:'#eaf4fb', keys:['delivery','pedido'] },
+  // delivery com objetivo ambíguo (não é vendas nem tráfego) — iFood e Anota
+  // Aí são resolvidos à parte em classifyCampaigns() via deliveryPlatformFor()
+  DELIVERY_GENERIC_THEME,
   { label:'📅 Evento',              color:'#9b59b6', bg:'#f8f0ff', keys:['evento','event','inauguração','inauguracao','pre inaugura','pré inaugura'] },
   { label:'🎨 Temática',            color:'#f5a623', bg:'#fff8e8', keys:['temátic','tematica','thematic','vv ','[vv]'] },
   { label:'🛍️ L2P1',               color:'#27ae60', bg:'#edfdf5', keys:['leve 2','l2p1','leve2','2 por 1','2x1'] },
 ];
 function classifyCampaigns(campaigns) {
-  const norm = s => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
   const found = [], seen = new Set();
   campaigns.forEach(c => {
-    const n = norm(c.name);
-    const isSales = classifyObjective(c) === 'vendas';
-    // iFood e Anota A\u00ed ganham tema pr\u00f3prio, e diferenciado conforme a campanha
-    // seja de fato venda/pedido via delivery ou s\u00f3 tr\u00e1fego levando pra plataforma
-    // (ex.: campanha de visitas ao perfil que menciona iFood na legenda)
-    DELIVERY_PLATFORMS.forEach(p => {
-      const label = isSales ? `${p.icon} Delivery ${p.name}` : `\ud83d\uddb1\ufe0f Tr\u00e1fego \u2192 ${p.name}`;
-      if (seen.has(label)) return;
-      if (p.keys.some(k => n.includes(norm(k)))) {
-        found.push({ label, color: p.color, bg: p.bg });
-        seen.add(label);
-      }
-    });
+    const n = normTxt(c.name);
+    const platform = deliveryPlatformFor(c);
+    if (platform) {
+      const label = platform === ANOTAAI ? `${platform.icon} Delivery ${platform.name}` : `${platform.icon} Tráfego → ${platform.name}`;
+      if (!seen.has(label)) { found.push({ label, color: platform.color, bg: platform.bg }); seen.add(label); }
+    }
     for (const theme of CAMPAIGN_THEMES) {
       if (seen.has(theme.label)) continue;
-      if (theme.keys.some(k => n.includes(norm(k)))) {
+      // se a campanha já ganhou o tema de iFood/Anota Aí, não duplica com o
+      // "Delivery (outro)" genérico só porque o nome também contém "delivery"
+      if (platform && theme === DELIVERY_GENERIC_THEME) continue;
+      if (theme.keys.some(k => n.includes(normTxt(k)))) {
         found.push(theme); seen.add(theme.label);
       }
     }

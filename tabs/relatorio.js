@@ -127,16 +127,17 @@ function unitIcon(name) {
   return '🍦';
 }
 
-// plataforma(s) de delivery em que a unidade está anunciando no período,
-// detectadas pelo nome das campanhas com gasto (Anota Aí e/ou iFood) — usa a
-// mesma tabela DELIVERY_PLATFORMS (objectives.js) pra manter cor/ícone
-// consistentes com os pills de "temas veiculados no período"
+// plataforma(s) de delivery em que a unidade está anunciando no período —
+// usa deliveryPlatformFor() (objectives.js): delivery com campanha de
+// vendas/conversão é Anota Aí, delivery com campanha de tráfego é iFood
 function detectDeliveryPlatforms(campaigns) {
-  const norm = s => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   const active = campaigns.filter(c => parseFloat(c.insights?.data?.[0]?.spend || 0) > 0);
-  const text = active.map(c => norm(c.name)).join(' | ');
-  return DELIVERY_PLATFORMS.filter(p => p.keys.some(k => text.includes(norm(k))))
-    .map(p => ({ key: p.key, icon: p.icon, label: p.name, color: p.color }));
+  const found = new Map();
+  active.forEach(c => {
+    const p = deliveryPlatformFor(c);
+    if (p && !found.has(p.key)) found.set(p.key, p);
+  });
+  return [...found.values()].map(p => ({ key: p.key, icon: p.icon, label: p.name, color: p.color }));
 }
 
 function renderRelUnit(acc, insights, topAds, campaigns, hasData, unitErr) {
@@ -203,8 +204,8 @@ function renderRelUnit(acc, insights, topAds, campaigns, hasData, unitErr) {
 
   // só entram temas de campanhas que de fato tiveram gasto no período — uma
   // campanha ACTIVE sem investimento na janela selecionada não "veiculou" nela.
-  // iFood e Anota Aí sempre aparecem separados (e diferenciados de tráfego puro
-  // pra plataforma) — ver DELIVERY_PLATFORMS/classifyCampaigns em objectives.js
+  // iFood (tráfego) e Anota Aí (vendas) sempre aparecem separados — ver
+  // deliveryPlatformFor()/classifyCampaigns() em objectives.js
   const spentCampaigns = campaigns.filter(c => parseFloat(c.insights?.data?.[0]?.spend || 0) > 0);
   const themes = classifyCampaigns(spentCampaigns);
   const themePills = themes.length
