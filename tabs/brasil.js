@@ -1,9 +1,9 @@
 // ============================================================================
-// tabs/brasil.js — lógica exclusiva da aba "Dash Brasil" (tempo real, mas
+// tabs/brasil.js — lógica exclusiva da aba "Dash Franqueadora" (tempo real, mas
 // SÓ para as duas contas nacionais em BR_ACCOUNTS, fora da lista ACCOUNTS
 // das unidades).
 //
-// IMPORTANTE: esta aba é INDEPENDENTE da aba "Dash - Tempo Real"
+// IMPORTANTE: esta aba é INDEPENDENTE da aba "Dash Unidades"
 // (tabs/relatorio.js). A renderização do card, a agregação por objetivo e
 // os rótulos vivem AQUI, em cópias próprias (funções br*) — personalize à
 // vontade sem medo de afetar o dash das unidades, e vice-versa.

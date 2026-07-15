@@ -16,15 +16,15 @@ assets/
                               (parseMoney/fetchBal), persistência simples
                               (storeGet/storeSet) e os fetchers genéricos
                               usados por Saldos + Acompanhamento.
-  objectives.js             → lib usada pelo "Dash - Tempo Real" (e, só nos
-                              utilitários genéricos, pelo "Dash Brasil"):
+  objectives.js             → lib usada pelo "Dash Unidades" (e, só nos
+                              utilitários genéricos, pelo "Dash Franqueadora"):
                               classificação de campanha por objetivo (vendas/
                               alcance/tráfego/engajamento/leads) e os fetchers
                               fetchRelInsights/fetchRelCampaigns/fetchRelTopAds.
 tabs/
   saldos.html + saldos.js               → aba "Saldos"
-  relatorio.html + .js                  → aba "Dash - Tempo Real"
-  brasil.html + .js                     → aba "Dash Brasil": dash em tempo
+  relatorio.html + .js                  → aba "Dash Unidades"
+  brasil.html + .js                     → aba "Dash Franqueadora": dash em tempo
                                            real SÓ das contas Berry's Brasil
                                            Principal e Bernardo Berry's.
                                            A renderização/agregação é uma
@@ -89,8 +89,8 @@ removida ou tiver o `id`/`card` alterado.
   separados.
 - **Mudar algo que vale para o painel inteiro** (lista de contas, formato de
   moeda, chamada à API) → `assets/core.js`.
-- **Mudar a classificação de objetivo/campanha** (usada no "Dash - Tempo
-  Real") → `assets/objectives.js`.
+- **Mudar a classificação de objetivo/campanha** (usada no "Dash
+  Unidades") → `assets/objectives.js`.
 - **Mudar a navegação em si** (nomes das abas, ordem, mecanismo de troca) →
   `index.html`.
 
