@@ -1,117 +1,123 @@
 {
   "980007099641939": {
-    "lastBalance": 3382.2,
-    "lastCheckedDate": "2026-07-14",
+    "lastBalance": 3156.93,
+    "lastCheckedDate": "2026-07-15",
     "payments": []
   },
   "26769229962779082": {
-    "lastBalance": 875.38,
-    "lastCheckedDate": "2026-07-14",
+    "lastBalance": 864.19,
+    "lastCheckedDate": "2026-07-15",
     "payments": []
   },
   "1572310324316523": {
-    "lastBalance": 997.6,
-    "lastCheckedDate": "2026-07-14",
+    "lastBalance": 989.57,
+    "lastCheckedDate": "2026-07-15",
     "payments": []
   },
   "3413870375457406": {
-    "lastBalance": 791.75,
-    "lastCheckedDate": "2026-07-14",
+    "lastBalance": 772.74,
+    "lastCheckedDate": "2026-07-15",
     "payments": []
   },
   "3407509682745878": {
     "lastBalance": 0,
-    "lastCheckedDate": "2026-07-14",
+    "lastCheckedDate": "2026-07-15",
     "payments": []
   },
   "1302436505232971": {
-    "lastBalance": 904.36,
-    "lastCheckedDate": "2026-07-14",
+    "lastBalance": 869.82,
+    "lastCheckedDate": "2026-07-15",
     "payments": []
   },
   "1945459296360552": {
-    "lastBalance": 0,
-    "lastCheckedDate": "2026-07-14",
-    "payments": []
+    "lastBalance": 998.68,
+    "lastCheckedDate": "2026-07-15",
+    "payments": [
+      {
+        "date": "2026-07-15",
+        "from": 0,
+        "to": 998.68
+      }
+    ]
   },
   "815737430504184": {
-    "lastBalance": 771.02,
-    "lastCheckedDate": "2026-07-14",
+    "lastBalance": 736.03,
+    "lastCheckedDate": "2026-07-15",
     "payments": []
   },
   "898087053113777": {
-    "lastBalance": 760.55,
-    "lastCheckedDate": "2026-07-14",
+    "lastBalance": 709.57,
+    "lastCheckedDate": "2026-07-15",
     "payments": []
   },
   "1185830483132999": {
-    "lastBalance": 657.15,
-    "lastCheckedDate": "2026-07-14",
+    "lastBalance": 633.4,
+    "lastCheckedDate": "2026-07-15",
     "payments": []
   },
   "855614106933266": {
     "lastBalance": 1121.92,
-    "lastCheckedDate": "2026-07-14",
+    "lastCheckedDate": "2026-07-15",
     "payments": []
   },
   "1675046163715555": {
-    "lastBalance": 695.83,
-    "lastCheckedDate": "2026-07-14",
+    "lastBalance": 684.63,
+    "lastCheckedDate": "2026-07-15",
     "payments": []
   },
   "1512851600567325": {
-    "lastBalance": 929,
-    "lastCheckedDate": "2026-07-14",
+    "lastBalance": 918.42,
+    "lastCheckedDate": "2026-07-15",
     "payments": []
   },
   "988118436916274": {
-    "lastBalance": 1331.13,
-    "lastCheckedDate": "2026-07-14",
+    "lastBalance": 1309.29,
+    "lastCheckedDate": "2026-07-15",
     "payments": []
   },
   "3794589237361601": {
     "lastBalance": 948.26,
-    "lastCheckedDate": "2026-07-14",
+    "lastCheckedDate": "2026-07-15",
     "payments": []
   },
   "547206184401772": {
-    "lastBalance": 1045.44,
-    "lastCheckedDate": "2026-07-14",
+    "lastBalance": 1032.83,
+    "lastCheckedDate": "2026-07-15",
     "payments": []
   },
   "718790137924927": {
-    "lastBalance": 962.54,
-    "lastCheckedDate": "2026-07-14",
+    "lastBalance": 938.86,
+    "lastCheckedDate": "2026-07-15",
     "payments": []
   },
   "1715718849282094": {
-    "lastBalance": 69.3,
-    "lastCheckedDate": "2026-07-14",
+    "lastBalance": 60.77,
+    "lastCheckedDate": "2026-07-15",
     "payments": []
   },
   "505755245757325": {
     "lastBalance": 600,
-    "lastCheckedDate": "2026-07-14",
+    "lastCheckedDate": "2026-07-15",
     "payments": []
   },
   "930248282851717": {
     "lastBalance": 0,
-    "lastCheckedDate": "2026-07-14",
+    "lastCheckedDate": "2026-07-15",
     "payments": []
   },
   "1228370282243542": {
-    "lastBalance": 2656.04,
-    "lastCheckedDate": "2026-07-14",
+    "lastBalance": 2606.23,
+    "lastCheckedDate": "2026-07-15",
     "payments": []
   },
   "364524186711060": {
     "lastBalance": 0,
-    "lastCheckedDate": "2026-07-14",
+    "lastCheckedDate": "2026-07-15",
     "payments": []
   },
   "477466964832908": {
     "lastBalance": 0,
-    "lastCheckedDate": "2026-07-14",
+    "lastCheckedDate": "2026-07-15",
     "payments": []
   }
 }
