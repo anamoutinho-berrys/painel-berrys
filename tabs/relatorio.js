@@ -262,10 +262,13 @@ function renderRelUnit(acc, insights, topAds, campaigns, hasData, unitErr) {
 
 // tema da campanha/criativo (mesma lógica de CAMPAIGN_THEMES em objectives.js) —
 // usado para agrupar variações do mesmo criativo (ex.: "Festival de Inverno")
-// que tenham nomes literais diferentes entre unidades
+// que tenham nomes literais diferentes entre unidades. Só temas com netGroup
+// (campanhas de rede — mesmo criativo em todas as unidades) agrupam; categorias
+// como "Influenciador" ficam de fora, pois o vídeo de cada unidade é diferente.
 function themeKeyForAdName(name) {
   const n = (name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   for (const theme of CAMPAIGN_THEMES) {
+    if (!theme.netGroup) continue;
     if (theme.keys.some(k => n.includes(k.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')))) {
       return theme.label;
     }
