@@ -190,9 +190,9 @@
     .rel-sec-sub{font-size:14px;color:var(--ry-2);font-weight:800;margin-top:4px;}
     .rel-sec-sub::after{content:"";display:block;width:170px;height:2.5px;background:var(--ry-2);border-radius:2px;margin-top:7px;}
     /* Grid de unidades */
-    .rel-units-wrap{padding:16px 28px 34px;columns:430px;column-gap:22px;}
+    .rel-units-wrap{padding:16px 28px 34px;display:grid;grid-template-columns:repeat(auto-fill,minmax(430px,1fr));gap:22px;align-items:start;}
     /* Card da unidade */
-    .rel-unit-card{background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 8px 30px rgba(22,86,192,.12);border:2px solid var(--ry-bd);break-inside:avoid;margin-bottom:22px;}
+    .rel-unit-card{background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 8px 30px rgba(22,86,192,.12);border:2px solid var(--ry-bd);}
     .rel-card-header{padding:18px 20px 12px;display:flex;align-items:center;gap:13px;flex-wrap:wrap;}
     .rel-card-icon-wrap{width:52px;height:52px;background:var(--ry-lt);border:2px solid var(--ry-bd);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
     .rel-card-title{font-family:'Bebas Neue',cursive;font-size:26px;color:var(--ry);letter-spacing:1px;flex:1;line-height:1.05;min-width:120px;}
@@ -204,6 +204,8 @@
     .rel-obj-badges{display:flex;gap:6px;flex-wrap:wrap;width:100%;padding-left:65px;margin-top:2px;}
     .rel-obj-badge{display:inline-flex;align-items:center;gap:5px;background:var(--ry);color:#fff;font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;padding:4px 12px;border-radius:20px;}
     .rel-obj-badge.alt{background:var(--ry-lt);color:var(--ry);border:1.5px solid var(--ry-bd);}
+    .rel-delivery-badges{display:flex;gap:6px;flex-wrap:wrap;width:100%;padding-left:65px;margin-top:2px;}
+    .rel-delivery-badge{display:inline-flex;align-items:center;gap:5px;background:#27ae60;color:#fff;font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;padding:4px 12px;border-radius:20px;}
     .rel-card-mgr{font-size:10px;color:var(--ry-2);font-weight:800;text-decoration:none;white-space:nowrap;border:1.5px solid var(--ry-bd);border-radius:20px;padding:4px 10px;background:var(--ry-lt);}
     .rel-card-mgr:hover{background:var(--ry);color:#fff;}
     /* Bloco de objetivo */
@@ -256,6 +258,27 @@
     .rel-ad-rank.r1{background:#f5a623;color:#fff;}
     .rel-ad-rank.r2{background:#9b9b9b;color:#fff;}
     .rel-ad-rank.r3{background:#cd7f32;color:#fff;}
+    .rel-ad-rank.rn{background:var(--ry-2);color:#fff;}
+    /* Melhores criativos da rede — estilo cartão igual aos big numbers do topo */
+    .rel-top-creatives-wrap{padding:6px 28px 24px;}
+    .rel-net-creatives-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;}
+    .rel-net-creative-card{background:#fff;border:2px solid var(--ry-bd);border-radius:18px;box-shadow:0 4px 16px rgba(22,86,192,.08);overflow:hidden;text-align:center;transition:.2s;}
+    .rel-net-creative-card:hover{transform:translateY(-2px);}
+    /* Selinho de cada unidade em que o criativo foi destaque, em cima do card,
+       estilo selo do app do iFood (ícone vermelho arredondado + nome) */
+    .rel-net-creative-units-row{display:flex;flex-wrap:wrap;gap:4px;padding:10px 10px 0;}
+    .rel-net-creative-unit-badge{display:inline-flex;align-items:center;gap:4px;background:var(--ry-lt);border:1px solid var(--ry-bd);border-radius:20px;padding:2px 8px 2px 2px;font-size:9.5px;font-weight:800;color:var(--ry-navy);text-transform:uppercase;letter-spacing:.2px;}
+    .rel-net-creative-unit-badge .u-ico{width:16px;height:16px;border-radius:5px;background:#EA1D2C;color:#fff;font-family:'Bebas Neue',cursive;font-size:8.5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .rel-net-creative-thumb-wrap{position:relative;width:100%;aspect-ratio:1/1;background:var(--ry-lt);margin-top:8px;}
+    .rel-net-creative-thumb{width:100%;height:100%;object-fit:cover;display:block;}
+    .rel-net-creative-rank{position:absolute;top:10px;left:10px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.25);}
+    .rel-net-creative-rank.r1{background:#f5a623;}
+    .rel-net-creative-rank.r2{background:#9b9b9b;}
+    .rel-net-creative-rank.r3{background:#cd7f32;}
+    .rel-net-creative-rank.rn{background:var(--ry-2);}
+    .rel-net-creative-body{padding:14px 16px 18px;}
+    .rel-net-creative-name{font-weight:800;font-size:13px;color:var(--ry-navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:6px;}
+    .rel-net-creative-metrics{font-size:11.5px;color:#7d9cb8;font-weight:700;line-height:1.5;}
     .rel-ad-thumb{width:44px;height:44px;object-fit:cover;border-radius:10px;flex-shrink:0;background:var(--ry-lt);border:1.5px solid var(--ry-bd);}
     .rel-ad-info{flex:1;min-width:0;}
     .rel-ad-name{font-weight:800;font-size:12px;color:var(--ry-navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}

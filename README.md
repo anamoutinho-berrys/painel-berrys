@@ -24,6 +24,10 @@ tabs/
   saldos.html + saldos.js               → aba "Saldos"
   relatorio.html + .js                  → aba "Dash - Tempo Real"
   acompanhamento.html + .js             → aba "Acompanhamento"
+  instagram.html + .js                  → aba "Instagram" (seguidores ao vivo
+                                           por unidade + snapshot diário em
+                                           data/instagram.json pra calcular
+                                           o crescimento ao longo do tempo)
   criativos.html + .js                  → aba "Planejamento de Criativos"
   links.html + .js                      → aba "Central de Links" (sem JS próprio)
   trafego.html + .js                    → aba "Estrutura de Tráfego" (sem JS próprio)
@@ -34,6 +38,12 @@ api/
                                            GitHub Contents API. Usado pelo
                                            histórico de boletos (Saldos) e pelo
                                            board de Criativos.
+  check-boletos.js                      → job diário (Vercel Cron, ver
+                                           vercel.json) que checa o saldo de
+                                           todas as contas e atualiza
+                                           data/boleto-log.json sozinho, sem
+                                           depender de alguém abrir o painel.
+vercel.json                             → agenda o cron de check-boletos.js.
 ```
 
 ## Variáveis de ambiente (Vercel)
@@ -43,6 +53,26 @@ api/
   no repositório, usado por `api/store.js` pra gravar `data/*.json`.
 - `GITHUB_REPO` — `owner/repo` do repositório (ex.: `anamoutinho-berrys/painel-berrys`).
 - `GITHUB_BRANCH` — opcional, branch onde `data/*.json` é gravado (default `main`).
+- `CRON_SECRET` — opcional; se definido, `api/check-boletos.js` só aceita
+  chamadas com header `Authorization: Bearer <CRON_SECRET>` (é o que a
+  Vercel envia automaticamente nas execuções agendadas em `vercel.json`).
+
+## Checagem automática de boletos (cron)
+
+`api/check-boletos.js` roda todo dia (horário definido em `vercel.json`,
+por padrão 18h UTC / 15h em Brasília) e faz sozinho o que antes só
+acontecia quando alguém abria a aba Saldos: busca o saldo disponível de
+cada unidade na Meta, compara com o último valor salvo em
+`data/boleto-log.json` e, se subir R$10 ou mais, registra a data de hoje
+como um pagamento de boleto detectado — a mesma lógica de
+`checkBoletoPayment` em `tabs/saldos.js`, só que rodando no servidor em vez
+do navegador. Isso evita que a data fique atrasada só porque ninguém abriu
+o painel no dia em que o boleto compensou.
+
+A lista de IDs de conta usada pelo job (`ACCOUNT_IDS` em
+`api/check-boletos.js`) precisa ser mantida em sincronia manualmente com
+`ACCOUNTS` em `assets/core.js` sempre que uma unidade for adicionada,
+removida ou tiver o `id`/`card` alterado.
 
 ## Regra de ouro
 
