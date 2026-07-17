@@ -174,6 +174,7 @@ async function loadBoletoLog() {
     boletoLog = { data: {}, sha: null };
   }
   renderBoletoHistory();
+  renderBoletoChecklist(); // coluna "pago" depende do boletoLog
 }
 
 function checkBoletoPayment(acc, newBalance) {
@@ -198,6 +199,7 @@ async function flushBoletoLog() {
     if (r.sha) boletoLog.sha = r.sha;
     boletoLogChanged = false;
     renderBoletoHistory();
+    renderBoletoChecklist();
   } catch (e) {
     console.warn('[boleto] falha ao salvar histórico', e);
   }
@@ -221,6 +223,106 @@ function renderBoletoHistory() {
     <td class="num">${fmt(r.from)}</td>
     <td class="num" style="color:var(--green);font-weight:800;">${fmt(r.to)}</td>
   </tr>`).join('');
+}
+
+// ----------------------------------------------------------------------------
+// Checklist mensal de boletos: a Meta não tem API para gerar boleto, então o
+// painel vira a esteira do trabalho manual — lista todas as contas pré-pagas
+// com link direto pra tela de faturamento de cada uma, e a Ana marca
+// "gerado" e "enviado". Fica salvo em data/boleto-checklist.json (via
+// api/store.js), compartilhado. A coluna "pago" é automática, cruzando com o
+// histórico de recargas detectadas (boletoLog).
+// ----------------------------------------------------------------------------
+let bcLog = null;        // { data: {'2026-07': {accId: {gerado:'2026-07-17', enviado:'...'}}}, sha }
+let bcMonth = new Date().toISOString().slice(0,7);
+
+function bcEligible() { return ACCOUNTS.filter(a => a.id && !a.card); }
+
+function bcBillingUrl(acc) {
+  return `https://www.facebook.com/ads/manager/account_settings/account_billing/?act=${acc.id}`;
+}
+
+async function loadBcLog() {
+  try {
+    const r = await storeGet('boleto-checklist');
+    bcLog = { data: r.data || {}, sha: r.sha || null };
+  } catch (e) {
+    console.warn('[boleto-check] falha ao carregar', e);
+    bcLog = { data: {}, sha: null };
+  }
+  renderBoletoChecklist();
+}
+
+async function saveBcLog() {
+  try {
+    const r = await storeSet('boleto-checklist', bcLog.data, bcLog.sha);
+    if (r.sha) bcLog.sha = r.sha;
+    if (r.error) throw new Error(r.error);
+  } catch (e) {
+    // conflito de versão (alguém marcou ao mesmo tempo) ou rede: recarrega
+    // e a Ana marca de novo — melhor do que sobrescrever a marcação alheia.
+    console.warn('[boleto-check] falha ao salvar, recarregando', e);
+    await loadBcLog();
+  }
+}
+
+function bcShiftMonth(delta) {
+  const [y, m] = bcMonth.split('-').map(Number);
+  const d = new Date(y, m - 1 + delta, 1);
+  bcMonth = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  renderBoletoChecklist();
+}
+
+async function bcToggle(accId, field) {
+  if (!bcLog) return;
+  const month = bcLog.data[bcMonth] || (bcLog.data[bcMonth] = {});
+  const entry = month[accId] || (month[accId] = {});
+  if (entry[field]) delete entry[field];
+  else entry[field] = new Date().toISOString().slice(0,10);
+  renderBoletoChecklist();
+  await saveBcLog();
+}
+
+// recarga detectada no mês exibido = boleto pago (retorna a data ou null)
+function bcPaidDate(accId) {
+  const pays = boletoLog?.data?.[accId]?.payments || [];
+  const p = pays.find(p => p.date.startsWith(bcMonth));
+  return p ? p.date : null;
+}
+
+const bcFmtDay = iso => new Date(iso+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+
+function renderBoletoChecklist() {
+  const tb = document.getElementById('bc-body');
+  if (!tb) return;
+  const [y, m] = bcMonth.split('-').map(Number);
+  document.getElementById('bc-month-lbl').textContent =
+    new Date(y, m-1, 1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+  const monthData = bcLog?.data?.[bcMonth] || {};
+  const accs = bcEligible();
+  let nGer = 0, nEnv = 0, nPag = 0;
+  tb.innerHTML = accs.map((acc, i) => {
+    const e = monthData[acc.id] || {};
+    const paid = bcPaidDate(acc.id);
+    if (e.gerado)  nGer++;
+    if (e.enviado) nEnv++;
+    if (paid)      nPag++;
+    const chk = (field, lbl) => e[field]
+      ? `<button class="btn" style="padding:3px 10px;font-size:11px;background:#e6f7ee;color:var(--green);" onclick="bcToggle('${acc.id}','${field}')" title="clique para desmarcar">✓ ${bcFmtDay(e[field])}</button>`
+      : `<button class="btn btn-ghost" style="padding:3px 10px;font-size:11px;" onclick="bcToggle('${acc.id}','${field}')">${lbl}</button>`;
+    const pendente = !e.gerado && !paid;
+    return `<tr${pendente?' style="background:#fffaf2;"':''}>
+      <td style="color:#bbb;font-size:12px;font-weight:700;">${i+1}</td>
+      <td><div class="sname">${acc.name}</div></td>
+      <td class="num">${acc.mensal ? fmt(acc.mensal) : '—'}</td>
+      <td><a class="slink" href="${bcBillingUrl(acc)}" target="_blank">↗ Faturamento</a></td>
+      <td>${chk('gerado','gerar ○')}</td>
+      <td>${chk('enviado','enviar ○')}</td>
+      <td>${paid ? `<span class="pill" style="background:#e6f7ee;color:var(--green);">✓ pago ${bcFmtDay(paid)}</span>` : '<span class="cell-na">—</span>'}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('bc-progress').textContent =
+    `${nGer}/${accs.length} gerados · ${nEnv}/${accs.length} enviados · ${nPag}/${accs.length} pagos`;
 }
 
 function onDateChange() {
@@ -295,6 +397,8 @@ function updateSaldosSummary() {
 function init_saldos() {
   paintTodayDate('date-display');
   boletoLogPromise = loadBoletoLog();
+  loadBcLog();
+  renderBoletoChecklist();
   renderSaldosTable();
   updateSaldosSummary();
   fetchAll();

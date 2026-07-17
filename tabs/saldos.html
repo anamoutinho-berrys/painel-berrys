@@ -39,6 +39,32 @@
     <div class="card c3"><div class="lbl">Total Contratos</div><div class="val" id="c-mensal">— —</div><div class="sub">soma valores mensais</div></div>
     <div class="card c4"><div class="lbl">Total Após Imposto</div><div class="val" id="c-tax">— —</div><div class="sub">contratos − 12%</div></div>
   </div>
+  <div class="tbl-wrap" id="boleto-check-wrap">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 4px 8px;">
+      <div style="font-weight:800;color:var(--dark);font-size:13px;">🧾 Boletos do mês —
+        <button class="btn btn-ghost" style="padding:2px 8px;font-size:12px;" onclick="bcShiftMonth(-1)">‹</button>
+        <span id="bc-month-lbl" style="text-transform:capitalize;"></span>
+        <button class="btn btn-ghost" style="padding:2px 8px;font-size:12px;" onclick="bcShiftMonth(1)">›</button>
+      </div>
+      <div id="bc-progress" style="font-size:11px;font-weight:800;color:#999;"></div>
+    </div>
+    <table>
+      <thead><tr>
+        <th>#</th><th>Unidade</th>
+        <th class="r">Valor do boleto</th>
+        <th>Gerar na Meta</th>
+        <th>Gerado</th>
+        <th>Enviado p/ cliente</th>
+        <th>Pago</th>
+      </tr></thead>
+      <tbody id="bc-body"></tbody>
+    </table>
+    <div style="padding:8px 4px 0;font-size:11px;color:#ccc;font-weight:700;">
+      Clique em "Gerado" / "Enviado" para marcar (fica salvo para todo mundo que abre o painel).
+      "Pago" é automático: marca quando o painel detecta a recarga no saldo da conta.
+      Contas no cartão e unidades ainda sem conta de anúncios não entram na lista.
+    </div>
+  </div>
   <div class="tbl-wrap">
     <table>
       <thead><tr>
