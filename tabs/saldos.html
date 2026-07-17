@@ -39,9 +39,9 @@
     <div class="card c3"><div class="lbl">Total Contratos</div><div class="val" id="c-mensal">— —</div><div class="sub">soma valores mensais</div></div>
     <div class="card c4"><div class="lbl">Total Após Imposto</div><div class="val" id="c-tax">— —</div><div class="sub">contratos − 12%</div></div>
   </div>
-  <div class="tbl-wrap" id="boleto-check-wrap">
+  <div class="tbl-wrap">
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 4px 8px;">
-      <div style="font-weight:800;color:var(--dark);font-size:13px;">🧾 Boletos do mês —
+      <div style="font-weight:800;color:var(--dark);font-size:13px;">🧾 Boletos de
         <button class="btn btn-ghost" style="padding:2px 8px;font-size:12px;" onclick="bcShiftMonth(-1)">‹</button>
         <span id="bc-month-lbl" style="text-transform:capitalize;"></span>
         <button class="btn btn-ghost" style="padding:2px 8px;font-size:12px;" onclick="bcShiftMonth(1)">›</button>
@@ -50,30 +50,15 @@
     </div>
     <table>
       <thead><tr>
-        <th>#</th><th>Unidade</th>
-        <th class="r">Valor do boleto</th>
-        <th>Gerar na Meta</th>
-        <th>Gerado</th>
-        <th>Enviado p/ cliente</th>
-        <th>Pago</th>
-      </tr></thead>
-      <tbody id="bc-body"></tbody>
-    </table>
-    <div style="padding:8px 4px 0;font-size:11px;color:#ccc;font-weight:700;">
-      Clique em "Gerado" / "Enviado" para marcar (fica salvo para todo mundo que abre o painel).
-      "Pago" é automático: marca quando o painel detecta a recarga no saldo da conta.
-      Contas no cartão e unidades ainda sem conta de anúncios não entram na lista.
-    </div>
-  </div>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr>
         <th>#</th>
         <th class="th-sort" onclick="onSortClick('name')">Unidade<span class="sort-arrow" id="arrow-name"></span></th>
         <th class="r th-sort" onclick="onSortClick('mensal')">Valor Mensal<span class="sort-arrow" id="arrow-mensal"></span></th>
         <th class="r th-sort" onclick="onSortClick('tax')">Após Imposto <span style="opacity:.5;font-weight:400">(−12%)</span><span class="sort-arrow" id="arrow-tax"></span></th>
         <th class="r th-sort" onclick="onSortClick('spend')">Qto Investiu <span style="opacity:.5;font-weight:400">/ período</span><span class="sort-arrow" id="arrow-spend"></span></th>
         <th class="r th-sort" onclick="onSortClick('balance')">Saldo Disponível <span style="opacity:.5;font-weight:400">/ conta</span><span class="sort-arrow" id="arrow-balance"></span></th>
+        <th>Boleto Gerado</th>
+        <th>Enviado p/ cliente</th>
+        <th>Pago</th>
       </tr></thead>
       <tbody id="tbl-body"></tbody>
     </table>
@@ -81,7 +66,9 @@
   <div style="padding:0 28px 20px;font-size:11px;color:#ccc;text-align:right;font-weight:700;">
     * Saldo = crédito pré-pago disponível. Contas "cartão" = pós-pago. &nbsp;·&nbsp;
     <span style="color:#fc8181;font-weight:800;">Saldo em vermelho</span> = abaixo de R$ 200,00, unidade precisa de recarga. &nbsp;·&nbsp;
-    <span style="color:#fc8181;font-weight:800;">Investido em vermelho</span> = zerado ou fora de 10% do proporcional esperado pro período.
+    <span style="color:#fc8181;font-weight:800;">Investido em vermelho</span> = zerado ou fora de 10% do proporcional esperado pro período. &nbsp;·&nbsp;
+    Boletos: clique em "gerar ○" / "enviar ○" para marcar com a data (fica salvo para todo mundo);
+    "Pago" é automático quando o painel detecta a recarga no saldo. Contas no cartão não têm boleto.
   </div>
   <div class="tbl-wrap" id="boleto-history-wrap" style="display:none;">
     <div style="padding:14px 4px 8px;font-weight:800;color:var(--dark);font-size:13px;">💳 Últimos pagamentos de boleto detectados</div>
