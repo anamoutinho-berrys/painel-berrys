@@ -61,6 +61,7 @@ function renderSaldosTable() {
     const tname = document.createElement('td');
     tname.innerHTML = `<div class="sname">${acc.name}${acc.card?' <span class="pill pill-card">cartão</span>':''}</div>`
       +(acc.mgr?`<a class="slink" href="${acc.mgr}" target="_blank">↗ Gerenciador</a>`:'')
+      +(acc.id&&!acc.card?` <a class="slink" href="${bcBillingUrl(acc)}" target="_blank">↗ Faturamento</a>`:'')
       +(!acc.id?'<span class="pill pill-unk">sem conta</span>':'');
     const tmensal = document.createElement('td');
     tmensal.className='num'; tmensal.textContent = acc.mensal ? fmt(acc.mensal) : '—';
@@ -70,10 +71,11 @@ function renderSaldosTable() {
     paintSpend(tspend, acc, d);
     const tbal = document.createElement('td'); tbal.id='bal_'+(acc.id||'na'+idx);
     paintBalance(tbal, acc, d);
-    tr.append(tn, tname, tmensal, ttax, tspend, tbal);
+    tr.append(tn, tname, tmensal, ttax, tspend, tbal, ...bcCells(acc));
     tb.appendChild(tr);
   });
   updateSortArrows();
+  bcUpdateHeader();
 }
 
 function errLabel(msg) {
@@ -174,7 +176,7 @@ async function loadBoletoLog() {
     boletoLog = { data: {}, sha: null };
   }
   renderBoletoHistory();
-  renderBoletoChecklist(); // coluna "pago" depende do boletoLog
+  renderSaldosTable(); // coluna "pago" depende do boletoLog
 }
 
 function checkBoletoPayment(acc, newBalance) {
@@ -199,7 +201,7 @@ async function flushBoletoLog() {
     if (r.sha) boletoLog.sha = r.sha;
     boletoLogChanged = false;
     renderBoletoHistory();
-    renderBoletoChecklist();
+    renderSaldosTable();
   } catch (e) {
     console.warn('[boleto] falha ao salvar histórico', e);
   }
@@ -250,7 +252,7 @@ async function loadBcLog() {
     console.warn('[boleto-check] falha ao carregar', e);
     bcLog = { data: {}, sha: null };
   }
-  renderBoletoChecklist();
+  renderSaldosTable();
 }
 
 async function saveBcLog() {
@@ -270,7 +272,7 @@ function bcShiftMonth(delta) {
   const [y, m] = bcMonth.split('-').map(Number);
   const d = new Date(y, m - 1 + delta, 1);
   bcMonth = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-  renderBoletoChecklist();
+  renderSaldosTable();
 }
 
 async function bcToggle(accId, field) {
@@ -279,7 +281,7 @@ async function bcToggle(accId, field) {
   const entry = month[accId] || (month[accId] = {});
   if (entry[field]) delete entry[field];
   else entry[field] = new Date().toISOString().slice(0,10);
-  renderBoletoChecklist();
+  renderSaldosTable();
   await saveBcLog();
 }
 
@@ -292,35 +294,41 @@ function bcPaidDate(accId) {
 
 const bcFmtDay = iso => new Date(iso+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
 
-function renderBoletoChecklist() {
-  const tb = document.getElementById('bc-body');
-  if (!tb) return;
+// as 3 células de boleto (gerado / enviado / pago) de uma linha da tabela
+// principal de Saldos — contas no cartão ou sem conta não têm boleto.
+function bcCells(acc) {
+  const tds = [0,1,2].map(() => document.createElement('td'));
+  if (!acc.id || acc.card) {
+    tds.forEach(td => td.innerHTML = '<span class="cell-na">—</span>');
+    return tds;
+  }
+  const e = bcLog?.data?.[bcMonth]?.[acc.id] || {};
+  const paid = bcPaidDate(acc.id);
+  const chk = (field, lbl) => e[field]
+    ? `<button class="btn" style="padding:3px 10px;font-size:11px;background:#e6f7ee;color:var(--green);" onclick="bcToggle('${acc.id}','${field}')" title="clique para desmarcar">✓ ${bcFmtDay(e[field])}</button>`
+    : `<button class="btn btn-ghost" style="padding:3px 10px;font-size:11px;" onclick="bcToggle('${acc.id}','${field}')">${lbl}</button>`;
+  tds[0].innerHTML = chk('gerado','gerar ○');
+  tds[1].innerHTML = chk('enviado','enviar ○');
+  tds[2].innerHTML = paid
+    ? `<span class="pill" style="background:#e6f7ee;color:var(--green);">✓ pago ${bcFmtDay(paid)}</span>`
+    : '<span class="cell-na">—</span>';
+  return tds;
+}
+
+function bcUpdateHeader() {
+  const lbl = document.getElementById('bc-month-lbl');
+  if (!lbl) return;
   const [y, m] = bcMonth.split('-').map(Number);
-  document.getElementById('bc-month-lbl').textContent =
-    new Date(y, m-1, 1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+  lbl.textContent = new Date(y, m-1, 1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
   const monthData = bcLog?.data?.[bcMonth] || {};
   const accs = bcEligible();
   let nGer = 0, nEnv = 0, nPag = 0;
-  tb.innerHTML = accs.map((acc, i) => {
+  accs.forEach(acc => {
     const e = monthData[acc.id] || {};
-    const paid = bcPaidDate(acc.id);
-    if (e.gerado)  nGer++;
-    if (e.enviado) nEnv++;
-    if (paid)      nPag++;
-    const chk = (field, lbl) => e[field]
-      ? `<button class="btn" style="padding:3px 10px;font-size:11px;background:#e6f7ee;color:var(--green);" onclick="bcToggle('${acc.id}','${field}')" title="clique para desmarcar">✓ ${bcFmtDay(e[field])}</button>`
-      : `<button class="btn btn-ghost" style="padding:3px 10px;font-size:11px;" onclick="bcToggle('${acc.id}','${field}')">${lbl}</button>`;
-    const pendente = !e.gerado && !paid;
-    return `<tr${pendente?' style="background:#fffaf2;"':''}>
-      <td style="color:#bbb;font-size:12px;font-weight:700;">${i+1}</td>
-      <td><div class="sname">${acc.name}</div></td>
-      <td class="num">${acc.mensal ? fmt(acc.mensal) : '—'}</td>
-      <td><a class="slink" href="${bcBillingUrl(acc)}" target="_blank">↗ Faturamento</a></td>
-      <td>${chk('gerado','gerar ○')}</td>
-      <td>${chk('enviado','enviar ○')}</td>
-      <td>${paid ? `<span class="pill" style="background:#e6f7ee;color:var(--green);">✓ pago ${bcFmtDay(paid)}</span>` : '<span class="cell-na">—</span>'}</td>
-    </tr>`;
-  }).join('');
+    if (e.gerado)          nGer++;
+    if (e.enviado)         nEnv++;
+    if (bcPaidDate(acc.id)) nPag++;
+  });
   document.getElementById('bc-progress').textContent =
     `${nGer}/${accs.length} gerados · ${nEnv}/${accs.length} enviados · ${nPag}/${accs.length} pagos`;
 }
@@ -398,7 +406,6 @@ function init_saldos() {
   paintTodayDate('date-display');
   boletoLogPromise = loadBoletoLog();
   loadBcLog();
-  renderBoletoChecklist();
   renderSaldosTable();
   updateSaldosSummary();
   fetchAll();
