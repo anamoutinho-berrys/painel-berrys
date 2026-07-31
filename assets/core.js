@@ -12,12 +12,12 @@ const ACCOUNTS = [
   { name:"Berry's Goiânia Alto da Glória", id:"1572310324316523",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1572310324316523", mensal:1000 },
   { name:"Berry's Guanambi",               id:"3413870375457406",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=3413870375457406", mensal:1000 },
   { name:"Berry's Maceió",                 id:"3407509682745878",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=3407509682745878", mensal:1500 },
-  { name:"Berry's Savassi",                id:"385985127004742",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=385985127004742",  card:true, mensal:1500 },
+  { name:"Berry's Savassi",                id:"2571185629974578",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=2571185629974578", mensal:1500 }, // conta nova (boleto) — antiga: 385985127004742 (cartão)
 { name:"Berry's Luiz Eduardo Magalhães", id:"1302436505232971", mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1302436505232971", mensal:1000 },  { name:"Berry's Recife",                 id:"1320841319338526",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1320841319338526", card:true, mensal:1000 },
   { name:"Berry's Bocaiuva",               id:"1945459296360552",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1945459296360552", mensal:1000 },
   { name:"Berry's Campinas",               id:"815737430504184",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=815737430504184", mensal:1000 },
   { name:"Berry's Pirapora",               id:"898087053113777",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=898087053113777", mensal:1000 },
-  { name:"Berry's Uberaba",                id:"5326782910767622",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=5326782910767622", mensal:1000 },
+  { name:"Berry's Uberaba",                id:"2056137371779479",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=2056137371779479", mensal:1000 }, // conta nova — antiga: 5326782910767622
   { name:"Berry's Januária",               id:"1185830483132999",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1185830483132999", mensal:1000 },
   { name:"Berry's Aracaju",                id:"855614106933266",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=855614106933266", mensal:1000 },
   { name:"Berry's Salinas",                id:"1675046163715555",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1675046163715555", mensal:1000 },
@@ -32,6 +32,18 @@ const ACCOUNTS = [
   { name:"Berry's Salvador",               id:"1228370282243542",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1228370282243542", mensal:2000 },
   { name:"Berry's Balneário",              id:"364524186711060",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=364524186711060", mensal:1000 },
   { name:"Berry's Águas Claras",           id:"477466964832908",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=477466964832908", mensal:600 },
+  { name:"Berry's Praia do Francês",       id:"973653235719636",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=973653235719636", mensal:2000 },
+  { name:"Berry's BH Castelo",             id:"1665359047899564",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1665359047899564", mensal:2000 },
+  { name:"Berry's Governador Valadares",   id:"807970628972520",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=807970628972520", mensal:2000 },
+  { name:"Berry's ParkShopping Campo Grande", id:"1462162855666666", mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1462162855666666", mensal:1000 },
+  { name:"Berry's Shopping Jardins Aracaju",  id:"1299333372282697", mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1299333372282697", mensal:1000 },
+  // unidades novas ainda sem conta de anúncios criada — aparecem nos Saldos
+  // como "sem conta"; assim que a conta sair, é só preencher id e mgr aqui.
+  { name:"Berry's Shopping Riomar Aracaju", id:"", mensal:1000 },
+  { name:"Berry's Shopping Tacaruna",       id:"", mensal:1000 },
+  { name:"Berry's Capim Dourado Shopping",  id:"", mensal:1000 },
+  { name:"Berry's RibeirãoShopping",        id:"", mensal:1000 },
+  { name:"Berry's Divinópolis",             id:"" },
 ];
 
 

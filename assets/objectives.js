@@ -39,36 +39,81 @@ function classifyObjective(c) {
   if (['OUTCOME_TRAFFIC','LINK_CLICKS'].includes(o)) return 'trafego';
   if (['OUTCOME_ENGAGEMENT','POST_ENGAGEMENT','PAGE_LIKES','VIDEO_VIEWS','EVENT_RESPONSES','MESSAGES'].includes(o)) return 'engaj';
   if (['OUTCOME_LEADS','LEAD_GENERATION'].includes(o)) return 'leads';
-  // fallback pelo nome da campanha
+  // fallback pelo nome da campanha — tráfego é checado antes de vendas/delivery
+  // pra não cair no grupo "VENDAS/DELIVERY" só por citar "ifood"/"anota" no nome
+  // (ex.: "Tráfego — Visitas ao Perfil — iFood" é tráfego, não venda por delivery)
   const n = (c.name || '').toLowerCase();
+  if (/tr[aá]fego|visitas ao perfil|perfil|site/.test(n)) return 'trafego';
   if (/vendas|convers|delivery|ifood|anota|compra|l2p1|leve 2/.test(n)) return 'vendas';
   if (/alcance|awareness|divulga/.test(n)) return 'alcance';
-  if (/tr[aá]fego|visitas ao perfil|perfil|site/.test(n)) return 'trafego';
   if (/seguidor|engaj|curtida|mensag/.test(n)) return 'engaj';
   if (/lead|cadastro/.test(n)) return 'leads';
   return 'outros';
 }
 
+// regra de negócio: delivery com campanha de VENDAS/CONVERSÃO é Anota Aí
+// (tem checkout com pixel de compra); delivery com campanha de TRÁFEGO é
+// iFood (só leva visita até o app, sem conversão rastreável). Não depende
+// do texto "ifood"/"anota" no nome da campanha — só do objetivo real.
+const DELIVERY_KEYS = ['delivery','ifood','anota ai','anota aí','pedido'];
+const ANOTAAI = { key:'anotaai', icon:'🧾', name:'Anota Aí', color:'#e07b00', bg:'#fff3e2' };
+const IFOOD   = { key:'ifood',   icon:'🛵', name:'iFood',    color:'#EA1D2C', bg:'#fdeaec' };
+
+function normTxt(s) { return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+
+function isDeliveryCampaign(c) {
+  const n = normTxt(c.name);
+  return DELIVERY_KEYS.some(k => n.includes(normTxt(k)));
+}
+
+// devolve ANOTAAI, IFOOD ou null (delivery com objetivo ambíguo — alcance,
+// engajamento, leads — cai no tema genérico "Delivery (outro)")
+function deliveryPlatformFor(c) {
+  if (!isDeliveryCampaign(c)) return null;
+  const obj = classifyObjective(c);
+  if (obj === 'vendas') return ANOTAAI;
+  if (obj === 'trafego') return IFOOD;
+  return null;
+}
+
+const DELIVERY_GENERIC_THEME = { label:'🚚 Delivery (outro)', color:'#2292c4', bg:'#eaf4fb', keys:['delivery','pedido'] };
+// netGroup: campanhas de rede — o MESMO criativo roda em várias unidades, então
+// no ranking "Melhores Criativos da Rede" as variações por unidade são somadas
+// numa entrada só. Temas SEM netGroup são categorias (ex.: Influenciador — cada
+// unidade tem um vídeo diferente) e não devem ser agrupados entre unidades.
 const CAMPAIGN_THEMES = [
-  { label:'🏆 Delivery Copa',       color:'#b8860b', bg:'#fff8e8', keys:['copa do mundo','copa mundo','copa 2026','copa2026','delivery copa'] },
-  { label:'❄️ Festival de Inverno', color:'#2292c4', bg:'#e8f4fb', keys:['inverno','winter','festival de inv','festival inv'] },
-  { label:'💕 Dia dos Namorados',   color:'#e94560', bg:'#fff0f3', keys:['namorado'] },
-  { label:'🎉 Sabor Junino',        color:'#e07b00', bg:'#fff5e8', keys:['junino','junina','arraiá','arraial','festa jun','são joão','sao joao'] },
+  { label:'🏆 Delivery Copa',       color:'#b8860b', bg:'#fff8e8', netGroup:true, keys:['copa do mundo','copa mundo','copa 2026','copa2026','delivery copa'] },
+  { label:'❄️ Festival de Inverno', color:'#2292c4', bg:'#e8f4fb', netGroup:true, keys:['inverno','winter','festival de inv','festival inv'] },
+  { label:'💕 Dia dos Namorados',   color:'#e94560', bg:'#fff0f3', netGroup:true, keys:['namorado'] },
+  { label:'🎉 Sabor Junino',        color:'#e07b00', bg:'#fff5e8', netGroup:true, keys:['junino','junina','arraiá','arraial','festa jun','são joão','sao joao'] },
   { label:'👥 Influenciador',       color:'#9b59b6', bg:'#f8f0ff', keys:['influenciador','influencer','ugc'] },
   { label:'👤 Seguidores / Visitas',color:'#27ae60', bg:'#edfdf5', keys:['seguidores','visitas','visitas ao perfil','novos seguidores','perfil'] },
-  { label:'🥞 Brownie na Chapa',    color:'#7c5c2e', bg:'#fdf5eb', keys:['brownie','chapa'] },
-  { label:'🚚 Delivery Padrão',     color:'#2292c4', bg:'#eaf4fb', keys:['delivery','ifood','anota ai','anota aí','pedido'] },
+  // duas sobremesas diferentes — "com Calda Quente" (delivery) vem antes para
+  // que o nome dela não caia no grupo "na Chapa" pela palavra "brownie"
+  { label:'🍫 Brownie com Calda Quente', color:'#8b4513', bg:'#fdf0e6', netGroup:true, keys:['calda quente','brownie com calda','brownie calda'] },
+  { label:'🥞 Brownie na Chapa',    color:'#7c5c2e', bg:'#fdf5eb', netGroup:true, keys:['brownie na chapa','na chapa','chapa'] },
+  // delivery com objetivo ambíguo (não é vendas nem tráfego) — iFood e Anota
+  // Aí são resolvidos à parte em classifyCampaigns() via deliveryPlatformFor()
+  DELIVERY_GENERIC_THEME,
   { label:'📅 Evento',              color:'#9b59b6', bg:'#f8f0ff', keys:['evento','event','inauguração','inauguracao','pre inaugura','pré inaugura'] },
   { label:'🎨 Temática',            color:'#f5a623', bg:'#fff8e8', keys:['temátic','tematica','thematic','vv ','[vv]'] },
-  { label:'🛍️ L2P1',               color:'#27ae60', bg:'#edfdf5', keys:['leve 2','l2p1','leve2','2 por 1','2x1'] },
+  { label:'🛍️ L2P1',               color:'#27ae60', bg:'#edfdf5', netGroup:true, keys:['leve 2','l2p1','leve2','2 por 1','2x1'] },
 ];
 function classifyCampaigns(campaigns) {
   const found = [], seen = new Set();
   campaigns.forEach(c => {
-    const n = (c.name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    const n = normTxt(c.name);
+    const platform = deliveryPlatformFor(c);
+    if (platform) {
+      const label = platform === ANOTAAI ? `${platform.icon} Delivery ${platform.name}` : `${platform.icon} Tráfego → ${platform.name}`;
+      if (!seen.has(label)) { found.push({ label, color: platform.color, bg: platform.bg }); seen.add(label); }
+    }
     for (const theme of CAMPAIGN_THEMES) {
       if (seen.has(theme.label)) continue;
-      if (theme.keys.some(k => n.includes(k.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')))) {
+      // se a campanha já ganhou o tema de iFood/Anota Aí, não duplica com o
+      // "Delivery (outro)" genérico só porque o nome também contém "delivery"
+      if (platform && theme === DELIVERY_GENERIC_THEME) continue;
+      if (theme.keys.some(k => n.includes(normTxt(k)))) {
         found.push(theme); seen.add(theme.label);
       }
     }
@@ -136,7 +181,8 @@ async function fetchRelCampaigns(id, dateParams) {
 }
 
 const REL_AD_FIELDSETS = [
-  'name,creative{thumbnail_url},insights{spend,reach,impressions,clicks,actions}',
+  'name,creative{thumbnail_url},insights{spend,reach,impressions,clicks,actions,action_values}',
+  'name,creative{thumbnail_url},insights{spend,reach,impressions,clicks,actions}', // fallback: sem action_values
   'name,creative{thumbnail_url},insights{spend,reach,impressions,clicks}'  // fallback: conjunto original
 ];
 async function fetchRelTopAds(id, dateParams) {
