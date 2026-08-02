@@ -2,7 +2,7 @@
 // core.js — dados e utilitários COMPARTILHADOS por todas as abas.
 // Só mexa aqui se a mudança precisa valer para o painel inteiro
 // (lista de contas, autenticação com a API, formatação de número/moeda,
-// ou os fetchers genéricos usados por Saldos + Acompanhamento + Campanhas).
+// ou os fetchers genéricos usados por Saldos + Campanhas).
 // Qualquer coisa específica de UMA aba deve morar em tabs/<aba>.js.
 // ============================================================================
 
