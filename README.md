@@ -31,10 +31,18 @@ tabs/
                                            CÓPIA independente (funções br* em
                                            brasil.js) — dá pra personalizar
                                            cada dash sem afetar o outro.
-  instagram.html + .js                  → aba "Instagram" (seguidores ao vivo
-                                           por unidade + snapshot diário em
-                                           data/instagram.json pra calcular
-                                           o crescimento ao longo do tempo)
+  instagram.html + .js                  → aba "Instagram": seguidores ao vivo
+                                           por unidade, Insights do perfil
+                                           (novos/deixaram de seguir, alcance,
+                                           visualizações, visitas, interações),
+                                           cruzamento com o investimento em Ads
+                                           dos mesmos 28 dias, e snapshot diário
+                                           em data/instagram.json pra calcular
+                                           o crescimento ao longo do tempo.
+                                           Tem um painel "Diagnóstico da API"
+                                           que mostra, unidade a unidade, qual
+                                           caminho da Graph API funcionou e o
+                                           erro exato de cada tentativa.
   criativos.html + .js                  → aba "Planejamento de Criativos"
   trafego.html + .js                    → aba "Estrutura de Tráfego" (sem JS próprio)
 api/
@@ -55,6 +63,11 @@ vercel.json                             → agenda o cron de check-boletos.js.
 ## Variáveis de ambiente (Vercel)
 
 - `META_TOKEN` — token da Graph API da Meta, usado por `api/meta.js`.
+  Além de `ads_read`, a aba **Instagram** precisa que o token tenha
+  `instagram_basic`, `instagram_manage_insights` e `pages_read_engagement`
+  — sem essas permissões os seguidores ainda aparecem, mas as métricas de
+  Insights (novos seguidores, alcance, visitas ao perfil) vêm vazias. O
+  botão "Diagnóstico da API" da aba mostra o erro exato devolvido pela Meta.
 - `GITHUB_TOKEN` — Personal Access Token do GitHub com permissão de escrita
   no repositório, usado por `api/store.js` pra gravar `data/*.json`.
 - `GITHUB_REPO` — `owner/repo` do repositório (ex.: `anamoutinho-berrys/painel-berrys`).
