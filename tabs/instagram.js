@@ -7,28 +7,87 @@
 // 1. Para cada conta de anúncio, descobre a conta de Instagram vinculada
 //    (igResolveIg) — de preferência o nó IGUser, que é o único que aceita
 //    /insights.
-// 2. Puxa os Insights do perfil (igFetchInsights): novos seguidores,
-//    deixaram de seguir, alcance, visitas ao perfil, interações — os mesmos
-//    números da tela "Insights → Público → Tendências" do Business Suite.
-//    A API só disponibiliza os últimos 30 dias, então a janela é de 28 dias,
-//    igual à do Business Suite.
-// 3. Puxa também o investimento em Ads dos mesmos 28 dias, pra cruzar
-//    orgânico × pago na tabela "Cruzamento".
+// 2. Puxa os Insights do perfil (igFetchInsights) e os posts recentes
+//    (igFetchRecentMedia): novos seguidores, deixaram de seguir, alcance,
+//    visualizações, visitas ao perfil, interações, cliques no link e
+//    postagens na janela — os mesmos números da tela "Insights → Público →
+//    Tendências" do Business Suite. A API só disponibiliza os últimos 30
+//    dias, então a janela (7/14/28 dias) é escolhida no painel.
+// 3. VÁRIAS contas de anúncio podem promover o MESMO perfil de Instagram
+//    (ex.: MOC Avenida/Centro/Shopping compartilham @berrysmoc) — pra não
+//    contar os mesmos seguidores/alcance várias vezes, os agregados "de
+//    rede" (cards do topo, ranking de crescimento, distribuição por região)
+//    usam um registro por PERFIL (igUniqueProfiles); a tabela principal e as
+//    campanhas continuam por CONTA DE ANÚNCIO, porque é isso que se cruza
+//    com o investimento de cada uma.
 // 4. Como a Meta NÃO fornece histórico retroativo de seguidores, a aba grava
 //    um snapshot diário em data/instagram.json (via api/store.js) e calcula
 //    o crescimento comparando com os snapshots anteriores.
 // ============================================================================
 
 const IG_FILE = 'instagram';
-const IG_WINDOW_DAYS = 28;   // janela dos insights (a API só guarda 30 dias)
+let IG_WINDOW_DAYS = 28;     // janela dos insights, escolhida no painel (máx. 30 — limite da API)
 let igStoreState = { data: null, sha: null };
-let igLastResults = [];      // guardado pro painel de diagnóstico
+let igLastResults = [];      // linhas por CONTA DE ANÚNCIO da última atualização
+let igLastHist = {};         // histórico de snapshots (chave = id da conta de anúncio)
+let igRankExpanded = false;
+let igCampSummary = { spend: 0, follows: 0, count: 0 };
 
 function igDateStr(d) {
   const p = n => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 }
 function igDaysAgo(n) { const d = new Date(); d.setDate(d.getDate() - n); return igDateStr(d); }
+
+// ── Regiões (Norte/Nordeste/Centro-Oeste/Sudeste/Sul) ───────────────────────
+// Classificação geográfica de cada UNIDADE (não vem da API da Meta — é
+// inferida a partir da cidade/shopping no nome da conta de anúncio). Serve só
+// pra agrupar visualmente (filtro e gráfico de distribuição por região).
+// "Balneário" confirmado como Balneário Camboriú/SC (username
+// berrysbalneariocamboriu); "ParkShopping Campo Grande" assume o shopping do
+// Rio de Janeiro/RJ — vale confirmar com a Ana se algum desses bater errado.
+const IG_REGION = {
+  '980007099641939':   'Sudeste',      // MOC Avenida
+  '26769229962779082': 'Sudeste',      // MOC Centro
+  '3794589237361601':  'Sudeste',      // MOC Shopping
+  '1572310324316523':  'Centro-Oeste', // Goiânia Alto da Glória
+  '3413870375457406':  'Nordeste',     // Guanambi
+  '3407509682745878':  'Nordeste',     // Maceió
+  '2571185629974578':  'Sudeste',      // Savassi (BH)
+  '1302436505232971':  'Nordeste',     // Luiz Eduardo Magalhães
+  '1320841319338526':  'Nordeste',     // Recife
+  '1945459296360552':  'Sudeste',      // Bocaiuva
+  '815737430504184':   'Sudeste',      // Campinas
+  '898087053113777':   'Sudeste',      // Pirapora
+  '2056137371779479':  'Sudeste',      // Uberaba
+  '1185830483132999':  'Sudeste',      // Januária
+  '855614106933266':   'Nordeste',     // Aracaju
+  '1675046163715555':  'Sudeste',      // Salinas
+  '1512851600567325':  'Sudeste',      // Contagem
+  '988118436916274':   'Sudeste',      // Janauba
+  '547206184401772':   'Centro-Oeste', // Anápolis
+  '718790137924927':   'Nordeste',     // Conquista
+  '1715718849282094':  'Nordeste',     // Feira de Santana
+  '505755245757325':   'Nordeste',     // Porto Seguro
+  '930248282851717':   'Nordeste',     // Lauro de Freitas
+  '1228370282243542':  'Nordeste',     // Salvador
+  '364524186711060':   'Sul',          // Balneário (Camboriú, SC)
+  '477466964832908':   'Centro-Oeste', // Águas Claras (DF)
+  '973653235719636':   'Nordeste',     // Praia do Francês
+  '1665359047899564':  'Sudeste',      // BH Castelo
+  '807970628972520':   'Sudeste',      // Governador Valadares
+  '1462162855666666':  'Sudeste',      // ParkShopping Campo Grande (RJ)
+  '1299333372282697':  'Nordeste',     // Shopping Jardins Aracaju
+};
+function igRegionOf(id) { return IG_REGION[id] || 'Outras'; }
+const igPerfilPlural = n => n === 1 ? 'perfil' : 'perfis';
+
+const IG_STATUS_LABEL = {
+  saudavel: { label: 'Saudável', cls: 'st-saudavel' },
+  atencao:  { label: 'Atenção',  cls: 'st-atencao' },
+  critico:  { label: 'Crítico',  cls: 'st-critico' },
+  'sem-ig': { label: 'Sem IG',   cls: 'st-semig' },
+};
 
 // ── 1. Descoberta da conta de Instagram ─────────────────────────────────────
 // A ordem das tentativas importa: SÓ o nó IGUser (id começando com 17841…)
@@ -134,7 +193,9 @@ async function igResolveIg(acc, diag) {
 // Métricas de total no período. Vão numa chamada só pra economizar requisição;
 // se a Meta recusar UMA delas a chamada inteira falha, então tem fallback
 // métrica a métrica. "views" é o nome novo (v22) do antigo "impressions".
-const IG_TOTAL_METRICS = ['reach', 'views', 'profile_views', 'total_interactions'];
+// "website_clicks" (cliques no link do perfil) pode não estar mais exposto —
+// se a Meta recusar, a coluna some com "—" como as outras métricas recusadas.
+const IG_TOTAL_METRICS = ['reach', 'views', 'profile_views', 'total_interactions', 'website_clicks'];
 
 const igInsightCall = (accId, igid, params) =>
   apiFetch(accId, '', { node: igid + '/insights', ...params });
@@ -169,9 +230,7 @@ async function igFetchTotals(accId, igid, since, until, diag) {
   return out;
 }
 
-async function igFetchInsights(accId, igid, diag) {
-  const until = Math.floor(Date.now() / 1000);
-  const since = until - IG_WINDOW_DAYS * 86400;
+async function igFetchInsights(accId, igid, since, until, diag) {
   const out = {};
 
   // a) série diária de novos seguidores → gráfico "Seguidores" do Business Suite
@@ -200,7 +259,7 @@ async function igFetchInsights(accId, igid, diag) {
                 msg: `+${out.newFollows ?? '?'} / -${out.unfollows ?? '?'}` });
   } catch (e) { diag.push({ step: 'insights follows_and_unfollows', ok: false, msg: e.message }); }
 
-  // c) alcance, visualizações, visitas ao perfil, contas engajadas, interações
+  // c) alcance, visualizações, visitas ao perfil, interações, cliques no link
   Object.assign(out, await igFetchTotals(accId, igid, since, until, diag));
 
   // fallback: sem follows_and_unfollows, soma a série diária de novos seguidores
@@ -208,26 +267,76 @@ async function igFetchInsights(accId, igid, diag) {
   return out;
 }
 
-// ── 3. Investimento em Ads na MESMA janela dos insights ─────────────────────
-// É o que permite o cruzamento orgânico × pago (custo por novo seguidor etc.).
-async function igFetchAdSpend(accId, diag) {
+// Últimos posts do perfil, pra saber se está "parado" (sem postar há mais de
+// 7 dias) e quantos posts entraram na janela escolhida. Limitado aos 12 mais
+// recentes: suficiente pra flagrar unidade parada, mas subestima a contagem
+// de quem posta com muita frequência.
+async function igFetchRecentMedia(accId, igid, sinceTs, diag) {
   try {
-    const j = await apiFetch(accId, 'insights', {
-      fields: 'spend,reach,impressions', preset: 'last_28d',
-    });
-    const d = (j.data || [])[0] || {};
-    return {
-      spend: parseFloat(d.spend) || 0,
-      adReach: parseInt(d.reach) || 0,
-      adImpr: parseInt(d.impressions) || 0,
-    };
+    const j = await apiFetch(accId, '', { node: igid + '/media', fields: 'timestamp', limit: 12 });
+    const stamps = (j.data || [])
+      .map(m => Math.floor(new Date(m.timestamp).getTime() / 1000))
+      .filter(t => !isNaN(t));
+    const lastPostAt = stamps.length ? Math.max(...stamps) : null;
+    const postsInWindow = stamps.filter(t => t >= sinceTs).length;
+    diag.push({ step: 'media recente', ok: true, msg: `${stamps.length} post(s) lidos, ${postsInWindow} na janela` });
+    return { lastPostAt, postsInWindow };
   } catch (e) {
-    diag.push({ step: 'insights de Ads (28d)', ok: false, msg: e.message });
+    diag.push({ step: 'media recente', ok: false, msg: e.message });
     return {};
   }
 }
 
-// ── Histórico próprio (snapshots diários) ───────────────────────────────────
+// ── Perfis únicos (dedup) ────────────────────────────────────────────────────
+// Várias contas de anúncio podem promover o mesmo perfil de Instagram.
+// Marca, em cada linha, com quais outras unidades ela compartilha o perfil
+// (pra mostrar na tabela) e devolve uma lista com um registro por perfil
+// (pra somar seguidores/alcance/etc. sem contar o mesmo perfil 2x).
+function igAnnotateShared(results) {
+  const byIgid = {};
+  results.forEach(r => { if (r.igid) (byIgid[r.igid] = byIgid[r.igid] || []).push(r); });
+  Object.values(byIgid).forEach(group => {
+    if (group.length > 1) group.forEach(r => { r.sharedWith = group.filter(x => x !== r).map(x => x.name); });
+  });
+}
+function igUniqueProfiles(results) {
+  const seen = new Map();
+  results.forEach(r => {
+    if (!r.igid || r.followers == null) return;
+    if (!seen.has(r.igid)) seen.set(r.igid, { ...r, units: [r.name] });
+    else seen.get(r.igid).units.push(r.name);
+  });
+  return Array.from(seen.values());
+}
+const igStripName = n => (n || '').replace(/^Berry's\s*/, '');
+function igProfileLabel(p) {
+  return (p.units && p.units.length > 1 ? p.units : [p.name]).map(igStripName).join(' / ');
+}
+
+// ── Crescimento e status calculados pelo painel ─────────────────────────────
+// Não são métricas da Meta: são um critério do painel pra dar uma leitura
+// rápida de saúde da unidade, a partir dos números reais já coletados.
+function igComputeGrowthPct(r, delta30, v30) {
+  if (delta30 != null && v30 > 0) return delta30 / v30 * 100;
+  if (r.newFollows != null || r.unfollows != null) {
+    const net = (r.newFollows || 0) - (r.unfollows || 0);
+    if (!r.followers) return null;
+    // sem histórico de 30 dias, isso é uma ESTIMATIVA (ações de follow do
+    // período ÷ seguidores atuais) — sem uma base real ela pode passar de
+    // 100% numa conta pequena com um pico de seguir/deixar de seguir, então
+    // o valor fica limitado a ±100% pra não exibir um crescimento absurdo.
+    return Math.max(-100, Math.min(100, net / r.followers * 100));
+  }
+  return null;
+}
+function igComputeStatus(r) {
+  if (r.followers == null) return 'sem-ig';
+  const g = r.growthPct;
+  const stale = r.daysSincePost != null && r.daysSincePost > 7;
+  if (g != null && g <= -5) return 'critico';
+  if ((g != null && g < 2) || stale) return 'atencao';
+  return 'saudavel';
+}
 
 // Valor do snapshot mais recente que seja <= data alvo (ou null se o
 // histórico ainda não alcança essa data).
@@ -237,22 +346,14 @@ function igValueAt(history, targetDate) {
   return best !== null ? history[best] : null;
 }
 
-function igEarliest(history) {
-  let best = null;
-  for (const d in history) if (best === null || d < best) best = d;
-  return best;
+// ── Render: pills, sparkline, avisos ────────────────────────────────────────
+
+function igPctPill(pct) {
+  if (pct == null) return igNA('histórico insuficiente');
+  const cls = pct > 0 ? 'up' : pct < 0 ? 'down' : 'flat';
+  const sign = pct > 0 ? '▲ +' : pct < 0 ? '▼ ' : '= ';
+  return `<span class="ig-delta ${cls}">${sign}${Math.abs(pct).toFixed(1)}%</span>`;
 }
-
-// ── Render ──────────────────────────────────────────────────────────────────
-
-function igDeltaPill(delta, base) {
-  if (delta == null) return '<span class="ig-delta na" title="histórico ainda insuficiente">—</span>';
-  const pct = base > 0 ? ` (${(delta / base * 100).toFixed(1)}%)` : '';
-  if (delta > 0) return `<span class="ig-delta up">▲ +${fmtN(delta)}${pct}</span>`;
-  if (delta < 0) return `<span class="ig-delta down">▼ ${fmtN(delta)}${pct}</span>`;
-  return '<span class="ig-delta flat">= 0</span>';
-}
-
 const igNA = title => `<span class="ig-delta na"${title ? ` title="${title}"` : ''}>—</span>`;
 
 // Sparkline SVG a partir de uma lista de valores.
@@ -268,8 +369,7 @@ function igSparkVals(vals, title) {
 }
 
 // Tendência da unidade: usa a série diária de novos seguidores dos insights
-// da Meta (28 dias, igual ao gráfico do Business Suite); se indisponível,
-// cai para o histórico de snapshots do painel.
+// da Meta; se indisponível, cai para o histórico de snapshots do painel.
 function igSpark(history, daily) {
   if (daily && daily.length >= 2) return igSparkVals(daily);
   const entries = Object.entries(history || {}).sort((a, b) => a[0] < b[0] ? -1 : 1).slice(-30);
@@ -277,9 +377,7 @@ function igSpark(history, daily) {
 }
 
 // Painel de diagnóstico: mostra, unidade a unidade, qual caminho da API
-// funcionou e o erro exato de cada tentativa que falhou. É o que permite
-// descobrir rápido se o problema é permissão do token, conta sem IG
-// vinculado ou métrica que a Meta não expõe mais.
+// funcionou e o erro exato de cada tentativa que falhou.
 function igRenderDiag() {
   const box = document.getElementById('ig-diag-body');
   if (!box) return;
@@ -303,23 +401,48 @@ function igToggleDiag() {
   if (btn) btn.textContent = open ? '🔧 Ocultar diagnóstico' : '🔧 Diagnóstico da API';
 }
 
+// ── Refresh principal ────────────────────────────────────────────────────────
+
 async function igRefresh() {
-  const tbody = document.getElementById('ig-tbody');
-  const xbody = document.getElementById('ig-cross-tbody');
+  const winSel = document.getElementById('ig-window');
+  IG_WINDOW_DAYS = winSel ? parseInt(winSel.value, 10) || 28 : 28;
+  document.querySelectorAll('.ig-win-lbl').forEach(el => { el.textContent = IG_WINDOW_DAYS + 'd'; });
+
+  const tbody = document.getElementById('ig-rank-tbody');
   const errEl = document.getElementById('ig-err');
   errEl.classList.remove('show');
-  tbody.innerHTML = '<tr><td colspan="9" style="padding:40px;text-align:center;color:#bbb;font-weight:700;"><span class="spin"></span> Carregando contas de Instagram…</td></tr>';
-  xbody.innerHTML = '<tr><td colspan="9" style="padding:40px;text-align:center;color:#bbb;font-weight:700;"><span class="spin"></span> Cruzando com o investimento…</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="12" style="padding:40px;text-align:center;color:#bbb;font-weight:700;"><span class="spin"></span> Carregando contas de Instagram…</td></tr>';
 
   // cada "Atualizar" recomeça do zero: se o token foi corrigido no meio do
   // caminho, os edges dados como mortos voltam a ser tentados.
   Object.keys(igEdgeFails).forEach(k => delete igEdgeFails[k]);
 
-  // 1. histórico salvo (não é fatal se falhar — só perde os deltas)
+  // histórico salvo (não é fatal se falhar — só perde os deltas)
   try { igStoreState = await storeGet(IG_FILE); } catch (e) { /* segue sem histórico */ }
   const hist = igStoreState.data || {};
+  igLastHist = hist;
 
-  // 2. dados ao vivo, em lotes de 4 (mesmo padrão do Acompanhamento)
+  const until = Math.floor(Date.now() / 1000);
+  const since = until - IG_WINDOW_DAYS * 86400;
+
+  // dados ao vivo, em lotes de 4 (mesmo padrão do Acompanhamento). Perfis
+  // compartilhados por várias contas (ex.: MOC Avenida/Centro/Shopping) só
+  // são buscados na Meta uma vez por atualização — as demais reaproveitam.
+  const igDataCache = new Map(); // igid -> { ...insights, ...media }
+  async function igFetchProfileData(accId, igid, diag) {
+    if (igDataCache.has(igid)) {
+      diag.push({ step: 'perfil compartilhado', ok: true, msg: 'reaproveitado de outra unidade com o mesmo Instagram' });
+      return igDataCache.get(igid);
+    }
+    const [ins, media] = await Promise.all([
+      igFetchInsights(accId, igid, since, until, diag),
+      igFetchRecentMedia(accId, igid, since, diag),
+    ]);
+    const data = { ...ins, ...media };
+    igDataCache.set(igid, data);
+    return data;
+  }
+
   const valid = ACCOUNTS.filter(a => a.id);
   const results = [];
   for (let i = 0; i < valid.length; i += 4) {
@@ -330,24 +453,16 @@ async function igRefresh() {
         const base = await igResolveIg(acc, diag);
         if (!base) throw new Error('nenhuma conta de Instagram vinculada a esta conta de anúncio');
         Object.assign(row, base);
-        const [ins, ads] = await Promise.all([
-          base.canInsights ? igFetchInsights(acc.id, base.igid, diag)
-                           : Promise.resolve((diag.push({ step: 'insights', ok: false, msg: 'o nó antigo de Instagram não aceita /insights' }), {})),
-          igFetchAdSpend(acc.id, diag),
-        ]);
-        Object.assign(row, ins, ads);
-      } catch (e) {
-        row.err = e.message;
-        // mesmo sem IG, o investimento serve pro cruzamento
-        Object.assign(row, await igFetchAdSpend(acc.id, diag));
-      }
+        if (base.canInsights) Object.assign(row, await igFetchProfileData(acc.id, base.igid, diag));
+        else diag.push({ step: 'insights', ok: false, msg: 'o nó antigo de Instagram não aceita /insights' });
+      } catch (e) { row.err = e.message; }
       return row;
     }));
     results.push(...chunk);
   }
-  igLastResults = results;
+  igAnnotateShared(results);
 
-  // 3. grava o snapshot de hoje (1 por dia por conta) se algo mudou
+  // grava o snapshot de hoje (1 por dia por conta) se algo mudou
   const today = igDateStr(new Date());
   let changed = false;
   results.forEach(r => {
@@ -368,119 +483,318 @@ async function igRefresh() {
     }
   }
 
-  // 4. tabela de perfis + crescimento
-  const d7 = igDaysAgo(7), d30 = igDaysAgo(30);
-  let total = 0, count = 0, g7 = 0, g7n = 0, g30 = 0, g30n = 0;
-  let tNew = 0, tNewN = 0, tUnf = 0, tUnfN = 0, tReach = 0, tReachN = 0;
-  tbody.innerHTML = '';
+  // anota cada linha com dias desde o último post, crescimento e status
+  const d30 = igDaysAgo(30);
   results.forEach(r => {
-    const tr = document.createElement('tr');
-    if (r.followers == null) {
-      tr.innerHTML = `<td><span class="sname">${r.name}</span></td>
-        <td colspan="8" class="cell-na" style="text-align:left;">${r.err || 'sem dados'}</td>`;
-      tbody.appendChild(tr);
-      return;
-    }
-    total += r.followers; count++;
+    if (r.followers == null) { r.status = 'sem-ig'; return; }
+    r.daysSincePost = r.lastPostAt != null ? Math.floor((until - r.lastPostAt) / 86400) : null;
+    const h = (hist[r.id] && hist[r.id].history) || {};
+    const v30 = igValueAt(h, d30);
+    r.v30 = v30;
+    r.delta30 = v30 != null ? r.followers - v30 : null;
+    r.growthPct = igComputeGrowthPct(r, r.delta30, v30);
+    r.status = igComputeStatus(r);
+  });
+
+  igLastResults = results;
+  const profiles = igUniqueProfiles(results);
+
+  // KPIs de rede: somados por PERFIL único, não por conta de anúncio
+  const d7 = igDaysAgo(7);
+  let tFollowers = 0, tNew = 0, tNewN = 0, tUnf = 0, tUnfN = 0;
+  let tReach = 0, tReachN = 0, tVisits = 0, tVisitsN = 0, tInter = 0, tInterN = 0, tClicks = 0, tClicksN = 0;
+  profiles.forEach(r => {
+    tFollowers += r.followers;
     if (r.newFollows != null) { tNew += r.newFollows; tNewN++; }
     if (r.unfollows  != null) { tUnf += r.unfollows;  tUnfN++; }
-    if (r.reach      != null) { tReach += r.reach;    tReachN++; }
-    const h = (hist[r.id] && hist[r.id].history) || {};
-    const v7 = igValueAt(h, d7), v30 = igValueAt(h, d30);
-    const first = igEarliest(h);
-    const delta7  = v7  != null ? r.followers - v7  : null;
-    const delta30 = v30 != null ? r.followers - v30 : null;
-    if (delta7  != null) { g7  += delta7;  g7n++; }
-    if (delta30 != null) { g30 += delta30; g30n++; }
-    const deltaFirst = (first && first !== today) ? r.followers - h[first] : null;
-    const firstLbl = deltaFirst != null
-      ? `${igDeltaPill(deltaFirst, h[first])}<div style="font-size:10px;color:#bbb;font-weight:700;margin-top:2px;">desde ${first.split('-').reverse().join('/')}</div>`
-      : igNA('primeiro registro é de hoje');
-    const userLink = r.username
-      ? `<a class="ig-user" href="https://instagram.com/${r.username}" target="_blank">@${r.username}</a>` : '';
-    const insNA = r.canInsights ? 'insights indisponíveis para esta conta (ver diagnóstico)'
-                                : 'esta conta usa o nó antigo de Instagram, que não expõe insights';
-    const newLbl = r.newFollows != null
-      ? `<span class="ig-delta up">▲ +${fmtN(r.newFollows)}</span>` : igNA(insNA);
-    const unfLbl = r.unfollows != null
-      ? `<span class="ig-delta down">▼ -${fmtN(r.unfollows)}</span>` : igNA(insNA);
-    const net = (r.newFollows != null && r.unfollows != null) ? r.newFollows - r.unfollows : null;
-    tr.innerHTML = `<td><span class="sname">${r.name}</span>${userLink}</td>
-      <td class="num">${fmtN(r.followers)}</td>
-      <td class="num">${newLbl}</td>
-      <td class="num">${unfLbl}</td>
-      <td class="num">${net != null ? igDeltaPill(net, r.followers - net) : igNA(insNA)}</td>
-      <td class="num">${igDeltaPill(delta7, v7)}</td>
-      <td class="num">${igDeltaPill(delta30, v30)}</td>
-      <td>${igSpark(h, r.daily)}</td>
-      <td class="num">${fmtN(r.media)}</td>`;
-    tbody.appendChild(tr);
+    if (r.reach      != null) { tReach += r.reach; tReachN++; }
+    if (r.profile_views != null) { tVisits += r.profile_views; tVisitsN++; }
+    if (r.total_interactions != null) { tInter += r.total_interactions; tInterN++; }
+    if (r.website_clicks != null) { tClicks += r.website_clicks; tClicksN++; }
   });
-  if (!tbody.children.length) {
-    tbody.innerHTML = '<tr><td colspan="9" style="padding:40px;text-align:center;color:#bbb;font-weight:700;">Nenhuma conta de Instagram encontrada.</td></tr>';
-  }
 
-  // 5. tabela de cruzamento: investimento × resultado orgânico (28d)
-  let xSpend = 0, xNew = 0, xReach = 0, xVisits = 0, xInter = 0;
-  xbody.innerHTML = '';
-  results.forEach(r => {
-    if (!r.spend && r.newFollows == null && r.reach == null) return;
-    const spend = r.spend || 0;
-    xSpend += spend;
-    if (r.newFollows != null) xNew += r.newFollows;
-    if (r.reach      != null) xReach += r.reach;
-    if (r.profile_views    != null) xVisits += r.profile_views;
-    if (r.total_interactions != null) xInter += r.total_interactions;
-    const cpf = (spend > 0 && r.newFollows) ? spend / r.newFollows : null;
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td><span class="sname">${r.name}</span>${r.username ? `<a class="ig-user" href="https://instagram.com/${r.username}" target="_blank">@${r.username}</a>` : ''}</td>
-      <td class="num spend">${spend ? fmt(spend) : '—'}</td>
-      <td class="num">${r.adReach != null ? fmtN(r.adReach) : '—'}</td>
-      <td class="num">${r.reach != null ? fmtN(r.reach) : igNA('alcance do perfil indisponível')}</td>
-      <td class="num">${r.views != null ? fmtN(r.views) : igNA('visualizações indisponíveis')}</td>
-      <td class="num">${r.profile_views != null ? fmtN(r.profile_views) : igNA('visitas ao perfil indisponíveis')}</td>
-      <td class="num">${r.total_interactions != null ? fmtN(r.total_interactions) : igNA('interações indisponíveis')}</td>
-      <td class="num">${r.newFollows != null ? '<span class="ig-delta up">▲ +' + fmtN(r.newFollows) + '</span>' : igNA('novos seguidores indisponíveis')}</td>
-      <td class="num">${cpf != null ? fmt(cpf) : '—'}</td>`;
-    xbody.appendChild(tr);
-  });
-  if (!xbody.children.length) {
-    xbody.innerHTML = '<tr><td colspan="9" style="padding:40px;text-align:center;color:#bbb;font-weight:700;">Sem investimento nem insights nos últimos 28 dias.</td></tr>';
-  }
-
-  // 6. cards
-  document.getElementById('ig-total').textContent = fmtN(total);
-  document.getElementById('ig-count').textContent = fmtN(count) + ' / ' + valid.length;
+  document.getElementById('ig-total').textContent = fmtN(tFollowers);
+  document.getElementById('ig-count').textContent = fmtN(results.filter(r => r.followers != null).length) + ' / ' + valid.length;
+  document.getElementById('ig-count-sub').textContent = `${profiles.length} ${igPerfilPlural(profiles.length)} único${profiles.length !== 1 ? 's' : ''} de Instagram`;
   document.getElementById('ig-new28').textContent = tNewN ? '+' + fmtN(tNew) : '—';
   document.getElementById('ig-unf28').textContent = tUnfN ? '-' + fmtN(tUnf) : '—';
   document.getElementById('ig-reach28').textContent = tReachN ? fmtN(tReach) : '—';
-  document.getElementById('ig-new28-sub').textContent = tNewN ? `${tNewN} unidade${tNewN > 1 ? 's' : ''} com insights` : 'insights indisponíveis';
-  document.getElementById('ig-unf28-sub').textContent = tUnfN ? `${tUnfN} unidade${tUnfN > 1 ? 's' : ''} com insights` : 'insights indisponíveis';
-  document.getElementById('ig-reach28-sub').textContent = tReachN ? `${tReachN} unidade${tReachN > 1 ? 's' : ''} com insights` : 'insights indisponíveis';
-  document.getElementById('ig-g7').textContent  = g7n  ? (g7  >= 0 ? '+' : '') + fmtN(g7)  : '—';
-  document.getElementById('ig-g30').textContent = g30n ? (g30 >= 0 ? '+' : '') + fmtN(g30) : '—';
-  document.getElementById('ig-g7-sub').textContent  = g7n  ? `${g7n} unidade${g7n > 1 ? 's' : ''} com histórico` : 'histórico em construção';
-  document.getElementById('ig-g30-sub').textContent = g30n ? `${g30n} unidade${g30n > 1 ? 's' : ''} com histórico` : 'histórico em construção';
+  document.getElementById('ig-inter28').textContent = tInterN ? fmtN(tInter) : '—';
+  document.getElementById('ig-clicks28').textContent = tClicksN ? fmtN(tClicks) : '—';
+  document.getElementById('ig-visits28').textContent = tVisitsN ? fmtN(tVisits) : '—';
+  document.getElementById('ig-new28-sub').textContent = tNewN ? `${tNewN} ${igPerfilPlural(tNewN)} com insights` : 'insights indisponíveis';
+  document.getElementById('ig-unf28-sub').textContent = tUnfN ? `${tUnfN} ${igPerfilPlural(tUnfN)} com insights` : 'insights indisponíveis';
+  document.getElementById('ig-reach28-sub').textContent = tReachN ? `${tReachN} ${igPerfilPlural(tReachN)} com insights` : 'insights indisponíveis';
+  document.getElementById('ig-inter28-sub').textContent = tInterN ? `${tInterN} ${igPerfilPlural(tInterN)} com insights` : 'insights indisponíveis';
+  document.getElementById('ig-clicks28-sub').textContent = tClicksN ? `${tClicksN} ${igPerfilPlural(tClicksN)} com a métrica` : 'a Meta pode não expor esse clique';
+  document.getElementById('ig-visits28-sub').textContent = tVisitsN ? `${tVisitsN} ${igPerfilPlural(tVisitsN)} com insights` : 'insights indisponíveis';
+  document.getElementById('ig-last-up').textContent = 'Atualizado às ' + new Date().toLocaleTimeString('pt-BR');
 
-  document.getElementById('igx-spend').textContent  = fmt(xSpend);
-  document.getElementById('igx-new').textContent    = xNew ? '+' + fmtN(xNew) : '—';
-  document.getElementById('igx-cpf').textContent    = xNew ? fmt(xSpend / xNew) : '—';
-  document.getElementById('igx-visits').textContent = xVisits ? fmtN(xVisits) : '—';
-
-  // 7. aviso quando NENHUMA unidade conseguiu insights — quase sempre é o
-  // token sem as permissões de Instagram.
+  // aviso quando NENHUM perfil retorna insights — quase sempre é o token
+  // sem as permissões de Instagram.
   const withIg = results.filter(r => r.igid).length;
   if (withIg && !tNewN && !tReachN) {
-    errEl.innerHTML = '⚠️ <b>Nenhuma unidade retornou Insights do Instagram.</b> ' +
+    errEl.innerHTML = '⚠️ <b>Nenhum perfil retornou Insights do Instagram.</b> ' +
       'Os seguidores ao vivo funcionam, mas as métricas de Insights exigem que o <code>META_TOKEN</code> ' +
       'tenha as permissões <code>instagram_basic</code>, <code>instagram_manage_insights</code> e ' +
       '<code>pages_read_engagement</code>, e que a conta de Instagram seja Profissional/Comercial. ' +
-      'Abra o <b>Diagnóstico da API</b> abaixo pra ver o erro exato de cada unidade.';
+      'Abra o <b>Diagnóstico da API</b> pra ver o erro exato de cada unidade.';
     errEl.classList.add('show');
   }
 
+  igRenderRanking();
+  igRenderAlerts();
+  igRenderAnalysis();
+  igRenderControlChips();
   if (document.getElementById('ig-diag').classList.contains('open')) igRenderDiag();
-  document.getElementById('ig-last-up').textContent = 'Atualizado às ' + new Date().toLocaleTimeString('pt-BR');
+}
+
+// ── Ranking e desempenho por unidade (por CONTA DE ANÚNCIO) ─────────────────
+
+function igMatchesFilters(r) {
+  const fRegion = document.getElementById('ig-f-region').value;
+  if (fRegion !== 'todas' && igRegionOf(r.id) !== fRegion) return false;
+  const pr = document.getElementById('ig-f-priority').value;
+  if (pr === 'queda' && r.status !== 'critico') return false;
+  if (pr === 'stale' && !(r.daysSincePost != null && r.daysSincePost > 7)) return false;
+  if (pr === 'sem-ig' && r.followers != null) return false;
+  if (pr === 'alto-crescimento' && !(r.growthPct != null && r.growthPct >= 15)) return false;
+  if (pr === 'insights-indisp' && !(r.followers != null && r.newFollows == null && r.reach == null)) return false;
+  const q = document.getElementById('ig-f-search').value.trim().toLowerCase();
+  if (q && !(r.name.toLowerCase().includes(q) || (r.username || '').toLowerCase().includes(q))) return false;
+  return true;
+}
+
+function igRankRow(r, rank) {
+  const tr = document.createElement('tr');
+  if (r.followers == null) {
+    tr.innerHTML = `<td class="num">${rank}</td><td><span class="sname">${r.name}</span></td>
+      <td colspan="10" class="cell-na" style="text-align:left;">${r.err || 'sem dados'}</td>`;
+    return tr;
+  }
+  const userLink = r.username
+    ? `<a class="ig-user" href="https://instagram.com/${r.username}" target="_blank">@${r.username}</a>` : '';
+  const sharedBadge = r.sharedWith && r.sharedWith.length
+    ? `<span class="ig-shared" title="mesmo perfil de Instagram de: ${r.sharedWith.join(', ')}">🔗 perfil compartilhado</span>` : '';
+  const st = IG_STATUS_LABEL[r.status] || IG_STATUS_LABEL['sem-ig'];
+  const hRec = (igLastHist[r.id] && igLastHist[r.id].history) || {};
+  const postsLbl = r.postsInWindow != null
+    ? fmtN(r.postsInWindow)
+    : (r.media != null ? `<span title="total histórico da conta, sem dados da janela">${fmtN(r.media)}*</span>` : '—');
+  tr.innerHTML = `
+    <td class="num">${rank}</td>
+    <td><span class="sname">${r.name}</span>${userLink}${sharedBadge}</td>
+    <td>${igRegionOf(r.id)}</td>
+    <td class="num">${fmtN(r.followers)}</td>
+    <td class="num" title="compara com o snapshot de ~30 dias atrás (ou estimativa via Insights quando não há histórico)">${igPctPill(r.growthPct)}</td>
+    <td class="num">${r.total_interactions != null ? fmtN(r.total_interactions) : igNA('indisponível')}</td>
+    <td class="num">${r.reach != null ? fmtN(r.reach) : igNA('indisponível')}</td>
+    <td class="num">${r.profile_views != null ? fmtN(r.profile_views) : igNA('indisponível')}</td>
+    <td class="num">${r.website_clicks != null ? fmtN(r.website_clicks) : igNA('a Meta pode não expor esse clique')}</td>
+    <td class="num">${postsLbl}</td>
+    <td><span class="ig-pill ${st.cls}">${st.label}</span></td>
+    <td>${igSpark(hRec, r.daily)}</td>`;
+  return tr;
+}
+
+function igRenderRanking() {
+  const tbody = document.getElementById('ig-rank-tbody');
+  if (!tbody || !igLastResults.length) return;
+  const fRegion = document.getElementById('ig-f-region').value;
+  const pr = document.getElementById('ig-f-priority').value;
+  const q = document.getElementById('ig-f-search').value.trim();
+  const filtersActive = fRegion !== 'todas' || pr !== 'todas' || q !== '';
+
+  let list = igLastResults.filter(igMatchesFilters)
+    .sort((a, b) => (b.followers == null ? -1 : b.followers) - (a.followers == null ? -1 : a.followers));
+  const total = list.length;
+  if (!filtersActive && !igRankExpanded) list = list.slice(0, 10);
+
+  tbody.innerHTML = '';
+  list.forEach((r, i) => tbody.appendChild(igRankRow(r, i + 1)));
+  if (!tbody.children.length) {
+    tbody.innerHTML = '<tr><td colspan="12" style="padding:40px;text-align:center;color:#bbb;font-weight:700;">Nenhuma unidade encontrada com esses filtros.</td></tr>';
+  }
+
+  const moreEl = document.getElementById('ig-rank-more');
+  if (!filtersActive && total > 10) {
+    moreEl.style.display = 'block';
+    moreEl.textContent = igRankExpanded ? '↑ Mostrar só as 10 primeiras' : `↓ Ver todas as ${total} unidades`;
+  } else {
+    moreEl.style.display = 'none';
+  }
+  document.getElementById('ig-rank-count').textContent = filtersActive
+    ? `${total} unidade${total !== 1 ? 's' : ''} (filtrado)`
+    : `${total} unidade${total !== 1 ? 's' : ''}`;
+}
+
+function igToggleRankExpand() { igRankExpanded = !igRankExpanded; igRenderRanking(); }
+
+function igExportCSV() {
+  const rows = igLastResults.filter(igMatchesFilters);
+  const header = ['Unidade', 'Usuario', 'Regiao', 'Seguidores', 'CrescPct', 'Interacoes', 'Alcance', 'VisitasPerfil', 'CliquesLink', 'Posts', 'Status'];
+  const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+  const lines = [header.map(esc).join(';')];
+  rows.forEach(r => {
+    lines.push([
+      r.name, r.username || '', igRegionOf(r.id), r.followers,
+      r.growthPct != null ? r.growthPct.toFixed(1) : '',
+      r.total_interactions, r.reach, r.profile_views, r.website_clicks,
+      r.postsInWindow != null ? r.postsInWindow : r.media,
+      (IG_STATUS_LABEL[r.status] || {}).label || '',
+    ].map(esc).join(';'));
+  });
+  const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `instagram-berrys-${igDateStr(new Date())}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
+// ── Controle das unidades (chips) ────────────────────────────────────────────
+
+function igRenderControlChips() {
+  if (!igLastResults.length) return;
+  const profiles = igUniqueProfiles(igLastResults);
+  const alto = profiles.filter(r => r.growthPct != null && r.growthPct >= 15).length;
+  const critico = profiles.filter(r => r.status === 'critico').length;
+  const semIg = igLastResults.filter(r => r.followers == null).length;
+  const stale = profiles.filter(r => r.daysSincePost != null && r.daysSincePost > 7).length;
+  const posts = profiles.reduce((s, r) => s + (r.postsInWindow || 0), 0);
+  document.getElementById('igk-alto').textContent = fmtN(alto);
+  document.getElementById('igk-queda').textContent = fmtN(critico);
+  document.getElementById('igk-semig').textContent = fmtN(semIg);
+  document.getElementById('igk-stale').textContent = fmtN(stale);
+  document.getElementById('igk-posts').textContent = fmtN(posts);
+  document.getElementById('igk-camp').textContent = fmtN(igCampSummary.count) + ' / ' + fmtN(igLastResults.length);
+}
+
+// ── Alertas e prioridades ────────────────────────────────────────────────────
+
+function igBuildAlerts(results) {
+  const profiles = igUniqueProfiles(results);
+  const critico = profiles.filter(r => r.status === 'critico');
+  const stale = profiles.filter(r => r.daysSincePost != null && r.daysSincePost > 7);
+  const semIg = results.filter(r => r.followers == null);
+  const alto = profiles.filter(r => r.growthPct != null && r.growthPct >= 15);
+  const semInsights = profiles.filter(r => r.newFollows == null && r.reach == null);
+  const items = [];
+  if (critico.length) items.push({ type: 'queda', color: 'red', icon: '📉', title: 'Queda de seguidores',
+    desc: `${critico.length} ${igPerfilPlural(critico.length)} com queda de 5% ou mais nos últimos ${IG_WINDOW_DAYS} dias.` });
+  if (stale.length) items.push({ type: 'stale', color: 'orange', icon: '🗓️', title: 'Sem postagem recente',
+    desc: `${stale.length} ${igPerfilPlural(stale.length)} sem postar há mais de 7 dias.` });
+  if (semIg.length) items.push({ type: 'sem-ig', color: 'gray', icon: '🔗', title: 'Sem Instagram vinculado',
+    desc: `${semIg.length} conta${semIg.length > 1 ? 's' : ''} de anúncio sem Instagram vinculado.` });
+  if (semInsights.length) items.push({ type: 'insights-indisp', color: 'orange', icon: '⚠️', title: 'Insights indisponíveis',
+    desc: `${semInsights.length} ${igPerfilPlural(semInsights.length)} com IG vinculado mas sem retorno de Insights — confira o Diagnóstico da API.` });
+  if (alto.length) items.push({ type: 'alto-crescimento', color: 'green', icon: '🚀', title: 'Alto crescimento',
+    desc: `${alto.length} ${igPerfilPlural(alto.length)} com crescimento acima de 15% — bons exemplos para a rede.` });
+  return items;
+}
+
+function igRenderAlerts() {
+  const box = document.getElementById('ig-alerts');
+  if (!box) return;
+  const items = igBuildAlerts(igLastResults);
+  if (!items.length) { box.innerHTML = '<div class="ig-alert-ok">🎉 Nenhum alerta — tudo certo por aqui.</div>'; return; }
+  box.innerHTML = items.map(it => `
+    <div class="ig-alert ig-alert-${it.color}">
+      <div class="ig-alert-ico">${it.icon}</div>
+      <div class="ig-alert-body">
+        <div class="ig-alert-title">${it.title}</div>
+        <div class="ig-alert-desc">${it.desc}</div>
+        <a href="#ig-rank-anchor" class="ig-alert-link" onclick="igApplyAlertFilter('${it.type}')">Ver unidades →</a>
+      </div>
+    </div>`).join('');
+}
+
+function igApplyAlertFilter(type) {
+  document.getElementById('ig-f-priority').value = type;
+  document.getElementById('ig-f-region').value = 'todas';
+  document.getElementById('ig-f-search').value = '';
+  igRankExpanded = true;
+  igRenderRanking();
+}
+
+// ── Análise da rede: top 10 e distribuição por região ───────────────────────
+
+function igTop10Html(sorted, getVal, fmtVal, allowNegativeWidth) {
+  if (!sorted.length) return '<div class="ig-note" style="margin:0;">sem dados suficientes.</div>';
+  const top5 = sorted.slice(0, 5);
+  const max = Math.max(...top5.map(r => Math.abs(getVal(r))), 1);
+  const row = (label, v, dim) => `<div class="i-bar-item">
+      <div class="i-bar-label">${label}</div>
+      <div class="i-bar-track"><div class="i-bar-fill" style="width:${Math.max(4, Math.abs(v) / max * 100)}%;${v < 0 && allowNegativeWidth ? 'background:var(--red);' : ''}${dim ? 'opacity:.6;' : ''}"></div></div>
+      <div class="${allowNegativeWidth ? 'i-bar-pct' : 'i-bar-val'}">${fmtVal(v)}</div>
+    </div>`;
+  let html = top5.map((r, i) => row(`${i + 1}. ${igProfileLabel(r)}`, getVal(r), false)).join('');
+  const rest = sorted.slice(5, 10);
+  if (rest.length) {
+    const aggVal = allowNegativeWidth
+      ? rest.reduce((s, r) => s + getVal(r), 0) / rest.length
+      : rest.reduce((s, r) => s + getVal(r), 0);
+    html += row(`6-${5 + rest.length}. Outras unidades`, aggVal, true);
+  }
+  return html;
+}
+
+const IG_REGION_COLORS = { Nordeste: '#e94560', Sudeste: '#45B9E6', 'Centro-Oeste': '#f5a623', Sul: '#27ae60', Norte: '#9b59b6', Outras: '#bbb' };
+
+function igDonutSvg(counts, total) {
+  const R = 40, C = 2 * Math.PI * R;
+  let offset = 0;
+  const segs = Object.entries(counts).map(([region, n]) => {
+    const dash = (n / total) * C;
+    const seg = `<circle cx="50" cy="50" r="${R}" fill="none" stroke="${IG_REGION_COLORS[region] || '#bbb'}"
+      stroke-width="16" stroke-dasharray="${dash.toFixed(2)} ${(C - dash).toFixed(2)}"
+      stroke-dashoffset="${(-offset).toFixed(2)}" transform="rotate(-90 50 50)"/>`;
+    offset += dash;
+    return seg;
+  }).join('');
+  return `<svg width="120" height="120" viewBox="0 0 100 100">${segs}
+    <text x="50" y="47" text-anchor="middle" font-family="'Bebas Neue',cursive" font-size="20" fill="#0D2E3F">${total}</text>
+    <text x="50" y="61" text-anchor="middle" font-size="7" fill="#999" font-weight="700">unidades</text>
+  </svg>`;
+}
+function igDonutLegend(counts, total) {
+  return '<div class="ig-donut-legend">' + Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([region, n]) =>
+    `<div class="ig-legend-row"><span class="ig-legend-dot" style="background:${IG_REGION_COLORS[region] || '#bbb'}"></span>
+      ${region} <b>${n}</b> <span class="ig-legend-pct">(${(n / total * 100).toFixed(1)}%)</span></div>`
+  ).join('') + '</div>';
+}
+
+function igRenderAnalysis() {
+  const profiles = igUniqueProfiles(igLastResults);
+  const byGrowth = profiles.filter(r => r.growthPct != null).sort((a, b) => b.growthPct - a.growthPct);
+  const byInter = profiles.filter(r => r.total_interactions != null).sort((a, b) => b.total_interactions - a.total_interactions);
+
+  const gEl = document.getElementById('ig-top-growth');
+  if (gEl) gEl.innerHTML = igTop10Html(byGrowth, r => r.growthPct, v => (v >= 0 ? '+' : '') + v.toFixed(1) + '%', true);
+  const iEl = document.getElementById('ig-top-inter');
+  if (iEl) iEl.innerHTML = igTop10Html(byInter, r => r.total_interactions, v => fmtN(v), false);
+
+  const counts = {};
+  profiles.forEach(r => { const g = igRegionOf(r.id); counts[g] = (counts[g] || 0) + 1; });
+  const donutEl = document.getElementById('ig-region-donut');
+  if (donutEl) {
+    if (!profiles.length) donutEl.innerHTML = '<div class="ig-note" style="margin:0;">sem dados suficientes.</div>';
+    else donutEl.innerHTML = `<div class="ig-donut-wrap">${igDonutSvg(counts, profiles.length)}${igDonutLegend(counts, profiles.length)}</div>`;
+  }
+}
+
+// ── Dica do dia ──────────────────────────────────────────────────────────────
+
+const IG_TIPS = [
+  'Unidades que publicam pelo menos 4 vezes por semana costumam ter mais interações do que as que postam menos.',
+  'Responder comentários rapidamente ajuda o Instagram a entender que o perfil está ativo, o que favorece o alcance orgânico.',
+  'Stories com enquete ou caixinha de pergunta tendem a gerar mais visitas ao perfil.',
+  'Cruze a coluna "Cresc." com o investimento nas campanhas de seguidores pra achar as unidades com melhor custo por seguidor.',
+  'Unidades "sem postagem recente" tendem a perder alcance mesmo com Ads ativos — vale um lembrete pro time local.',
+];
+function igTipOfDay() {
+  const day = Math.floor(Date.now() / 86400000);
+  return IG_TIPS[day % IG_TIPS.length];
 }
 
 // ── Campanhas de Seguidores (Meta Ads) ──────────────────────────────────────
@@ -581,14 +895,25 @@ async function igCampFetch() {
     tbody.innerHTML = '<tr><td colspan="7" style="padding:40px;text-align:center;color:#bbb;font-weight:700;">Nenhuma campanha de seguidores com investimento no período.</td></tr>';
   }
 
+  igCampSummary = { spend: tSpend, follows: tFollows, count: tCount };
   document.getElementById('igc-spend').textContent   = fmt(tSpend);
   document.getElementById('igc-follows').textContent = tFollows ? '+' + fmtN(tFollows) : '—';
   document.getElementById('igc-cpf').textContent     = tFollows ? fmt(tSpend / tFollows) : '—';
   document.getElementById('igc-count').textContent   = fmtN(tCount) + ' / ' + valid.length;
   document.getElementById('ig-camp-last-up').textContent = 'Atualizado às ' + new Date().toLocaleTimeString('pt-BR');
+  igRenderControlChips();
+}
+
+// ── Inicialização ────────────────────────────────────────────────────────────
+
+async function igRefreshAll() {
+  await igRefresh();
+  await igCampFetch();
 }
 
 function init_instagram() {
   paintTodayDate('ig-date');
-  igRefresh().then(igCampFetch);
+  const tipEl = document.getElementById('ig-tip');
+  if (tipEl) tipEl.innerHTML = `<div class="tip-h">💡 Dica do dia</div>${igTipOfDay()}`;
+  igRefreshAll();
 }

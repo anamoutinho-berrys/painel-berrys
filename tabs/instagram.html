@@ -8,6 +8,7 @@
     .ig-spark{display:block;}
     .ig-user{color:#c13584;font-size:11px;font-weight:700;display:block;margin-top:1px;text-decoration:none;}
     .ig-user:hover{text-decoration:underline;}
+    .ig-shared{display:inline-block;margin-top:2px;font-size:9.5px;font-weight:800;color:#8a8a9a;background:#f2f2f7;border-radius:8px;padding:1px 7px;cursor:help;}
     .ig-note{margin:0 28px 14px;background:#f0f8fc;border:1.5px solid var(--b5,#d6eefa);border-radius:10px;padding:10px 16px;font-size:12px;color:#557;font-weight:600;line-height:1.5;}
     /* painel de diagnóstico da API */
     .ig-diag{display:none;margin:0 28px 16px;background:#fbfbfd;border:1.5px solid #e6e6ef;border-radius:10px;padding:12px 16px;max-height:340px;overflow:auto;}
@@ -18,95 +19,165 @@
     .ig-diag-line{font-size:11px;font-weight:600;color:#889;font-family:ui-monospace,Menlo,Consolas,monospace;line-height:1.6;padding-left:10px;}
     .ig-diag-line.ok{color:#3a8f63;}
     .ig-diag-line.bad{color:#c0392b;}
+    /* pills de status (critério do painel, não da Meta) */
+    .ig-pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10.5px;font-weight:800;letter-spacing:.3px;}
+    .ig-pill.st-saudavel{background:#e6f9ef;color:var(--green);}
+    .ig-pill.st-atencao{background:#fff3e0;color:#c9791a;}
+    .ig-pill.st-critico{background:#fdecec;color:var(--red);}
+    .ig-pill.st-semig{background:#f5f5f5;color:#999;}
+    /* ranking: "ver mais" + contador */
+    .ig-rank-head{display:flex;align-items:center;justify-content:space-between;padding:0 28px 8px;}
+    .ig-rank-head .last-up{margin-left:0;}
+    .ig-subtbl{overflow-x:auto;}
+    .ig-rank-more{display:none;text-align:center;padding:11px;font-size:12px;font-weight:800;color:var(--b1);cursor:pointer;background:#fff;border-top:1px solid #f0f8fc;border-radius:0 0 14px 14px;margin-top:-2px;}
+    .ig-rank-more:hover{text-decoration:underline;}
+    #tab-instagram .i-bar-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    /* grid principal (ranking + alertas) e análise da rede */
+    .ig-grid-2col{display:grid;grid-template-columns:2.2fr 1fr;gap:16px;padding:0 28px 24px;align-items:start;}
+    .ig-analysis-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:0 28px 24px;}
+    @media(max-width:1000px){.ig-grid-2col,.ig-analysis-grid{grid-template-columns:1fr;}}
+    /* alertas e prioridades */
+    .ig-alert{display:flex;gap:10px;padding:12px 14px;border-radius:12px;background:#fff;box-shadow:0 2px 8px rgba(69,185,230,.08);margin-bottom:10px;border-left:4px solid #ccc;}
+    .ig-alert-red{border-left-color:var(--red);}
+    .ig-alert-orange{border-left-color:var(--orange);}
+    .ig-alert-green{border-left-color:var(--green);}
+    .ig-alert-gray{border-left-color:#bbb;}
+    .ig-alert-ico{font-size:18px;flex-shrink:0;}
+    .ig-alert-title{font-weight:800;font-size:12.5px;color:var(--dark);}
+    .ig-alert-desc{font-size:11.5px;color:#667;font-weight:600;margin-top:2px;line-height:1.5;}
+    .ig-alert-link{font-size:11px;font-weight:800;color:var(--b1);text-decoration:none;display:inline-block;margin-top:5px;}
+    .ig-alert-link:hover{text-decoration:underline;}
+    .ig-alert-ok{color:var(--green);font-weight:800;text-align:center;padding:26px 16px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(69,185,230,.08);}
+    /* distribuição por região */
+    .ig-donut-wrap{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:10px;}
+    .ig-donut-legend{display:flex;flex-direction:column;gap:6px;}
+    .ig-legend-row{font-size:11.5px;font-weight:700;color:#556;display:flex;align-items:center;gap:6px;}
+    .ig-legend-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0;}
+    .ig-legend-pct{color:#aaa;}
+    /* dica do dia */
+    .ig-tip{background:var(--b5);border-radius:14px;padding:16px 18px;font-size:12.5px;color:var(--dark);font-weight:700;line-height:1.6;}
+    .ig-tip .tip-h{font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:#1a7ba3;margin-bottom:6px;}
   </style>
 
   <div class="subheader">
-    <div><div class="sh-title">Instagram — Insights por unidade</div><div class="sh-sub">Seguidores, insights do perfil e cruzamento com o investimento em Ads</div></div>
+    <div><div class="sh-title">Controle da Rede — Instagram</div><div class="sh-sub">Visão consolidada de desempenho e gestão de todas as unidades</div></div>
     <div class="sh-right" id="ig-date"></div>
   </div>
 
   <div class="controls">
-    <button class="btn btn-dark" onclick="igRefresh();igCampFetch()">🔄 Atualizar</button>
-    <button class="btn" id="ig-diag-btn" onclick="igToggleDiag()">🔧 Diagnóstico da API</button>
+    <label>📅 Janela:</label>
+    <select class="sel" id="ig-window" onchange="igRefresh()">
+      <option value="7">Últimos 7 dias</option>
+      <option value="14">Últimos 14 dias</option>
+      <option value="28" selected>Últimos 28 dias</option>
+    </select>
+    <label>🏳️ Prioridade:</label>
+    <select class="sel" id="ig-f-priority" onchange="igRenderRanking()">
+      <option value="todas">Todas as unidades</option>
+      <option value="queda">📉 Queda de seguidores</option>
+      <option value="stale">🗓️ Sem postagem recente</option>
+      <option value="sem-ig">🔗 Sem Instagram vinculado</option>
+      <option value="alto-crescimento">🚀 Alto crescimento</option>
+      <option value="insights-indisp">⚠️ Insights indisponíveis</option>
+    </select>
+    <label>📍 Região:</label>
+    <select class="sel" id="ig-f-region" onchange="igRenderRanking()">
+      <option value="todas">Todas</option>
+      <option value="Nordeste">Nordeste</option>
+      <option value="Sudeste">Sudeste</option>
+      <option value="Centro-Oeste">Centro-Oeste</option>
+      <option value="Sul">Sul</option>
+      <option value="Norte">Norte</option>
+    </select>
+    <input type="text" class="inp-m" style="width:170px;text-align:left;" id="ig-f-search" placeholder="🔎 Buscar unidade…" oninput="igRenderRanking()">
+    <button class="btn btn-dark" onclick="igRefreshAll()">🔄 Atualizar</button>
+    <button class="btn btn-ghost" id="ig-diag-btn" onclick="igToggleDiag()">🔧 Diagnóstico da API</button>
+    <button class="btn btn-ghost" onclick="igExportCSV()">⬇️ Exportar CSV</button>
     <div class="last-up" id="ig-last-up"></div>
   </div>
 
   <div class="err-banner" id="ig-err"></div>
 
   <div class="cards-grid">
-    <div class="card">    <div class="lbl">Seguidores Totais</div>       <div class="val" id="ig-total">— —</div><div class="sub">soma de todas as unidades</div></div>
-    <div class="card c3"><div class="lbl">Novos Seguidores (28d)</div>  <div class="val" id="ig-new28">— —</div><div class="sub" id="ig-new28-sub">insights da Meta</div></div>
-    <div class="card c2"><div class="lbl">Deixaram de Seguir (28d)</div><div class="val" id="ig-unf28">— —</div><div class="sub" id="ig-unf28-sub">insights da Meta</div></div>
-    <div class="card">    <div class="lbl">Alcance do Perfil (28d)</div> <div class="val" id="ig-reach28">— —</div><div class="sub" id="ig-reach28-sub">insights da Meta</div></div>
-    <div class="card c2"><div class="lbl">Crescimento 7 dias</div>      <div class="val" id="ig-g7">— —</div>   <div class="sub" id="ig-g7-sub">vs. semana passada</div></div>
-    <div class="card c3"><div class="lbl">Crescimento 30 dias</div>     <div class="val" id="ig-g30">— —</div>  <div class="sub" id="ig-g30-sub">vs. mês passado</div></div>
-    <div class="card c4"><div class="lbl">Unidades Monitoradas</div>    <div class="val" id="ig-count">— —</div><div class="sub">com Instagram vinculado</div></div>
+    <div class="card">    <div class="lbl">Seguidores Totais</div>        <div class="val" id="ig-total">— —</div><div class="sub" id="ig-count-sub">soma de todos os perfis</div></div>
+    <div class="card c3"><div class="lbl">Novos Seguidores</div>          <div class="val" id="ig-new28">— —</div><div class="sub" id="ig-new28-sub">insights da Meta</div></div>
+    <div class="card c2"><div class="lbl">Deixaram de Seguir</div>       <div class="val" id="ig-unf28">— —</div><div class="sub" id="ig-unf28-sub">insights da Meta</div></div>
+    <div class="card">    <div class="lbl">Alcance</div>                  <div class="val" id="ig-reach28">— —</div><div class="sub" id="ig-reach28-sub">insights da Meta</div></div>
+    <div class="card c2"><div class="lbl">Interações</div>                <div class="val" id="ig-inter28">— —</div><div class="sub" id="ig-inter28-sub">insights da Meta</div></div>
+    <div class="card c3"><div class="lbl">Cliques no Link</div>           <div class="val" id="ig-clicks28">— —</div><div class="sub" id="ig-clicks28-sub">insights da Meta</div></div>
+    <div class="card">    <div class="lbl">Visitas ao Perfil</div>        <div class="val" id="ig-visits28">— —</div><div class="sub" id="ig-visits28-sub">insights da Meta</div></div>
+    <div class="card c4"><div class="lbl">Unidades Monitoradas</div>      <div class="val" id="ig-count">— —</div><div class="sub">com Instagram vinculado</div></div>
   </div>
 
   <div class="ig-note">
-    📌 As colunas <b>Novos / Deixaram de seguir</b>, <b>Alcance</b>, <b>Visitas ao perfil</b> e a
-    <b>tendência</b> vêm dos Insights oficiais da Meta (os mesmos números da tela
-    "Insights → Público → Tendências" do Business Suite; a API só disponibiliza os últimos 30 dias,
-    por isso a janela é de 28 dias). Já as colunas <b>Δ 7/30 dias</b> usam o histórico próprio do
-    painel: um <b>snapshot diário</b> gravado em <code>data/instagram.json</code> toda vez que esta
-    aba é aberta — elas se preenchem conforme o histórico acumula. Se alguma unidade aparecer com
-    "—", o botão <b>Diagnóstico da API</b> mostra o motivo exato.
+    📌 Os cards acima e o gráfico "Distribuição por região" somam <b>um perfil de Instagram uma
+    única vez</b>, mesmo quando várias contas de anúncio promovem o mesmo perfil (ex.: MOC
+    Avenida/Centro/Shopping compartilham <code>@berrysmoc</code>) — a tabela de ranking abaixo, essa
+    sim, continua por <b>conta de anúncio</b> (pra cruzar com o investimento de cada uma) e marca
+    "🔗 perfil compartilhado" nesses casos. Os números vêm dos Insights oficiais da Meta (mesmos da
+    tela "Insights → Público → Tendências" do Business Suite; a janela é de no máximo 30 dias). A
+    coluna <b>Cresc.</b> usa o histórico próprio do painel — um <b>snapshot diário</b> em
+    <code>data/instagram.json</code> — com estimativa via Insights enquanto o histórico acumula. A
+    <b>região</b> de cada unidade é inferida do nome da conta, não vem da Meta. Se algo aparecer
+    como "—", o botão <b>Diagnóstico da API</b> mostra o motivo exato.
   </div>
 
   <div class="ig-diag" id="ig-diag"><div id="ig-diag-body"></div></div>
 
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr>
-        <th>Unidade</th>
-        <th class="r">Seguidores</th>
-        <th class="r">Novos (28d)</th>
-        <th class="r">Deixaram (28d)</th>
-        <th class="r">Líquido (28d)</th>
-        <th class="r">Δ 7 dias</th>
-        <th class="r">Δ 30 dias</th>
-        <th>Tendência (28d)</th>
-        <th class="r">Posts</th>
-      </tr></thead>
-      <tbody id="ig-tbody">
-        <tr><td colspan="9" style="padding:40px;text-align:center;color:#bbb;font-weight:700;"><span class="spin"></span> Carregando contas de Instagram…</td></tr>
-      </tbody>
-    </table>
+  <div class="section-title">🧭 Controle das Unidades</div>
+  <div class="camp-kpi-grid">
+    <div class="ckpi"><div class="ck-lbl">Melhor Crescimento</div><div class="ck-val" id="igk-alto">—</div></div>
+    <div class="ckpi"><div class="ck-lbl">Em Queda de Seguidores</div><div class="ck-val" id="igk-queda">—</div></div>
+    <div class="ckpi"><div class="ck-lbl">Sem Instagram Vinculado</div><div class="ck-val" id="igk-semig">—</div></div>
+    <div class="ckpi"><div class="ck-lbl">Sem Postagem Recente</div><div class="ck-val" id="igk-stale">—</div></div>
+    <div class="ckpi"><div class="ck-lbl">Publicações (<span class="ig-win-lbl">28d</span>)</div><div class="ck-val" id="igk-posts">—</div></div>
+    <div class="ckpi"><div class="ck-lbl">Com Campanha Ativa</div><div class="ck-val" id="igk-camp">—</div></div>
   </div>
 
-  <div class="section-title">🔀 Cruzamento: Investimento × Instagram (28 dias)</div>
-
-  <div class="cards-grid" style="padding-top:0;">
-    <div class="card">    <div class="lbl">Investido (28d)</div>        <div class="val" id="igx-spend">— —</div> <div class="sub">todas as unidades</div></div>
-    <div class="card c3"><div class="lbl">Novos Seguidores (28d)</div> <div class="val" id="igx-new">— —</div>   <div class="sub">insights do perfil</div></div>
-    <div class="card c2"><div class="lbl">Custo por Novo Seguidor</div><div class="val" id="igx-cpf">— —</div>   <div class="sub">investimento total ÷ novos seguidores</div></div>
-    <div class="card c4"><div class="lbl">Visitas ao Perfil (28d)</div><div class="val" id="igx-visits">— —</div><div class="sub">insights do perfil</div></div>
+  <div class="section-title" id="ig-rank-anchor">🏆 Ranking e Desempenho por Unidade</div>
+  <div class="ig-rank-head"><span></span><div class="last-up" id="ig-rank-count"></div></div>
+  <div class="ig-grid-2col">
+    <div>
+      <div class="ig-subtbl">
+        <table>
+          <thead><tr>
+            <th>#</th>
+            <th>Unidade</th>
+            <th>Região</th>
+            <th class="r">Seguidores</th>
+            <th class="r">Cresc.</th>
+            <th class="r">Interações</th>
+            <th class="r">Alcance</th>
+            <th class="r">Visitas</th>
+            <th class="r">Cliques</th>
+            <th class="r">Posts</th>
+            <th>Status</th>
+            <th>Tendência</th>
+          </tr></thead>
+          <tbody id="ig-rank-tbody">
+            <tr><td colspan="12" style="padding:40px;text-align:center;color:#bbb;font-weight:700;"><span class="spin"></span> Carregando contas de Instagram…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="ig-rank-more" id="ig-rank-more" onclick="igToggleRankExpand()"></div>
+    </div>
+    <div id="ig-alerts"></div>
   </div>
 
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr>
-        <th>Unidade</th>
-        <th class="r">Investido (28d)</th>
-        <th class="r">Alcance pago</th>
-        <th class="r">Alcance do perfil</th>
-        <th class="r">Visualizações</th>
-        <th class="r">Visitas ao perfil</th>
-        <th class="r">Interações</th>
-        <th class="r">Novos seguidores</th>
-        <th class="r">R$ / seguidor</th>
-      </tr></thead>
-      <tbody id="ig-cross-tbody">
-        <tr><td colspan="9" style="padding:40px;text-align:center;color:#bbb;font-weight:700;"><span class="spin"></span> Cruzando com o investimento…</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="ig-note">
-    ℹ️ <b>Alcance pago</b> vem dos insights da conta de anúncios (todo o investimento, não só
-    Instagram); <b>alcance do perfil</b>, <b>visitas</b> e <b>interações</b> vêm dos Insights do
-    Instagram e incluem orgânico + pago. O <b>R$ / seguidor</b> é o investimento total da conta
-    dividido pelos novos seguidores do período — serve como referência de eficiência, não como
-    atribuição direta.
+  <div class="section-title">📊 Análise da Rede</div>
+  <div class="ig-analysis-grid">
+    <div class="insight-card">
+      <div class="i-cat">Crescimento</div><h4>Top 10 por Crescimento</h4>
+      <div class="insight-bar" id="ig-top-growth"></div>
+    </div>
+    <div class="insight-card">
+      <div class="i-cat">Engajamento</div><h4>Top 10 por Interações</h4>
+      <div class="insight-bar" id="ig-top-inter"></div>
+    </div>
+    <div class="insight-card">
+      <div class="i-cat">Distribuição</div><h4>Por Região</h4>
+      <div id="ig-region-donut"></div>
+    </div>
   </div>
 
   <div class="section-title">👥 Campanhas de Seguidores (Meta Ads)</div>
@@ -121,36 +192,39 @@
     <div class="last-up" id="ig-camp-last-up"></div>
   </div>
 
-  <div class="cards-grid" style="padding-top:0;">
-    <div class="card">    <div class="lbl">Investido em Seguidores</div><div class="val" id="igc-spend">— —</div><div class="sub">campanhas de seguidores/engajamento</div></div>
-    <div class="card c2"><div class="lbl">Novos Seguidores (Ads)</div> <div class="val" id="igc-follows">— —</div><div class="sub">quando exposto pela API da Meta</div></div>
-    <div class="card c3"><div class="lbl">Custo por Seguidor</div>     <div class="val" id="igc-cpf">— —</div>    <div class="sub">média geral do período</div></div>
-    <div class="card c4"><div class="lbl">Unidades com Campanha</div>  <div class="val" id="igc-count">— —</div>  <div class="sub">investiram em seguidores no período</div></div>
+  <div class="camp-kpi-grid" style="padding-bottom:16px;">
+    <div class="ckpi"><div class="ck-lbl">Investido em Seguidores</div><div class="ck-val" id="igc-spend">— —</div></div>
+    <div class="ckpi"><div class="ck-lbl">Novos Seguidores (Ads)</div><div class="ck-val" id="igc-follows">— —</div></div>
+    <div class="ckpi"><div class="ck-lbl">Custo por Seguidor</div><div class="ck-val" id="igc-cpf">— —</div></div>
+    <div class="ckpi"><div class="ck-lbl">Unidades com Campanha</div><div class="ck-val" id="igc-count">— —</div></div>
   </div>
 
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr>
-        <th>Unidade</th>
-        <th>Campanhas</th>
-        <th class="r">Investido</th>
-        <th class="r">Novos Seguidores</th>
-        <th class="r">Custo / Seguidor</th>
-        <th class="r">Alcance</th>
-        <th class="r">Engajamento</th>
-      </tr></thead>
-      <tbody id="ig-camp-tbody">
-        <tr><td colspan="7" style="padding:40px;text-align:center;color:#bbb;font-weight:700;"><span class="spin"></span> Carregando campanhas…</td></tr>
-      </tbody>
-    </table>
+  <div class="ig-grid-2col" style="grid-template-columns:2.4fr 1fr;padding-top:0;">
+    <div class="ig-subtbl">
+      <table>
+        <thead><tr>
+          <th>Unidade</th>
+          <th>Campanhas</th>
+          <th class="r">Investido</th>
+          <th class="r">Novos Seguidores</th>
+          <th class="r">Custo / Seguidor</th>
+          <th class="r">Alcance</th>
+          <th class="r">Engajamento</th>
+        </tr></thead>
+        <tbody id="ig-camp-tbody">
+          <tr><td colspan="7" style="padding:40px;text-align:center;color:#bbb;font-weight:700;"><span class="spin"></span> Carregando campanhas…</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="ig-tip" id="ig-tip"></div>
   </div>
+
   <div class="ig-note" style="margin-top:0;">
     ℹ️ São consideradas campanhas de <b>engajamento/seguidores</b> (objetivo da Meta ou nome com
     "seguidores"/"perfil"/"follow"). ⚠️ A coluna <b>"Seguidores no Instagram"</b> do Gerenciador é
     uma métrica que a Meta lançou em 2025 e <b>ainda não expõe na API</b> — por isso "Novos
     Seguidores" pode aparecer como "—" mesmo com resultados no Gerenciador (o painel testa o campo
     a cada carregamento e passa a exibir automaticamente quando a Meta liberar). Enquanto isso, o
-    efeito real das campanhas aparece nas colunas <b>Novos (28d)</b> e <b>Δ 30 dias</b> da tabela
-    de cima, que vêm do perfil do Instagram. Curtidas de página do Facebook não são contadas como
-    seguidores.
+    efeito real das campanhas aparece no ranking acima, na coluna <b>Cresc.</b>. Curtidas de página
+    do Facebook não são contadas como seguidores.
   </div>
