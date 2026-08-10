@@ -9,15 +9,25 @@
     .ig-user{color:#c13584;font-size:11px;font-weight:700;display:block;margin-top:1px;text-decoration:none;}
     .ig-user:hover{text-decoration:underline;}
     .ig-note{margin:0 28px 14px;background:#f0f8fc;border:1.5px solid var(--b5,#d6eefa);border-radius:10px;padding:10px 16px;font-size:12px;color:#557;font-weight:600;line-height:1.5;}
+    /* painel de diagnóstico da API */
+    .ig-diag{display:none;margin:0 28px 16px;background:#fbfbfd;border:1.5px solid #e6e6ef;border-radius:10px;padding:12px 16px;max-height:340px;overflow:auto;}
+    .ig-diag.open{display:block;}
+    .ig-diag-unit{font-size:12px;font-weight:800;color:#334;margin:10px 0 3px;}
+    .ig-diag-unit:first-child{margin-top:0;}
+    .ig-diag-id{font-weight:600;color:#aab;font-size:11px;}
+    .ig-diag-line{font-size:11px;font-weight:600;color:#889;font-family:ui-monospace,Menlo,Consolas,monospace;line-height:1.6;padding-left:10px;}
+    .ig-diag-line.ok{color:#3a8f63;}
+    .ig-diag-line.bad{color:#c0392b;}
   </style>
 
   <div class="subheader">
-    <div><div class="sh-title">Crescimento do Instagram</div><div class="sh-sub">Seguidores e evolução das contas de cada unidade</div></div>
+    <div><div class="sh-title">Instagram — Insights por unidade</div><div class="sh-sub">Seguidores, insights do perfil e cruzamento com o investimento em Ads</div></div>
     <div class="sh-right" id="ig-date"></div>
   </div>
 
   <div class="controls">
     <button class="btn btn-dark" onclick="igRefresh();igCampFetch()">🔄 Atualizar</button>
+    <button class="btn" id="ig-diag-btn" onclick="igToggleDiag()">🔧 Diagnóstico da API</button>
     <div class="last-up" id="ig-last-up"></div>
   </div>
 
@@ -27,18 +37,23 @@
     <div class="card">    <div class="lbl">Seguidores Totais</div>       <div class="val" id="ig-total">— —</div><div class="sub">soma de todas as unidades</div></div>
     <div class="card c3"><div class="lbl">Novos Seguidores (28d)</div>  <div class="val" id="ig-new28">— —</div><div class="sub" id="ig-new28-sub">insights da Meta</div></div>
     <div class="card c2"><div class="lbl">Deixaram de Seguir (28d)</div><div class="val" id="ig-unf28">— —</div><div class="sub" id="ig-unf28-sub">insights da Meta</div></div>
+    <div class="card">    <div class="lbl">Alcance do Perfil (28d)</div> <div class="val" id="ig-reach28">— —</div><div class="sub" id="ig-reach28-sub">insights da Meta</div></div>
     <div class="card c2"><div class="lbl">Crescimento 7 dias</div>      <div class="val" id="ig-g7">— —</div>   <div class="sub" id="ig-g7-sub">vs. semana passada</div></div>
     <div class="card c3"><div class="lbl">Crescimento 30 dias</div>     <div class="val" id="ig-g30">— —</div>  <div class="sub" id="ig-g30-sub">vs. mês passado</div></div>
     <div class="card c4"><div class="lbl">Unidades Monitoradas</div>    <div class="val" id="ig-count">— —</div><div class="sub">com Instagram vinculado</div></div>
   </div>
 
   <div class="ig-note">
-    📌 <b>Novos / Deixaram de seguir (28d)</b> e a <b>tendência</b> vêm dos insights oficiais da
-    Meta (mesmos números da tela "Público → Tendências" do Business Suite; a API só disponibiliza
-    os últimos 30 dias). Já as colunas <b>Δ 7/30 dias</b> usam o histórico próprio do painel: um
-    <b>snapshot diário</b> gravado em <code>data/instagram.json</code> toda vez que esta aba é
-    aberta — elas se preenchem conforme o histórico acumula.
+    📌 As colunas <b>Novos / Deixaram de seguir</b>, <b>Alcance</b>, <b>Visitas ao perfil</b> e a
+    <b>tendência</b> vêm dos Insights oficiais da Meta (os mesmos números da tela
+    "Insights → Público → Tendências" do Business Suite; a API só disponibiliza os últimos 30 dias,
+    por isso a janela é de 28 dias). Já as colunas <b>Δ 7/30 dias</b> usam o histórico próprio do
+    painel: um <b>snapshot diário</b> gravado em <code>data/instagram.json</code> toda vez que esta
+    aba é aberta — elas se preenchem conforme o histórico acumula. Se alguma unidade aparecer com
+    "—", o botão <b>Diagnóstico da API</b> mostra o motivo exato.
   </div>
+
+  <div class="ig-diag" id="ig-diag"><div id="ig-diag-body"></div></div>
 
   <div class="tbl-wrap">
     <table>
@@ -47,9 +62,9 @@
         <th class="r">Seguidores</th>
         <th class="r">Novos (28d)</th>
         <th class="r">Deixaram (28d)</th>
+        <th class="r">Líquido (28d)</th>
         <th class="r">Δ 7 dias</th>
         <th class="r">Δ 30 dias</th>
-        <th class="r">Desde o 1º registro</th>
         <th>Tendência (28d)</th>
         <th class="r">Posts</th>
       </tr></thead>
@@ -57,6 +72,41 @@
         <tr><td colspan="9" style="padding:40px;text-align:center;color:#bbb;font-weight:700;"><span class="spin"></span> Carregando contas de Instagram…</td></tr>
       </tbody>
     </table>
+  </div>
+
+  <div class="section-title">🔀 Cruzamento: Investimento × Instagram (28 dias)</div>
+
+  <div class="cards-grid" style="padding-top:0;">
+    <div class="card">    <div class="lbl">Investido (28d)</div>        <div class="val" id="igx-spend">— —</div> <div class="sub">todas as unidades</div></div>
+    <div class="card c3"><div class="lbl">Novos Seguidores (28d)</div> <div class="val" id="igx-new">— —</div>   <div class="sub">insights do perfil</div></div>
+    <div class="card c2"><div class="lbl">Custo por Novo Seguidor</div><div class="val" id="igx-cpf">— —</div>   <div class="sub">investimento total ÷ novos seguidores</div></div>
+    <div class="card c4"><div class="lbl">Visitas ao Perfil (28d)</div><div class="val" id="igx-visits">— —</div><div class="sub">insights do perfil</div></div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Unidade</th>
+        <th class="r">Investido (28d)</th>
+        <th class="r">Alcance pago</th>
+        <th class="r">Alcance do perfil</th>
+        <th class="r">Visualizações</th>
+        <th class="r">Visitas ao perfil</th>
+        <th class="r">Interações</th>
+        <th class="r">Novos seguidores</th>
+        <th class="r">R$ / seguidor</th>
+      </tr></thead>
+      <tbody id="ig-cross-tbody">
+        <tr><td colspan="9" style="padding:40px;text-align:center;color:#bbb;font-weight:700;"><span class="spin"></span> Cruzando com o investimento…</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="ig-note">
+    ℹ️ <b>Alcance pago</b> vem dos insights da conta de anúncios (todo o investimento, não só
+    Instagram); <b>alcance do perfil</b>, <b>visitas</b> e <b>interações</b> vêm dos Insights do
+    Instagram e incluem orgânico + pago. O <b>R$ / seguidor</b> é o investimento total da conta
+    dividido pelos novos seguidores do período — serve como referência de eficiência, não como
+    atribuição direta.
   </div>
 
   <div class="section-title">👥 Campanhas de Seguidores (Meta Ads)</div>
