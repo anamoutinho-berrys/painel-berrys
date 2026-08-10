@@ -31,7 +31,6 @@ tabs/
                                            CÓPIA independente (funções br* em
                                            brasil.js) — dá pra personalizar
                                            cada dash sem afetar o outro.
-  acompanhamento.html + .js             → aba "Acompanhamento"
   instagram.html + .js                  → aba "Instagram": seguidores ao vivo
                                            por unidade, Insights do perfil
                                            (novos/deixaram de seguir, alcance,
@@ -45,7 +44,6 @@ tabs/
                                            caminho da Graph API funcionou e o
                                            erro exato de cada tentativa.
   criativos.html + .js                  → aba "Planejamento de Criativos"
-  links.html + .js                      → aba "Central de Links" (sem JS próprio)
   trafego.html + .js                    → aba "Estrutura de Tráfego" (sem JS próprio)
 api/
   meta.js                               → proxy pra API da Meta (lê META_TOKEN)
