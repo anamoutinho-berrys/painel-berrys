@@ -39,7 +39,7 @@ function onSortClick(col) {
     sortState.col = col;
     sortState.dir = col==='name' ? 1 : -1;
   }
-  renderSaldosTable();
+  renderSaldos();
 }
 
 function updateSortArrows() {
@@ -50,19 +50,79 @@ function updateSortArrows() {
   });
 }
 
-function renderSaldosTable() {
+// célula de nome da unidade (com links), usada nas duas tabelas
+function nameCell(acc) {
+  const td = document.createElement('td');
+  td.innerHTML = `<div class="sname">${acc.name}${acc.card?' <span class="pill pill-card">cartão</span>':''}</div>`
+    +(acc.mgr?`<a class="slink" href="${acc.mgr}" target="_blank">↗ Gerenciador</a>`:'')
+    +(acc.id&&!acc.card?` <a class="slink" href="${bcBillingUrl(acc)}" target="_blank">↗ Faturamento</a>`:'')
+    +(!acc.id?'<span class="pill pill-unk">sem conta</span>':'');
+  return td;
+}
+
+function idxCell(n) {
+  const td = document.createElement('td');
+  td.style.cssText='color:#bbb;font-size:12px;font-weight:700;';
+  td.textContent = n;
+  return td;
+}
+
+// ----------------------------------------------------------------------------
+// Pendência de boleto do mês selecionado (bcMonth). Uma unidade entra no quadro
+// de cobrança quando está com saldo zerado OU quando não aparece no histórico
+// de recargas detectadas naquele mês. Contas no cartão, pós-pagas ou sem conta
+// não têm boleto e nunca são cobradas aqui.
+// ----------------------------------------------------------------------------
+function motivosPendencia(acc, d) {
+  if (!boletoLog) return [];                          // histórico ainda carregando
+  if (!acc.id || acc.card || d.postpaid) return [];   // conta sem boleto
+  if (d.loading) return [];                           // ainda buscando: não classifica
+  const m = [];
+  if (d.balance !== undefined && d.balance <= 0) m.push('zerado');
+  if (!bcPaidDate(acc.id))                     m.push('sem-recarga');
+  if (d.balErr || d.spendErr)                  m.push('sem-leitura');
+  return m;
+}
+
+// 'sem-leitura' sozinho não cobra ninguém — é só um aviso de que o dado
+// daquela conta não pôde ser lido nesta atualização.
+function isPendente(acc, d) {
+  const m = motivosPendencia(acc, d);
+  return m.includes('zerado') || m.includes('sem-recarga');
+}
+
+const MOTIVO_CHIP = {
+  'zerado':      { cls:'mot-zero', txt:'saldo zerado' },
+  'sem-recarga': { cls:'mot-sem',  txt:'sem recarga no mês' },
+  'sem-leitura': { cls:'mot-erro', txt:'conta não lida' },
+};
+
+// Divide as unidades entre a tabela principal e o quadro de cobrança.
+function renderSaldos() {
+  const rows = sortedAccounts();
+  const pend = rows.filter(r => isPendente(r.acc, r.d));
+  const emDia = rows.filter(r => !isPendente(r.acc, r.d));
+  // sem ordenação escolhida, os mais urgentes primeiro: zerados no topo,
+  // depois pelo maior valor mensal (mais dinheiro parado)
+  if (!sortState.col) {
+    pend.sort((a,b) => {
+      const za = motivosPendencia(a.acc,a.d).includes('zerado') ? 1 : 0;
+      const zb = motivosPendencia(b.acc,b.d).includes('zerado') ? 1 : 0;
+      return zb - za || (b.acc.mensal||0) - (a.acc.mensal||0);
+    });
+  }
+  renderSaldosTable(emDia);
+  renderPendentes(pend);
+  updateSortArrows();
+  bcUpdateHeader();
+}
+
+function renderSaldosTable(rows) {
   const tb = document.getElementById('tbl-body');
+  if (!tb) return;
   tb.innerHTML = '';
-  sortedAccounts().forEach(({acc,d}, idx) => {
+  rows.forEach(({acc,d}, idx) => {
     const tr = document.createElement('tr');
-    const tn = document.createElement('td');
-    tn.style.cssText='color:#bbb;font-size:12px;font-weight:700;';
-    tn.textContent = idx+1;
-    const tname = document.createElement('td');
-    tname.innerHTML = `<div class="sname">${acc.name}${acc.card?' <span class="pill pill-card">cartão</span>':''}</div>`
-      +(acc.mgr?`<a class="slink" href="${acc.mgr}" target="_blank">↗ Gerenciador</a>`:'')
-      +(acc.id&&!acc.card?` <a class="slink" href="${bcBillingUrl(acc)}" target="_blank">↗ Faturamento</a>`:'')
-      +(!acc.id?'<span class="pill pill-unk">sem conta</span>':'');
     const tmensal = document.createElement('td');
     tmensal.className='num'; tmensal.textContent = acc.mensal ? fmt(acc.mensal) : '—';
     const ttax = document.createElement('td');
@@ -71,11 +131,52 @@ function renderSaldosTable() {
     paintSpend(tspend, acc, d);
     const tbal = document.createElement('td'); tbal.id='bal_'+(acc.id||'na'+idx);
     paintBalance(tbal, acc, d);
-    tr.append(tn, tname, tmensal, ttax, tspend, tbal, ...bcCells(acc));
+    tr.append(idxCell(idx+1), nameCell(acc), tmensal, ttax, tspend, tbal, ...bcCells(acc));
     tb.appendChild(tr);
   });
-  updateSortArrows();
-  bcUpdateHeader();
+}
+
+function renderPendentes(rows) {
+  const wrap  = document.getElementById('pend-wrap');
+  const clear = document.getElementById('pend-clear');
+  const tb    = document.getElementById('pend-body');
+  if (!wrap || !tb) return;
+
+  const mesLbl = bcMonthLabel().toLowerCase();
+
+  // nada pendente: mostra o "todo mundo em dia" (só depois do histórico carregar)
+  if (!rows.length) {
+    wrap.style.display = 'none';
+    const podeAfirmar = !!boletoLog && bcEligible().length > 0;
+    clear.style.display = podeAfirmar ? 'flex' : 'none';
+    const sub = document.getElementById('pend-clear-sub');
+    if (sub) sub.textContent = `Nenhuma unidade com saldo zerado ou sem recarga detectada em ${mesLbl}.`;
+    return;
+  }
+
+  clear.style.display = 'none';
+  wrap.style.display  = '';
+
+  const totalMensal = rows.reduce((s,{acc}) => s + (acc.mensal||0), 0);
+  document.getElementById('pend-sub').textContent =
+    `Saldo zerado ou sem recarga detectada em ${mesLbl} · ${bcEligible().length} unidades com boleto no mês`;
+  document.getElementById('pend-totals').innerHTML = `
+    <div class="pend-chip"><div class="pc-val">${rows.length}</div><div class="pc-lbl">unidades pendentes</div></div>
+    <div class="pend-chip"><div class="pc-val">${fmt(totalMensal)}</div><div class="pc-lbl">em boletos a receber</div></div>`;
+
+  tb.innerHTML = '';
+  rows.forEach(({acc,d}, idx) => {
+    const tr = document.createElement('tr');
+    const tmensal = document.createElement('td');
+    tmensal.className='num'; tmensal.textContent = acc.mensal ? fmt(acc.mensal) : '—';
+    const tbal = document.createElement('td'); tbal.id='bal_'+(acc.id||'napend'+idx);
+    paintBalance(tbal, acc, d);
+    const tmot = document.createElement('td');
+    tmot.innerHTML = motivosPendencia(acc,d)
+      .map(k => `<span class="mot ${MOTIVO_CHIP[k].cls}">${MOTIVO_CHIP[k].txt}</span>`).join('');
+    tr.append(idxCell(idx+1), nameCell(acc), tmensal, tbal, tmot, ...bcCells(acc));
+    tb.appendChild(tr);
+  });
 }
 
 function errLabel(msg) {
@@ -176,7 +277,7 @@ async function loadBoletoLog() {
     boletoLog = { data: {}, sha: null };
   }
   renderBoletoHistory();
-  renderSaldosTable(); // coluna "pago" depende do boletoLog
+  renderSaldos(); // coluna "pago" e a pendência dependem do boletoLog
 }
 
 function checkBoletoPayment(acc, newBalance) {
@@ -201,7 +302,7 @@ async function flushBoletoLog() {
     if (r.sha) boletoLog.sha = r.sha;
     boletoLogChanged = false;
     renderBoletoHistory();
-    renderSaldosTable();
+    renderSaldos();
   } catch (e) {
     console.warn('[boleto] falha ao salvar histórico', e);
   }
@@ -252,7 +353,7 @@ async function loadBcLog() {
     console.warn('[boleto-check] falha ao carregar', e);
     bcLog = { data: {}, sha: null };
   }
-  renderSaldosTable();
+  renderSaldos();
 }
 
 async function saveBcLog() {
@@ -272,7 +373,7 @@ function bcShiftMonth(delta) {
   const [y, m] = bcMonth.split('-').map(Number);
   const d = new Date(y, m - 1 + delta, 1);
   bcMonth = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-  renderSaldosTable();
+  renderSaldos();
 }
 
 async function bcToggle(accId, field) {
@@ -281,7 +382,7 @@ async function bcToggle(accId, field) {
   const entry = month[accId] || (month[accId] = {});
   if (entry[field]) delete entry[field];
   else entry[field] = new Date().toISOString().slice(0,10);
-  renderSaldosTable();
+  renderSaldos();
   await saveBcLog();
 }
 
@@ -315,13 +416,18 @@ function bcCells(acc) {
   return tds;
 }
 
+// "Agosto de 2026" a partir de bcMonth ('2026-08') — só a inicial maiúscula,
+// porque toLocaleDateString devolve "agosto de 2026".
+function bcMonthLabel() {
+  const [y, m] = bcMonth.split('-').map(Number);
+  const txt = new Date(y, m-1, 1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+  return txt.charAt(0).toUpperCase() + txt.slice(1);
+}
+
 function bcUpdateHeader() {
   const lbl = document.getElementById('bc-month-lbl');
   if (!lbl) return;
-  const [y, m] = bcMonth.split('-').map(Number);
-  // "agosto de 2026" -> "Agosto de 2026" (só a inicial)
-  const txt = new Date(y, m-1, 1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
-  lbl.textContent = txt.charAt(0).toUpperCase() + txt.slice(1);
+  lbl.textContent = bcMonthLabel();
   const monthData = bcLog?.data?.[bcMonth] || {};
   const accs = bcEligible();
   let nGer = 0, nEnv = 0, nPag = 0;
@@ -345,7 +451,7 @@ async function fetchAll() {
   const preset = document.getElementById('date-preset').value;
   const valid  = ACCOUNTS.filter(a=>a.id&&!a.card);
   valid.forEach(a => { fetchedData[a.id]={loading:true}; });
-  renderSaldosTable();
+  renderSaldos();
   const pw=document.getElementById('prog-wrap'), pf=document.getElementById('prog-fill'), pl=document.getElementById('prog-lbl');
   pw.classList.add('show'); pf.style.width='0%';
   let done=0, firstErr=null;
@@ -358,6 +464,9 @@ async function fetchAll() {
       pl.textContent=`${done}/${valid.length} contas…`;
       refreshCells(acc.id); updateSaldosSummary();
     }));
+    // re-render a cada lote: com o saldo em mãos, as unidades já migram entre
+    // a tabela principal e o quadro de cobrança
+    renderSaldos();
   }
   pw.classList.remove('show');
   document.getElementById('last-up').textContent='Atualizado às '+new Date().toLocaleTimeString('pt-BR');
@@ -408,7 +517,7 @@ function init_saldos() {
   paintTodayDate('date-display');
   boletoLogPromise = loadBoletoLog();
   loadBcLog();
-  renderSaldosTable();
+  renderSaldos();
   updateSaldosSummary();
   fetchAll();
 }

@@ -1,3 +1,83 @@
+  <style>
+    /* ── Quadro "Não pagaram boleto mensal" — escopado em .pend-* ── */
+    .pend-wrap{padding:4px 28px 8px;}
+    .pend-card{
+      background:#fff;border:2px solid #F7C4CE;border-radius:var(--r-xl);
+      box-shadow:0 8px 26px rgba(233,69,96,.13);overflow:hidden;
+    }
+    .pend-head{
+      background:linear-gradient(115deg,#FFF1F4 0%,#FFF7F8 100%);
+      border-bottom:1px solid #F7C4CE;padding:16px 22px;
+      display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+    }
+    .pend-head-left{display:flex;align-items:center;gap:13px;min-width:0;}
+    .pend-ico{
+      width:42px;height:42px;border-radius:50%;flex-shrink:0;
+      background:#fff;border:1.5px solid #F7C4CE;
+      display:flex;align-items:center;justify-content:center;font-size:19px;
+    }
+    .pend-title{
+      font-family:var(--font-display);font-weight:600;font-size:21px;
+      color:#C5364C;letter-spacing:.1px;line-height:1.15;
+    }
+    .pend-sub{font-size:12px;color:#9A6874;font-weight:700;margin-top:2px;}
+    .pend-totals{display:flex;gap:10px;flex-wrap:wrap;}
+    .pend-chip{
+      background:#fff;border:1.5px solid #F7C4CE;border-radius:var(--r-md);
+      padding:8px 15px;text-align:right;
+    }
+    .pend-chip .pc-val{
+      font-family:var(--font-display);font-weight:600;font-size:20px;
+      color:#C5364C;line-height:1;
+    }
+    .pend-chip .pc-lbl{
+      font-size:9px;font-weight:900;color:#B08794;text-transform:uppercase;
+      letter-spacing:.8px;margin-top:4px;
+    }
+
+    .pend-tbl-wrap{overflow-x:auto;}
+    .pend-tbl{
+      width:100%;border-collapse:separate;border-spacing:0;background:#fff;
+      border:none;border-radius:0;box-shadow:none;font-size:12.5px;
+    }
+    .pend-tbl thead tr{background:#FDECEF;}
+    .pend-tbl th{
+      padding:11px 15px;text-align:left;font-weight:900;font-size:10px;
+      text-transform:uppercase;letter-spacing:.8px;white-space:nowrap;color:#A85566;
+    }
+    .pend-tbl th.r{text-align:right;}
+    .pend-tbl td{padding:11px 15px;border-bottom:1px solid #FDECEF;vertical-align:middle;}
+    .pend-tbl tbody tr:last-child td{border-bottom:none;}
+    .pend-tbl tbody tr:nth-child(even) td{background:#FFFCFD;}
+    .pend-tbl tbody tr:hover td{background:#FFF6F8;}
+
+    /* etiquetas de motivo da pendência */
+    .mot{
+      display:inline-block;padding:3px 10px;border-radius:var(--r-pill);
+      font-size:10px;font-weight:900;letter-spacing:.3px;white-space:nowrap;margin:1px 3px 1px 0;
+    }
+    .mot-zero{background:#FFE9ED;color:#C5364C;}
+    .mot-sem{background:var(--orange-lt);color:#B4740E;}
+    .mot-erro{background:#F1F5F8;color:#7C93A2;}
+
+    /* estado "ninguém pendente" */
+    .pend-clear{
+      margin:4px 28px 8px;background:#fff;border:1.5px solid #A7E4C6;
+      border-radius:var(--r-xl);padding:16px 22px;display:flex;align-items:center;gap:16px;
+      box-shadow:0 6px 20px rgba(31,164,99,.12);
+    }
+    .pend-clear img{width:60px;height:auto;flex-shrink:0;filter:drop-shadow(0 6px 12px rgba(13,46,63,.16));}
+    .pend-clear .pc-title{font-family:var(--font-display);font-weight:600;font-size:19px;color:var(--green);}
+    .pend-clear .pc-sub{font-size:12.5px;color:#5B7E92;font-weight:700;margin-top:2px;}
+
+    @media(max-width:768px){
+      .pend-wrap{padding-left:14px;padding-right:14px;}
+      .pend-clear{margin-left:14px;margin-right:14px;}
+      .pend-head{padding:14px 16px;}
+      .pend-title{font-size:18px;}
+    }
+  </style>
+
   <div class="subheader">
     <div>
       <div class="sh-title">Controle de Saldos · Meta Ads</div>
@@ -39,6 +119,48 @@
     <div class="card c3"><div class="lbl">Total Contratos</div><div class="val" id="c-mensal">— —</div><div class="sub">soma valores mensais</div></div>
     <div class="card c4"><div class="lbl">Total Após Imposto</div><div class="val" id="c-tax">— —</div><div class="sub">contratos − 12%</div></div>
   </div>
+  <!-- ══ Quadro de cobrança: unidades com boleto pendente no mês selecionado ══
+       Preenchido por renderPendentes() em saldos.js. Estas unidades saem da
+       tabela principal e ficam isoladas aqui para facilitar a cobrança. -->
+  <div class="pend-wrap" id="pend-wrap" style="display:none;">
+    <div class="pend-card">
+      <div class="pend-head">
+        <div class="pend-head-left">
+          <div class="pend-ico">🚨</div>
+          <div>
+            <div class="pend-title">Não pagaram boleto mensal</div>
+            <div class="pend-sub" id="pend-sub"></div>
+          </div>
+        </div>
+        <div class="pend-totals" id="pend-totals"></div>
+      </div>
+      <div class="pend-tbl-wrap">
+        <table class="pend-tbl">
+          <thead><tr>
+            <th>#</th>
+            <th>Unidade</th>
+            <th class="r">Valor Mensal</th>
+            <th class="r">Saldo Disponível</th>
+            <th>Motivo</th>
+            <th>Boleto Gerado</th>
+            <th>Enviado p/ cliente</th>
+            <th>Pago</th>
+          </tr></thead>
+          <tbody id="pend-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Aparece quando ninguém está pendente no mês selecionado -->
+  <div class="pend-clear" id="pend-clear" style="display:none;">
+    <img src="assets/img/mascote-festa.png" alt="">
+    <div>
+      <div class="pc-title">Todo mundo em dia! 🎉</div>
+      <div class="pc-sub" id="pend-clear-sub"></div>
+    </div>
+  </div>
+
   <div class="tbl-wrap">
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 4px 8px;">
       <div style="font-weight:800;color:var(--dark);font-size:13px;">🧾 Boletos de
@@ -48,6 +170,9 @@
         <button class="btn btn-ghost" style="padding:2px 8px;font-size:12px;" onclick="bcShiftMonth(1)">›</button>
       </div>
       <div id="bc-progress" style="font-size:11px;font-weight:800;color:#999;"></div>
+      <div style="font-size:11px;font-weight:800;color:var(--muted);margin-left:auto;">
+        Quem está pendente aparece no quadro de cobrança acima ↑
+      </div>
     </div>
     <table>
       <thead><tr>
@@ -65,11 +190,13 @@
     </table>
   </div>
   <div style="padding:0 28px 20px;font-size:11px;color:#ccc;text-align:right;font-weight:700;">
-    * Saldo = crédito pré-pago disponível. Contas "cartão" = pós-pago. &nbsp;·&nbsp;
+    * Esta tabela mostra só quem está <strong>em dia</strong> com o boleto do mês selecionado —
+    quem está pendente fica no quadro de cobrança no topo da página. &nbsp;·&nbsp;
+    Saldo = crédito pré-pago disponível. Contas "cartão" = pós-pago (não têm boleto). &nbsp;·&nbsp;
     <span style="color:#fc8181;font-weight:800;">Saldo em vermelho</span> = abaixo de R$ 200,00, unidade precisa de recarga. &nbsp;·&nbsp;
     <span style="color:#fc8181;font-weight:800;">Investido em vermelho</span> = zerado ou fora de 10% do proporcional esperado pro período. &nbsp;·&nbsp;
     Boletos: clique em "gerar ○" / "enviar ○" para marcar com a data (fica salvo para todo mundo);
-    "Pago" é automático quando o painel detecta a recarga no saldo. Contas no cartão não têm boleto.
+    "Pago" é automático quando o painel detecta a recarga no saldo.
   </div>
   <div class="tbl-wrap" id="boleto-history-wrap" style="display:none;">
     <div style="padding:14px 4px 8px;font-weight:800;color:var(--dark);font-size:13px;">💳 Últimos pagamentos de boleto detectados</div>
