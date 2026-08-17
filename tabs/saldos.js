@@ -136,11 +136,25 @@ function renderSaldosTable(rows) {
   });
 }
 
+// No quadro de cobrança o prefixo "Berry's" se repete em todas as unidades e
+// não distingue nada — tirar sobra espaço para o nome da cidade aparecer
+// inteiro, sobretudo no celular. O nome completo fica no title do link.
+function nomeCurto(acc) {
+  return acc.name.replace(/^Berry'?s\s+/i, '');
+}
+
+// Saldo curto exibido na linha do quadro de cobrança
+function pendSaldoTxt(acc, d) {
+  if (d.balErr)                 return { txt:'conta não lida', cls:'ok' };
+  if (d.balance === undefined)  return { txt:'—',              cls:'ok' };
+  return { txt: fmt(d.balance), cls: d.balance <= 0 ? '' : 'ok' };
+}
+
 function renderPendentes(rows) {
   const wrap  = document.getElementById('pend-wrap');
   const clear = document.getElementById('pend-clear');
-  const tb    = document.getElementById('pend-body');
-  if (!wrap || !tb) return;
+  const list  = document.getElementById('pend-body');
+  if (!wrap || !list) return;
 
   const mesLbl = bcMonthLabel().toLowerCase();
 
@@ -159,24 +173,29 @@ function renderPendentes(rows) {
 
   const totalMensal = rows.reduce((s,{acc}) => s + (acc.mensal||0), 0);
   document.getElementById('pend-sub').textContent =
-    `Saldo zerado ou sem recarga detectada em ${mesLbl} · ${bcEligible().length} unidades com boleto no mês`;
-  document.getElementById('pend-totals').innerHTML = `
-    <div class="pend-chip"><div class="pc-val">${rows.length}</div><div class="pc-lbl">unidades pendentes</div></div>
-    <div class="pend-chip"><div class="pc-val">${fmt(totalMensal)}</div><div class="pc-lbl">em boletos a receber</div></div>`;
+    `${rows.length} de ${bcEligible().length} unidades · ${mesLbl}`;
+  document.getElementById('pend-total').innerHTML =
+    `<div class="pt-val">${fmt(totalMensal)}</div><div class="pt-lbl">a receber</div>`;
 
-  tb.innerHTML = '';
-  rows.forEach(({acc,d}, idx) => {
-    const tr = document.createElement('tr');
-    const tmensal = document.createElement('td');
-    tmensal.className='num'; tmensal.textContent = acc.mensal ? fmt(acc.mensal) : '—';
-    const tbal = document.createElement('td'); tbal.id='bal_'+(acc.id||'napend'+idx);
-    paintBalance(tbal, acc, d);
-    const tmot = document.createElement('td');
-    tmot.innerHTML = motivosPendencia(acc,d)
-      .map(k => `<span class="mot ${MOTIVO_CHIP[k].cls}">${MOTIVO_CHIP[k].txt}</span>`).join('');
-    tr.append(idxCell(idx+1), nameCell(acc), tmensal, tbal, tmot, ...bcCells(acc));
-    tb.appendChild(tr);
-  });
+  // uma unidade por linha
+  list.innerHTML = rows.map(({acc,d}) => {
+    const motivos = motivosPendencia(acc,d);
+    const zerado  = motivos.includes('zerado');
+    const saldo   = pendSaldoTxt(acc, d);
+    const e       = bcLog?.data?.[bcMonth]?.[acc.id] || {};
+    const bt = (field, lbl) => e[field]
+      ? `<button class="bt on"  onclick="bcToggle('${acc.id}','${field}')" title="clique para desmarcar">✓ ${bcFmtDay(e[field])}</button>`
+      : `<button class="bt off" onclick="bcToggle('${acc.id}','${field}')">${lbl}</button>`;
+    const tip = motivos.map(k => MOTIVO_CHIP[k].txt).join(' · ');
+    return `
+      <div class="pend-row" title="${tip}">
+        <span class="pend-dot${zerado?' zero':''}"></span>
+        <span class="pend-nome"><a href="${bcBillingUrl(acc)}" target="_blank" title="${acc.name} — abrir faturamento no Meta">${nomeCurto(acc)}</a></span>
+        <span class="pend-saldo ${saldo.cls}">${saldo.txt}</span>
+        <span class="pend-mensal">${acc.mensal ? fmt(acc.mensal) : '—'}</span>
+        <span class="pend-acoes">${bt('gerado','gerar')}${bt('enviado','enviar')}</span>
+      </div>`;
+  }).join('');
 }
 
 function errLabel(msg) {
