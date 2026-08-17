@@ -1,68 +1,193 @@
   <style>
-    .ing-wrap{max-width:900px;margin:0 auto;padding:24px 28px 48px;}
-    .ing-hero{background:linear-gradient(135deg,#0D2E3F 0%,#0a4060 60%,#0d5a80 100%);border-radius:16px;padding:28px 32px;margin-bottom:28px;}
-    .ing-hero-title{font-family:'Bebas Neue',cursive;font-size:32px;color:#fff;letter-spacing:2px;margin-bottom:4px;}
-    .ing-hero-sub{font-size:13px;color:rgba(255,255,255,.6);font-weight:600;}
-    .ing-list{display:flex;flex-direction:column;gap:14px;}
-    .ing-card{background:#fff;border-radius:14px;padding:18px 22px;box-shadow:0 2px 10px rgba(69,185,230,.1);display:flex;align-items:center;gap:18px;border-left:5px solid var(--b1);}
-    .ing-card.tbd{border-left-color:#aaa;}
-    .ing-date{flex-shrink:0;width:96px;text-align:center;}
-    .ing-date .d-day{font-family:'Bebas Neue',cursive;font-size:28px;color:var(--dark);line-height:1;}
-    .ing-date .d-wd{font-size:11px;color:#888;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
-    .ing-date.tbd .d-day{font-size:15px;color:#999;}
-    .ing-info{flex:1;}
-    .ing-city{font-family:'Bebas Neue',cursive;font-size:20px;color:var(--dark);letter-spacing:.5px;}
-    .ing-note{font-size:12.5px;color:#666;font-weight:600;margin-top:2px;}
-    .ing-footer{text-align:center;font-size:11px;color:#bbb;font-weight:700;padding-top:24px;margin-top:8px;border-top:1px solid var(--b5);}
+    /* ── Aba Próximas Inaugurações — visual escopado em .ing-* ── */
+    #tab-inauguracoes{
+      background:
+        radial-gradient(ellipse 460px 300px at -70px -50px, #CFEAF8 0%, transparent 70%),
+        radial-gradient(ellipse 480px 320px at calc(100% + 90px) 18%, #D8EFFA 0%, transparent 70%),
+        var(--ry-bg);
+      min-height:calc(100vh - 66px);
+    }
+
+    /* Hero com mascote celebrando */
+    .ing-hero{
+      position:relative;overflow:hidden;
+      background:linear-gradient(120deg,var(--b-900) 0%,#0C4C6B 55%,var(--b-700) 100%);
+      padding:34px 28px 30px;display:flex;align-items:center;gap:28px;
+    }
+    .ing-hero::before{
+      content:"";position:absolute;inset:0;pointer-events:none;
+      background:var(--b-400);opacity:.10;
+      -webkit-mask-image:var(--cow-mask);mask-image:var(--cow-mask);
+      -webkit-mask-size:210px;mask-size:210px;
+    }
+    .ing-hero-txt{position:relative;z-index:1;flex:1;min-width:0;}
+    .ing-eyebrow{
+      display:inline-flex;align-items:center;gap:7px;background:rgba(69,185,230,.2);
+      border:1px solid rgba(131,212,241,.45);color:var(--b-400);
+      font-size:10.5px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase;
+      padding:5px 14px;border-radius:var(--r-pill);margin-bottom:12px;
+    }
+    .ing-hero-title{
+      font-family:var(--font-display);font-weight:600;font-size:36px;color:#fff;
+      letter-spacing:.2px;line-height:1.05;
+    }
+    .ing-hero-sub{font-size:13.5px;color:rgba(255,255,255,.72);font-weight:700;margin-top:8px;max-width:520px;line-height:1.6;}
+    .ing-hero-stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
+    .ing-stat{
+      background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.16);
+      border-radius:var(--r-md);padding:10px 16px;backdrop-filter:blur(8px);
+    }
+    .ing-stat .st-val{font-family:var(--font-display);font-weight:600;font-size:24px;color:var(--b-400);line-height:1;}
+    .ing-stat .st-lbl{font-size:9.5px;font-weight:900;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.9px;margin-top:4px;}
+    .ing-hero-mascot{
+      position:relative;z-index:1;width:168px;flex-shrink:0;
+      filter:drop-shadow(0 16px 30px rgba(0,0,0,.35));
+      animation:bob 3.4s ease-in-out infinite;
+    }
+    @media(max-width:760px){
+      .ing-hero{flex-direction:column;text-align:center;gap:6px;padding:26px 16px;}
+      .ing-hero-title{font-size:28px;}
+      .ing-hero-stats{justify-content:center;}
+      .ing-hero-mascot{width:132px;order:-1;}
+    }
+
+    .ing-wrap{max-width:1000px;margin:0 auto;padding:26px 28px 56px;}
+
+    /* Cabeçalho de mês */
+    .ing-month{
+      display:flex;align-items:center;gap:12px;margin:26px 0 14px;
+    }
+    .ing-month:first-child{margin-top:0;}
+    .ing-month .m-name{
+      font-family:var(--font-display);font-weight:600;font-size:20px;color:var(--ry);
+      letter-spacing:.2px;white-space:nowrap;
+    }
+    /* só a inicial em maiúscula: "Agosto 2026", "Datas a confirmar" */
+    .ing-month .m-name::first-letter{text-transform:uppercase;}
+    .ing-month .m-line{flex:1;height:2px;background:linear-gradient(90deg,var(--b-300),transparent);border-radius:2px;}
+    .ing-month .m-count{
+      font-size:10px;font-weight:900;color:var(--ry-2);background:#fff;
+      border:1px solid var(--ry-bd);border-radius:var(--r-pill);padding:3px 11px;
+      text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;
+    }
+
+    /* Trilha vertical ligando os cards */
+    .ing-track{position:relative;padding-left:34px;}
+    .ing-track::before{
+      content:"";position:absolute;left:11px;top:12px;bottom:12px;width:2.5px;
+      background:linear-gradient(180deg,var(--b-400),var(--b-200));border-radius:2px;
+    }
+
+    .ing-card{
+      position:relative;background:#fff;border:1px solid var(--ry-bd);
+      border-radius:var(--r-xl);padding:18px 22px;margin-bottom:14px;
+      box-shadow:0 6px 20px rgba(20,110,153,.10);
+      display:flex;align-items:center;gap:20px;
+      transition:transform var(--t),box-shadow var(--t);
+      animation:cardIn .45s var(--ease) backwards;
+    }
+    .ing-card:hover{transform:translateY(-3px);box-shadow:0 16px 40px rgba(20,110,153,.17);}
+    /* Bolinha na trilha */
+    .ing-card::before{
+      content:"";position:absolute;left:-29px;top:50%;transform:translateY(-50%);
+      width:14px;height:14px;border-radius:50%;background:var(--b-500);
+      border:3px solid #fff;box-shadow:0 0 0 2px var(--b-300);
+    }
+    .ing-card.tbd::before{background:var(--b-300);box-shadow:0 0 0 2px var(--b-200);}
+
+    /* Card em destaque: a próxima inauguração */
+    .ing-card.next{
+      border:2px solid var(--b-500);
+      box-shadow:0 12px 34px rgba(69,185,230,.28);
+      background:linear-gradient(120deg,#fff 60%,var(--b-50) 100%);
+    }
+    .ing-card.next::before{
+      background:var(--b-500);box-shadow:0 0 0 3px var(--b-300);
+      animation:pulseDot 2.2s ease-in-out infinite;
+    }
+    @keyframes pulseDot{0%,100%{box-shadow:0 0 0 3px var(--b-300)}50%{box-shadow:0 0 0 7px rgba(69,185,230,.25)}}
+    .ing-next-tag{
+      position:absolute;top:-10px;left:22px;background:var(--b-500);color:var(--b-900);
+      font-size:9.5px;font-weight:900;letter-spacing:1.1px;text-transform:uppercase;
+      padding:4px 12px;border-radius:var(--r-pill);box-shadow:0 4px 12px rgba(69,185,230,.4);
+    }
+
+    /* Bloco da data */
+    .ing-date{
+      flex-shrink:0;width:82px;text-align:center;background:var(--b-50);
+      border:1px solid var(--ry-bd);border-radius:var(--r-md);padding:10px 6px 8px;
+    }
+    .ing-card.next .ing-date{background:var(--b-100);border-color:var(--b-300);}
+    .ing-date .d-day{font-family:var(--font-display);font-weight:600;font-size:27px;color:var(--ry);line-height:1;}
+    .ing-date .d-mon{font-size:10px;font-weight:900;color:var(--ry-2);text-transform:uppercase;letter-spacing:1px;margin-top:3px;}
+    .ing-date .d-wd{font-size:9.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:4px;padding-top:4px;border-top:1px solid var(--line);}
+    .ing-date.tbd{background:#F5F9FC;}
+    .ing-date.tbd .d-day{font-size:13px;color:var(--muted);padding:6px 0;line-height:1.3;}
+
+    /* Info da unidade */
+    .ing-info{flex:1;min-width:0;}
+    .ing-city{font-family:var(--font-display);font-weight:600;font-size:22px;color:var(--ry-navy);letter-spacing:0;line-height:1.15;}
+    .ing-note{font-size:12.5px;color:#5B7E92;font-weight:700;margin-top:4px;line-height:1.5;}
+
+    /* Contagem regressiva */
+    .ing-count{flex-shrink:0;text-align:center;min-width:88px;}
+    .ing-count .c-num{font-family:var(--font-display);font-weight:600;font-size:30px;color:var(--b-500);line-height:1;}
+    .ing-card.next .ing-count .c-num{color:var(--b-600);}
+    .ing-count .c-lbl{font-size:9.5px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-top:3px;}
+    .ing-count.soon .c-num{color:var(--orange);}
+    .ing-count .c-badge{
+      display:inline-block;background:var(--green-lt);color:var(--green);
+      font-size:10px;font-weight:900;padding:4px 12px;border-radius:var(--r-pill);
+      text-transform:uppercase;letter-spacing:.6px;
+    }
+    .ing-count .c-badge.tbd{background:var(--b-100);color:var(--ry-2);}
+
+    @media(max-width:700px){
+      .ing-wrap{padding:20px 14px 44px;}
+      .ing-track{padding-left:26px;}
+      .ing-track::before{left:7px;}
+      .ing-card{flex-wrap:wrap;gap:14px;padding:16px 18px;}
+      .ing-card::before{left:-25px;}
+      .ing-city{font-size:19px;}
+      .ing-count{margin-left:auto;}
+    }
+
+    /* Rodapé */
+    .ing-footer{
+      margin-top:30px;background:#fff;border:1px solid var(--ry-bd);border-radius:var(--r-xl);
+      padding:16px 22px;display:flex;align-items:center;gap:14px;
+      box-shadow:0 6px 20px rgba(20,110,153,.10);
+    }
+    .ing-footer .f-ico{
+      width:38px;height:38px;border-radius:50%;flex-shrink:0;
+      background:linear-gradient(135deg,var(--b-100),var(--b-200));border:1px solid var(--ry-bd);
+      display:flex;align-items:center;justify-content:center;font-size:17px;
+    }
+    .ing-footer .f-txt{font-family:var(--font-display);font-weight:500;font-size:15.5px;color:var(--ry);}
+    .ing-footer .f-txt strong{font-weight:600;}
+    .ing-disclaimer{text-align:center;font-size:11px;color:var(--muted);font-weight:700;margin-top:16px;}
   </style>
 
-  <div class="ing-wrap">
-    <div class="ing-hero">
+  <div class="ing-hero">
+    <div class="ing-hero-txt">
+      <div class="ing-eyebrow">🎉 Expansão Berry's</div>
       <div class="ing-hero-title">Próximas Inaugurações</div>
-      <div class="ing-hero-sub">Datas previstas de abertura das novas unidades Berry's</div>
+      <div class="ing-hero-sub">
+        As novas unidades que estão chegando na rede — com data confirmada
+        ou previsão de abertura.
+      </div>
+      <div class="ing-hero-stats" id="ing-stats"></div>
     </div>
+    <img class="ing-hero-mascot" src="assets/img/mascote-festa.png"
+         alt="Mascote Berry's comemorando">
+  </div>
 
-    <div class="ing-list">
-      <div class="ing-card">
-        <div class="ing-date"><div class="d-day">25/08</div><div class="d-wd">Terça</div></div>
-        <div class="ing-info"><div class="ing-city">Arraial d'Ajuda</div></div>
-      </div>
-      <div class="ing-card">
-        <div class="ing-date"><div class="d-day">03/09</div><div class="d-wd">Quinta</div></div>
-        <div class="ing-info"><div class="ing-city">Caldas Novas</div></div>
-      </div>
-      <div class="ing-card">
-        <div class="ing-date"><div class="d-day">10/09</div><div class="d-wd">Quinta</div></div>
-        <div class="ing-info"><div class="ing-city">Juiz de Fora</div></div>
-      </div>
-      <div class="ing-card">
-        <div class="ing-date"><div class="d-day">17/09</div><div class="d-wd">Quinta</div></div>
-        <div class="ing-info"><div class="ing-city">Diamantina</div></div>
-      </div>
-      <div class="ing-card tbd">
-        <div class="ing-date tbd"><div class="d-day">A definir</div></div>
-        <div class="ing-info">
-          <div class="ing-city">Sete Lagoas</div>
-          <div class="ing-note">Previsto para a semana seguinte à Diamantina</div>
-        </div>
-      </div>
-      <div class="ing-card tbd">
-        <div class="ing-date tbd"><div class="d-day">A definir</div></div>
-        <div class="ing-info">
-          <div class="ing-city">Porto de Galinhas</div>
-          <div class="ing-note">Previsto para fim de setembro / início de outubro</div>
-        </div>
-      </div>
-      <div class="ing-card tbd">
-        <div class="ing-date tbd"><div class="d-day">A definir</div></div>
-        <div class="ing-info">
-          <div class="ing-city">Natal</div>
-          <div class="ing-note">Previsto para outubro</div>
-        </div>
-      </div>
-    </div>
+  <div class="ing-wrap">
+    <div id="ing-list"></div>
 
     <div class="ing-footer">
-      Berry's Iced Food · Painel Interno · Datas sujeitas a alteração
+      <div class="f-ico">🍦</div>
+      <div class="f-txt">Mais uma cidade com sabor. Mais uma cidade com <strong>Berry's</strong>.</div>
     </div>
+    <div class="ing-disclaimer">Datas sujeitas a alteração · atualizado conforme cronograma de obras e treinamento</div>
   </div>
