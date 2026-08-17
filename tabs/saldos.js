@@ -73,10 +73,16 @@ function idxCell(n) {
 // de recargas detectadas naquele mês. Contas no cartão, pós-pagas ou sem conta
 // não têm boleto e nunca são cobradas aqui.
 // ----------------------------------------------------------------------------
+
+// Acima deste saldo a unidade não é cobrada, mesmo sem recarga detectada no
+// mês: ainda tem verba rodando, então não há urgência de cobrança.
+const SALDO_CONFORTAVEL = 500;
+
 function motivosPendencia(acc, d) {
   if (!boletoLog) return [];                          // histórico ainda carregando
   if (!acc.id || acc.card || d.postpaid) return [];   // conta sem boleto
   if (d.loading) return [];                           // ainda buscando: não classifica
+  if (d.balance !== undefined && d.balance > SALDO_CONFORTAVEL) return [];
   const m = [];
   if (d.balance !== undefined && d.balance <= 0) m.push('zerado');
   if (!bcPaidDate(acc.id))                     m.push('sem-recarga');
@@ -177,24 +183,20 @@ function renderPendentes(rows) {
   document.getElementById('pend-total').innerHTML =
     `<div class="pt-val">${fmt(totalMensal)}</div><div class="pt-lbl">a receber</div>`;
 
-  // uma unidade por linha
+  // uma unidade por linha, distribuídas em 2 colunas pelo CSS (.pend-list)
   list.innerHTML = rows.map(({acc,d}) => {
     const motivos = motivosPendencia(acc,d);
     const zerado  = motivos.includes('zerado');
     const saldo   = pendSaldoTxt(acc, d);
-    const e       = bcLog?.data?.[bcMonth]?.[acc.id] || {};
-    const bt = (field, lbl) => e[field]
-      ? `<button class="bt on"  onclick="bcToggle('${acc.id}','${field}')" title="clique para desmarcar">✓ ${bcFmtDay(e[field])}</button>`
-      : `<button class="bt off" onclick="bcToggle('${acc.id}','${field}')">${lbl}</button>`;
-    const tip = motivos.map(k => MOTIVO_CHIP[k].txt).join(' · ');
+    const tip     = motivos.map(k => MOTIVO_CHIP[k].txt).join(' · ');
     return `
-      <div class="pend-row" title="${tip}">
+      <a class="pend-row" href="${bcBillingUrl(acc)}" target="_blank"
+         title="${acc.name} — ${tip} · abrir faturamento no Meta">
         <span class="pend-dot${zerado?' zero':''}"></span>
-        <span class="pend-nome"><a href="${bcBillingUrl(acc)}" target="_blank" title="${acc.name} — abrir faturamento no Meta">${nomeCurto(acc)}</a></span>
+        <span class="pend-nome">${nomeCurto(acc)}</span>
         <span class="pend-saldo ${saldo.cls}">${saldo.txt}</span>
         <span class="pend-mensal">${acc.mensal ? fmt(acc.mensal) : '—'}</span>
-        <span class="pend-acoes">${bt('gerado','gerar')}${bt('enviado','enviar')}</span>
-      </div>`;
+      </a>`;
   }).join('');
 }
 

@@ -32,9 +32,9 @@ const ACCOUNTS = [
   { name:"Berry's Salvador",               id:"1228370282243542",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1228370282243542", mensal:2000 },
   { name:"Berry's Balneário",              id:"364524186711060",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=364524186711060", mensal:1000 },
   { name:"Berry's Águas Claras",           id:"477466964832908",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=477466964832908", mensal:600 },
-  { name:"Berry's Praia do Francês",       id:"973653235719636",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=973653235719636", mensal:2000 },
-  { name:"Berry's BH Castelo",             id:"1665359047899564",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1665359047899564", mensal:2000 },
-  { name:"Berry's Governador Valadares",   id:"807970628972520",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=807970628972520", mensal:2000 },
+  { name:"Berry's Praia do Francês",       id:"973653235719636",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=973653235719636", mensal:1000 },
+  { name:"Berry's BH Castelo",             id:"1665359047899564",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1665359047899564", mensal:1000 },
+  { name:"Berry's Governador Valadares",   id:"807970628972520",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=807970628972520", mensal:1000 },
   { name:"Berry's ParkShopping Campo Grande", id:"1462162855666666", mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1462162855666666", mensal:1000 },
   { name:"Berry's Shopping Jardins Aracaju",  id:"1299333372282697", mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1299333372282697", mensal:1000 },
   // unidades novas ainda sem conta de anúncios criada — aparecem nos Saldos
