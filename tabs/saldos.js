@@ -319,7 +319,9 @@ function bcUpdateHeader() {
   const lbl = document.getElementById('bc-month-lbl');
   if (!lbl) return;
   const [y, m] = bcMonth.split('-').map(Number);
-  lbl.textContent = new Date(y, m-1, 1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+  // "agosto de 2026" -> "Agosto de 2026" (só a inicial)
+  const txt = new Date(y, m-1, 1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+  lbl.textContent = txt.charAt(0).toUpperCase() + txt.slice(1);
   const monthData = bcLog?.data?.[bcMonth] || {};
   const accs = bcEligible();
   let nGer = 0, nEnv = 0, nPag = 0;
