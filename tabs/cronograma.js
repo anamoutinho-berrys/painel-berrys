@@ -9,8 +9,11 @@
 // então cobre também unidades que ainda não têm conta Meta Ads configurada.
 // ============================================================================
 
-const CG_REELS_GOAL = 4;
-const CG_POSTS_GOAL = 3;
+// Meta semanal liberada pela franqueadora. Para períodos maiores que 7 dias
+// (30 dias, mês) a meta usada na tabela é proporcional a esses valores —
+// ver cgGoalsFor().
+const CG_WEEKLY_REELS_GOAL = 4;
+const CG_WEEKLY_POSTS_GOAL = 3;
 
 // Lista de unidades x @ do Instagram, repassada pela Ana. Algumas observações:
 // - "Berry's Conquista" foi informado com o mesmo @ de "Berry's Contagem"
@@ -57,6 +60,7 @@ const CG_UNITS = [
 let cgData = [];
 let cgSortKey = null;
 let cgSortDesc = true;
+let cgGoals = { reels: CG_WEEKLY_REELS_GOAL, posts: CG_WEEKLY_POSTS_GOAL };
 
 function init_cronograma() {
   paintTodayDate('cg-date-display');
@@ -80,21 +84,44 @@ async function cgPool(items, worker, concurrency = 4, onProgress) {
   return results;
 }
 
-function cgWindowStart() {
-  const d = new Date();
-  d.setDate(d.getDate() - 6);
-  d.setHours(0, 0, 0, 0);
-  return d;
+// Intervalo [since, until] (ambos com hora zerada) de acordo com o preset
+// escolhido no seletor de período.
+function cgRange(preset) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  let since, until = today;
+  if (preset === 'last_30d') {
+    since = new Date(today); since.setDate(since.getDate() - 29);
+  } else if (preset === 'this_month') {
+    since = new Date(today.getFullYear(), today.getMonth(), 1);
+  } else if (preset === 'last_month') {
+    since = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    until = new Date(today.getFullYear(), today.getMonth(), 0);
+  } else { // last_7d (padrão)
+    since = new Date(today); since.setDate(since.getDate() - 6);
+  }
+  const days = Math.round((until - since) / 86400000) + 1;
+  return { since, until, days };
 }
 
-async function cgFetchUnit(unit) {
+// Meta proporcional ao período: a meta oficial é semanal (4 reels + 3
+// estáticos), então para janelas maiores multiplicamos pelo número de
+// semanas equivalentes.
+function cgGoalsFor(days) {
+  const weeks = days / 7;
+  return {
+    reels: Math.max(1, Math.round(CG_WEEKLY_REELS_GOAL * weeks)),
+    posts: Math.max(1, Math.round(CG_WEEKLY_POSTS_GOAL * weeks)),
+  };
+}
+
+async function cgFetchUnit(unit, since) {
   try {
     const r = await fetch(`/api/instagram?username=${encodeURIComponent(unit.user)}`);
     const j = await r.json();
     if (j.error) throw new Error(j.error.message);
     const disc = j.business_discovery;
     if (!disc) throw new Error('conta não encontrada');
-    const since = cgWindowStart();
     const media = disc.media?.data || [];
     let reels = 0, posts = 0;
     for (const m of media) {
@@ -116,13 +143,20 @@ async function cgFetch() {
   const fill = document.getElementById('cg-prog-fill');
   fill.style.width = '0%';
 
-  const since = cgWindowStart();
-  const until = new Date();
+  const preset = document.getElementById('cg-preset').value;
+  const { since, until, days } = cgRange(preset);
+  cgGoals = cgGoalsFor(days);
+
   document.getElementById('cg-window-lbl').textContent =
-    `últimos 7 dias (${since.toLocaleDateString('pt-BR')} a ${until.toLocaleDateString('pt-BR')})`;
+    `${since.toLocaleDateString('pt-BR')} a ${until.toLocaleDateString('pt-BR')} (${days} dias)`;
+  document.getElementById('cg-goal-lbl').textContent = `${cgGoals.reels} reels + ${cgGoals.posts} estáticos`;
+  document.getElementById('cg-goal-note').textContent =
+    preset === 'last_7d' ? '' : '(proporcional à meta semanal de 4 reels + 3 estáticos)';
+  document.getElementById('cg-ok-reels-sub').textContent = `≥ ${cgGoals.reels} reels no período`;
+  document.getElementById('cg-ok-posts-sub').textContent = `≥ ${cgGoals.posts} estáticos no período`;
 
   try {
-    cgData = await cgPool(CG_UNITS, cgFetchUnit, 4, (done, total) => {
+    cgData = await cgPool(CG_UNITS, u => cgFetchUnit(u, since), 4, (done, total) => {
       fill.style.width = Math.round((done / total) * 100) + '%';
       lbl.textContent = `Buscando dados… ${done}/${total} unidades`;
     });
@@ -146,8 +180,8 @@ function cgSort(key) {
 function cgRender() {
   const ok = cgData.filter(u => u.ok);
   document.getElementById('cg-total-units').textContent = fmtN(cgData.length);
-  document.getElementById('cg-ok-reels').textContent = fmtN(ok.filter(u => u.reels >= CG_REELS_GOAL).length);
-  document.getElementById('cg-ok-posts').textContent = fmtN(ok.filter(u => u.posts >= CG_POSTS_GOAL).length);
+  document.getElementById('cg-ok-reels').textContent = fmtN(ok.filter(u => u.reels >= cgGoals.reels).length);
+  document.getElementById('cg-ok-posts').textContent = fmtN(ok.filter(u => u.posts >= cgGoals.posts).length);
   document.getElementById('cg-no-handle').textContent = fmtN(ok.filter(u => !u.ok).length);
 
   let rows = cgData.slice();
@@ -170,8 +204,8 @@ function cgRender() {
         <td><span class="pill pill-unk">erro</span></td>
       </tr>`;
     }
-    const reelsOk = u.reels >= CG_REELS_GOAL;
-    const postsOk = u.posts >= CG_POSTS_GOAL;
+    const reelsOk = u.reels >= cgGoals.reels;
+    const postsOk = u.posts >= cgGoals.posts;
     const bothOk = reelsOk && postsOk;
     return `<tr>
       <td class="sname">${u.name}</td>
