@@ -2,11 +2,17 @@
 // tabs/cronograma.js — aba "Cronograma IG": aderência dos franqueados ao
 // cronograma de postagens (4 reels + 3 estáticos por semana, liberados pela
 // franqueadora). Aba independente — não compartilha lógica com relatorio.js
-// nem brasil.js, só usa fmtN de core.js.
+// nem brasil.js, só usa apiFetch/fmtN de core.js.
 //
-// Fonte dos dados: api/instagram.js (business_discovery do Graph API), lido
-// a partir do @ de cada unidade. Não depende de conta de anúncios (ACCOUNTS),
-// então cobre também unidades que ainda não têm conta Meta Ads configurada.
+// Fonte dos dados: a própria API da Meta, através da conta de anúncios de
+// cada unidade (igual à extinta aba "Instagram" — ver histórico do git em
+// tabs/instagram.js). NÃO usamos o campo "business_discovery" do Graph API
+// (que deixaria puxar qualquer @ público direto) porque ele exige a
+// permissão "Instagram Public Content Access", que nosso app não tem — dá
+// erro "(#10) Application does not have permission for this action".
+// Em vez disso, descobrimos a conta de Instagram vinculada à conta de
+// anúncios (cgResolveIg) e lemos os posts dela — só funciona pra unidades
+// que já têm conta de anúncios cadastrada em ACCOUNTS (assets/core.js).
 // ============================================================================
 
 // Meta semanal liberada pela franqueadora. Para períodos maiores que 7 dias
@@ -15,46 +21,46 @@
 const CG_WEEKLY_REELS_GOAL = 4;
 const CG_WEEKLY_POSTS_GOAL = 3;
 
-// Lista de unidades x @ do Instagram, repassada pela Ana. Algumas observações:
-// - "Berry's Conquista" foi informado com o mesmo @ de "Berry's Contagem"
-//   (berryscontagem) — provavelmente um erro de preenchimento da planilha
-//   original; mantido como veio, mas os dois vão aparecer com os MESMOS
-//   números aqui até a Ana confirmar o @ correto da Conquista.
-// - Unidades sem @ informado (Savassi antigo duplicado, Capim Dourado
-//   Shopping) ficam de fora da lista e contam em "Sem cadastro de @".
+// Unidade → id da conta de anúncios (mesmos ids de ACCOUNTS em core.js), que
+// é o que permite descobrir a conta de Instagram vinculada. Unidades sem
+// conta de anúncios ainda (adAccountId vazio) não dá pra monitorar por aqui
+// — o @ conhecido (repassado pela Ana) fica só de referência na tabela.
+// "Berry's Conquista" tem conta de anúncios própria (diferente da
+// Contagem), então o @ dela é descoberto automaticamente pela API — não
+// depende de nenhum @ digitado à mão.
 const CG_UNITS = [
-  { name: "Berry's MOC",                          user: 'berrysmoc' },
-  { name: "Berry's Guanambi",                     user: 'berrysguanambi' },
-  { name: "Berry's Salvador",                     user: 'berryssalvador' },
-  { name: "Berry's Savassi",                      user: 'berryssavassi' },
-  { name: "Berry's Maceió",                       user: 'berrysmaceio' },
-  { name: "Berry's Campinas",                     user: 'berryscampinas' },
-  { name: "Berry's Luiz Eduardo Magalhães",       user: 'berryslem' },
-  { name: "Berry's Januária",                     user: 'berrysjanuaria' },
-  { name: "Berry's Anápolis",                     user: 'berrysanapolis' },
-  { name: "Berry's Balneário",                    user: 'berrysbalneariocamboriu' },
-  { name: "Berry's Aracaju",                      user: 'berrysaracaju' },
-  { name: "Berry's Bocaiuva",                     user: 'berrysbocaiuva' },
-  { name: "Berry's Lauro de Freitas",             user: 'berryslaurodefreitas' },
-  { name: "Berry's Pirapora",                     user: 'berryspirapora' },
-  { name: "Berry's Recife",                       user: 'berrys.recife' },
-  { name: "Berry's Salinas",                      user: 'berryssalinas' },
-  { name: "Berry's Janaúba",                      user: 'berrys.janauba' },
-  { name: "Berry's Contagem",                     user: 'berryscontagem' },
-  { name: "Berry's Conquista",                    user: 'berryscontagem' }, // ver nota acima
-  { name: "Berry's Feira de Santana",             user: 'berrysfeiradesantana' },
-  { name: "Berry's Águas Claras",                 user: 'berrysaguasclaras' },
-  { name: "Berry's Porto Seguro",                 user: 'berrysportoseguro' },
-  { name: "Berry's Goiânia Alto da Glória",       user: 'berrysaltodagloria' },
-  { name: "Berry's Uberaba",                      user: 'berrysuberaba' },
-  { name: "Berry's Praia do Francês",             user: 'berryspraiadofrances' },
-  { name: "Berry's BH Castelo",                   user: 'berrysbhcastelo' },
-  { name: "Berry's Governador Valadares",         user: 'berrysvaladares' },
-  { name: "Berry's ParkShopping Campo Grande",    user: 'berryscampogranderj' },
-  { name: "Berry's Shopping Jardins Aracaju",     user: 'berrysjardinsaracaju' },
-  { name: "Berry's Shopping Riomar Aracaju",      user: 'berrysriomararacaju' },
-  { name: "Berry's Shopping Tacaruna",            user: 'berrysshoppingtacaruna' },
-  { name: "Berry's RibeirãoShopping",             user: 'berrys.ribeiraoshopping' },
+  { name: "Berry's MOC",                          adAccountId: '980007099641939' },
+  { name: "Berry's Guanambi",                     adAccountId: '3413870375457406' },
+  { name: "Berry's Salvador",                     adAccountId: '1228370282243542' },
+  { name: "Berry's Savassi",                      adAccountId: '2571185629974578' },
+  { name: "Berry's Maceió",                       adAccountId: '3407509682745878' },
+  { name: "Berry's Campinas",                     adAccountId: '815737430504184' },
+  { name: "Berry's Luiz Eduardo Magalhães",       adAccountId: '1302436505232971' },
+  { name: "Berry's Januária",                     adAccountId: '1185830483132999' },
+  { name: "Berry's Anápolis",                     adAccountId: '547206184401772' },
+  { name: "Berry's Balneário",                    adAccountId: '364524186711060' },
+  { name: "Berry's Aracaju",                      adAccountId: '855614106933266' },
+  { name: "Berry's Bocaiuva",                     adAccountId: '1945459296360552' },
+  { name: "Berry's Lauro de Freitas",             adAccountId: '930248282851717' },
+  { name: "Berry's Pirapora",                     adAccountId: '898087053113777' },
+  { name: "Berry's Recife",                       adAccountId: '1320841319338526' },
+  { name: "Berry's Salinas",                      adAccountId: '1675046163715555' },
+  { name: "Berry's Janaúba",                      adAccountId: '988118436916274' },
+  { name: "Berry's Contagem",                     adAccountId: '1512851600567325' },
+  { name: "Berry's Conquista",                    adAccountId: '718790137924927' },
+  { name: "Berry's Feira de Santana",             adAccountId: '1715718849282094' },
+  { name: "Berry's Águas Claras",                 adAccountId: '477466964832908' },
+  { name: "Berry's Porto Seguro",                 adAccountId: '505755245757325' },
+  { name: "Berry's Goiânia Alto da Glória",       adAccountId: '1572310324316523' },
+  { name: "Berry's Uberaba",                      adAccountId: '2056137371779479' },
+  { name: "Berry's Praia do Francês",             adAccountId: '973653235719636' },
+  { name: "Berry's BH Castelo",                   adAccountId: '1665359047899564' },
+  { name: "Berry's Governador Valadares",         adAccountId: '807970628972520' },
+  { name: "Berry's ParkShopping Campo Grande",    adAccountId: '1462162855666666' },
+  { name: "Berry's Shopping Jardins Aracaju",     adAccountId: '1299333372282697' },
+  { name: "Berry's Shopping Riomar Aracaju",      adAccountId: '', knownUser: 'berrysriomararacaju' },
+  { name: "Berry's Shopping Tacaruna",            adAccountId: '', knownUser: 'berrysshoppingtacaruna' },
+  { name: "Berry's RibeirãoShopping",             adAccountId: '', knownUser: 'berrys.ribeiraoshopping' },
 ];
 
 let cgData = [];
@@ -62,13 +68,21 @@ let cgSortKey = null;
 let cgSortDesc = true;
 let cgGoals = { reels: CG_WEEKLY_REELS_GOAL, posts: CG_WEEKLY_POSTS_GOAL };
 
+// Alguns edges simplesmente não existem para o app/token em uso. Depois de
+// falhar em 3 unidades, o edge é dado como morto e não é mais tentado nesta
+// sessão — evita dezenas de requisições inúteis (mesma ideia da extinta
+// aba Instagram).
+const cgEdgeFails = {};
+const cgEdgeDead = e => (cgEdgeFails[e] || 0) >= 3;
+function cgEdgeFailed(edge) { cgEdgeFails[edge] = (cgEdgeFails[edge] || 0) + 1; }
+
 function init_cronograma() {
   paintTodayDate('cg-date-display');
   cgFetch();
 }
 
-// Busca com concorrência limitada — 30 contas de uma vez bate em limite de
-// rate do Graph API (business_discovery é ~200 chamadas/hora por conta).
+// Busca com concorrência limitada — várias contas de uma vez bate em limite
+// de rate da Graph API.
 async function cgPool(items, worker, concurrency = 4, onProgress) {
   const results = new Array(items.length);
   let next = 0, done = 0;
@@ -115,14 +129,52 @@ function cgGoalsFor(days) {
   };
 }
 
+// Descobre a conta de Instagram vinculada à conta de anúncios, na mesma
+// ordem de tentativas da extinta aba Instagram: (a) connected_instagram_accounts
+// [nó IGUser, caminho preferido], (b) páginas → instagram_business_account,
+// (c) instagram_accounts [nó antigo, último recurso].
+async function cgResolveIg(adAccountId) {
+  if (!cgEdgeDead('connected_instagram_accounts')) {
+    try {
+      const j = await apiFetch(adAccountId, 'connected_instagram_accounts', { fields: 'id,username' });
+      const ig = (j.data || [])[0];
+      if (ig) return ig;
+    } catch (e) { cgEdgeFailed('connected_instagram_accounts'); }
+  }
+
+  for (const edge of ['promote_pages', 'assigned_pages']) {
+    if (cgEdgeDead(edge)) continue;
+    try {
+      const j = await apiFetch(adAccountId, edge, {
+        fields: 'id,name,instagram_business_account{id,username}', limit: 25,
+      });
+      const page = (j.data || []).find(p => p.instagram_business_account);
+      if (page) return page.instagram_business_account;
+    } catch (e) { cgEdgeFailed(edge); }
+  }
+
+  if (!cgEdgeDead('instagram_accounts')) {
+    try {
+      const j = await apiFetch(adAccountId, 'instagram_accounts', { fields: 'id,username' });
+      const ig = (j.data || [])[0];
+      if (ig) return ig;
+    } catch (e) { cgEdgeFailed('instagram_accounts'); }
+  }
+
+  return null;
+}
+
 async function cgFetchUnit(unit, since) {
+  if (!unit.adAccountId) {
+    return { ...unit, ok: false, error: 'sem conta de anúncios cadastrada' + (unit.knownUser ? ` (@ conhecido: ${unit.knownUser})` : '') };
+  }
   try {
-    const r = await fetch(`/api/instagram?username=${encodeURIComponent(unit.user)}`);
-    const j = await r.json();
-    if (j.error) throw new Error(j.error.message);
-    const disc = j.business_discovery;
-    if (!disc) throw new Error('conta não encontrada');
-    const media = disc.media?.data || [];
+    const ig = await cgResolveIg(unit.adAccountId);
+    if (!ig) throw new Error('nenhuma conta de Instagram vinculada a essa conta de anúncios');
+    const j = await apiFetch(unit.adAccountId, '', {
+      node: ig.id + '/media', fields: 'media_type,media_product_type,timestamp', limit: 50,
+    });
+    const media = j.data || [];
     let reels = 0, posts = 0;
     for (const m of media) {
       const ts = new Date(m.timestamp);
@@ -130,7 +182,7 @@ async function cgFetchUnit(unit, since) {
       if (m.media_product_type === 'REELS') reels++;
       else if (m.media_type === 'IMAGE' || m.media_type === 'CAROUSEL_ALBUM') posts++;
     }
-    return { ...unit, reels, posts, ok: true };
+    return { ...unit, username: ig.username, reels, posts, ok: true };
   } catch (e) {
     return { ...unit, ok: false, error: e.message };
   }
@@ -182,7 +234,7 @@ function cgRender() {
   document.getElementById('cg-total-units').textContent = fmtN(cgData.length);
   document.getElementById('cg-ok-reels').textContent = fmtN(ok.filter(u => u.reels >= cgGoals.reels).length);
   document.getElementById('cg-ok-posts').textContent = fmtN(ok.filter(u => u.posts >= cgGoals.posts).length);
-  document.getElementById('cg-no-handle').textContent = fmtN(ok.filter(u => !u.ok).length);
+  document.getElementById('cg-no-handle').textContent = fmtN(cgData.filter(u => !u.ok).length);
 
   let rows = cgData.slice();
   ['arrow-reels', 'arrow-posts'].forEach(id => { const el = document.getElementById('cg-' + id); if (el) el.textContent = ''; });
@@ -199,7 +251,7 @@ function cgRender() {
     if (!u.ok) {
       return `<tr>
         <td class="sname">${u.name}</td>
-        <td>@${u.user}</td>
+        <td>${u.knownUser ? '@' + u.knownUser : '—'}</td>
         <td class="r" colspan="2" style="color:var(--muted);">⚠️ ${u.error}</td>
         <td><span class="pill pill-unk">erro</span></td>
       </tr>`;
@@ -209,7 +261,7 @@ function cgRender() {
     const bothOk = reelsOk && postsOk;
     return `<tr>
       <td class="sname">${u.name}</td>
-      <td><a class="slink" href="https://instagram.com/${u.user}" target="_blank" rel="noopener">@${u.user}</a></td>
+      <td><a class="slink" href="https://instagram.com/${u.username}" target="_blank" rel="noopener">@${u.username}</a></td>
       <td class="r num ${reelsOk ? '' : 'spend-warn'}">${fmtN(u.reels)}</td>
       <td class="r num ${postsOk ? '' : 'spend-warn'}">${fmtN(u.posts)}</td>
       <td><span class="pill ${bothOk ? 'pill-card' : 'pill-unk'}" style="${bothOk ? 'background:var(--green);color:#fff;' : 'background:#FDECEC;color:#C5364C;'}">${bothOk ? '✓ em dia' : '⚠️ abaixo da meta'}</span></td>
