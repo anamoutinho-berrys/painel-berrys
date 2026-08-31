@@ -1,0 +1,51 @@
+  <div class="subheader">
+    <div>
+      <div class="sh-title">CRONOGRAMA IG – ADERÊNCIA DOS FRANQUEADOS</div>
+      <div class="sh-sub">Posts públicos do Instagram de cada unidade x meta liberada pela franqueadora (4 reels + 3 estáticos por semana)</div>
+    </div>
+    <div class="sh-right" id="cg-date-display"></div>
+  </div>
+  <div class="err-banner" id="cg-err-banner" style="display:none;"></div>
+  <div class="controls">
+    <label>📅 Período:</label>
+    <select class="sel" id="cg-preset" onchange="cgFetch()">
+      <option value="last_7d">Últimos 7 dias</option>
+      <option value="last_30d">Últimos 30 dias</option>
+      <option value="this_month">Este mês</option>
+      <option value="last_month">Mês passado</option>
+    </select>
+    <div style="font-size:12.5px;font-weight:800;color:var(--muted);">
+      Janela: <span id="cg-window-lbl">—</span> &nbsp;·&nbsp;
+      🎯 Meta: <strong id="cg-goal-lbl">4 reels + 3 estáticos</strong> <span id="cg-goal-note"></span>
+    </div>
+    <button class="btn btn-dark" style="margin-left:auto;" onclick="cgFetch()">🔄 Atualizar</button>
+    <div class="last-up" id="cg-last-up"></div>
+  </div>
+  <div class="prog-wrap" id="cg-prog-wrap">
+    <div class="prog-bar"><div class="prog-fill" id="cg-prog-fill"></div></div>
+    <div class="prog-lbl" id="cg-prog-lbl">Buscando dados…</div>
+  </div>
+  <div class="cards-grid">
+    <div class="card"><div class="lbl">Unidades monitoradas</div><div class="val" id="cg-total-units">—</div><div class="sub">com @ cadastrado</div></div>
+    <div class="card c3"><div class="lbl">Cumpriram Reels</div><div class="val" id="cg-ok-reels">—</div><div class="sub" id="cg-ok-reels-sub">no período</div></div>
+    <div class="card c2"><div class="lbl">Cumpriram Estáticos</div><div class="val" id="cg-ok-posts">—</div><div class="sub" id="cg-ok-posts-sub">no período</div></div>
+    <div class="card c4"><div class="lbl">Sem cadastro de @</div><div class="val" id="cg-no-handle">—</div><div class="sub">não dá pra monitorar ainda</div></div>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Unidade</th>
+        <th>@ Instagram</th>
+        <th class="r th-sort" onclick="cgSort('reels')">Reels<span class="sort-arrow" id="cg-arrow-reels"></span></th>
+        <th class="r th-sort" onclick="cgSort('posts')">Estáticos<span class="sort-arrow" id="cg-arrow-posts"></span></th>
+        <th>Status</th>
+      </tr></thead>
+      <tbody id="cg-tbl-body"></tbody>
+    </table>
+  </div>
+  <div style="padding:0 28px 20px;font-size:11px;color:#ccc;text-align:right;font-weight:700;">
+    Dados públicos lidos direto do Instagram de cada unidade (posts do feed, sem contar stories). &nbsp;·&nbsp;
+    <span style="color:#fc8181;font-weight:800;">Vermelho</span> = abaixo da meta do período (proporcional à meta semanal de 4 reels + 3 estáticos liberada pela franqueadora). &nbsp;·&nbsp;
+    Contas privadas ou @ errado aparecem como "erro" na tabela. &nbsp;·&nbsp;
+    O Instagram só libera os últimos 50 posts por consulta — em "Este mês"/"Mês passado" contas muito ativas podem sair subcontadas.
+  </div>

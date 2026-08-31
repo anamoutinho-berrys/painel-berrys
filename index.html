@@ -26,6 +26,7 @@
     <button class="tab-btn active" onclick="goTab('saldos',this)">💰 Saldos <span class="badge">LIVE</span></button>
     <button class="tab-btn" onclick="goTab('relatorio',this)">📈 Dash Unidades <span class="badge">LIVE</span></button>
     <button class="tab-btn" onclick="goTab('brasil',this)">🇧🇷 Dash Franqueadora <span class="badge">LIVE</span></button>
+    <button class="tab-btn" onclick="goTab('cronograma',this)">📅 Cronograma IG <span class="badge">LIVE</span></button>
     <button class="tab-btn" onclick="goTab('inauguracoes',this)">🎉 Próximas Inaugurações</button>
   </nav>
   <div class="srv-status"><div class="srv-dot"></div>API conectada</div>
@@ -36,6 +37,7 @@
 <div id="tab-saldos" class="tab-page active"></div>
 <div id="tab-relatorio" class="tab-page"></div>
 <div id="tab-brasil" class="tab-page"></div>
+<div id="tab-cronograma" class="tab-page"></div>
 <div id="tab-inauguracoes" class="tab-page"></div>
 
 <!-- Bibliotecas compartilhadas: sempre carregadas -->
@@ -53,6 +55,7 @@ const TAB_FILE = {
   'saldos':        'saldos',
   'relatorio':      'relatorio',
   'brasil':         'brasil',
+  'cronograma':     'cronograma',
   'inauguracoes':   'inauguracoes',
 };
 
