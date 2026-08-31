@@ -133,13 +133,19 @@ function cgGoalsFor(days) {
 // ordem de tentativas da extinta aba Instagram: (a) connected_instagram_accounts
 // [nó IGUser, caminho preferido], (b) páginas → instagram_business_account,
 // (c) instagram_accounts [nó antigo, último recurso].
+// Devolve { ig } quando acha, ou { lastErr } com o erro real do último edge
+// tentado — importante pra distinguir "conta sem Instagram vinculado" de
+// "o token não tem permissão pra ler isso" (os dois casos pareciam iguais
+// antes, escondendo problema de permissão atrás de uma mensagem genérica).
 async function cgResolveIg(adAccountId) {
+  let lastErr = null;
+
   if (!cgEdgeDead('connected_instagram_accounts')) {
     try {
       const j = await apiFetch(adAccountId, 'connected_instagram_accounts', { fields: 'id,username' });
       const ig = (j.data || [])[0];
-      if (ig) return ig;
-    } catch (e) { cgEdgeFailed('connected_instagram_accounts'); }
+      if (ig) return { ig };
+    } catch (e) { cgEdgeFailed('connected_instagram_accounts'); lastErr = e.message; }
   }
 
   for (const edge of ['promote_pages', 'assigned_pages']) {
@@ -149,19 +155,19 @@ async function cgResolveIg(adAccountId) {
         fields: 'id,name,instagram_business_account{id,username}', limit: 25,
       });
       const page = (j.data || []).find(p => p.instagram_business_account);
-      if (page) return page.instagram_business_account;
-    } catch (e) { cgEdgeFailed(edge); }
+      if (page) return { ig: page.instagram_business_account };
+    } catch (e) { cgEdgeFailed(edge); lastErr = e.message; }
   }
 
   if (!cgEdgeDead('instagram_accounts')) {
     try {
       const j = await apiFetch(adAccountId, 'instagram_accounts', { fields: 'id,username' });
       const ig = (j.data || [])[0];
-      if (ig) return ig;
-    } catch (e) { cgEdgeFailed('instagram_accounts'); }
+      if (ig) return { ig };
+    } catch (e) { cgEdgeFailed('instagram_accounts'); lastErr = e.message; }
   }
 
-  return null;
+  return { lastErr };
 }
 
 async function cgFetchUnit(unit, since) {
@@ -169,8 +175,8 @@ async function cgFetchUnit(unit, since) {
     return { ...unit, ok: false, error: 'sem conta de anúncios cadastrada' + (unit.knownUser ? ` (@ conhecido: ${unit.knownUser})` : '') };
   }
   try {
-    const ig = await cgResolveIg(unit.adAccountId);
-    if (!ig) throw new Error('nenhuma conta de Instagram vinculada a essa conta de anúncios');
+    const { ig, lastErr } = await cgResolveIg(unit.adAccountId);
+    if (!ig) throw new Error(lastErr || 'nenhuma conta de Instagram vinculada a essa conta de anúncios');
     const j = await apiFetch(unit.adAccountId, '', {
       node: ig.id + '/media', fields: 'media_type,media_product_type,timestamp', limit: 50,
     });
