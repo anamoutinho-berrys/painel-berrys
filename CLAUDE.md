@@ -15,6 +15,23 @@ Quando a Ana pedir uma alteração, o nome indica em quais arquivos mexer:
   (act 1835196527242936) e Bernardo Berry's (act 648499830908887).
   Código: `tabs/brasil.html` + `tabs/brasil.js`.
 
+## Cronograma IG
+
+Aba "📅 Cronograma IG" → mostra quantos reels e posts estáticos cada unidade
+publicou no Instagram nos últimos 7 dias, comparado com a meta semanal
+liberada pela franqueadora (4 reels + 3 estáticos). Código:
+`tabs/cronograma.html` + `tabs/cronograma.js` + `api/instagram.js`.
+
+- A lista de unidades x @ do Instagram mora em `CG_UNITS` dentro de
+  `tabs/cronograma.js` (não depende de `ACCOUNTS`/conta de anúncios, cobre
+  também unidades sem conta Meta Ads ainda).
+- Os dados vêm do Graph API `business_discovery` (posts públicos de
+  qualquer conta, sem precisar do login dela), lido via `api/instagram.js`
+  usando o mesmo `META_TOKEN`.
+- "Berry's Conquista" está com o mesmo @ da "Berry's Contagem" na lista
+  repassada pela Ana (provável erro de preenchimento) — confirmar o @
+  certo com ela antes de considerar os números da Conquista confiáveis.
+
 ## Regra de independência (importante!)
 
 A Ana quer poder personalizar cada dash SEM afetar o outro. Por isso o
