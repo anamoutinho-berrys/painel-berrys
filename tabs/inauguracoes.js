@@ -1,19 +1,22 @@
 // ============================================================================
 // tabs/inauguracoes.js — Próximas Inaugurações
-// Aba estática: a lista abaixo é a única fonte de dados. Para atualizar,
-// edite INAUGURACOES — o resto (contagem regressiva, agrupamento por mês,
+// A lista fica salva em data/inauguracoes.json (via api/store.js, mesmo
+// mecanismo usado pelo histórico de boletos). INAUGURACOES_SEED abaixo só
+// serve de valor inicial da primeira vez que ninguém salvou nada ainda —
+// depois disso a fonte de verdade é o arquivo salvo, editável pelo botão
+// "Editar" da própria aba (contagem regressiva, agrupamento por mês,
 // destaque da próxima) é calculado sozinho a partir da data de hoje.
 // ============================================================================
 
 // data: 'AAAA-MM-DD' quando confirmada. Sem data → usar previsao (texto livre).
 // ref:  data aproximada, só para ordenar as previsões entre si.
-const INAUGURACOES = [
+const INAUGURACOES_SEED = [
   { cidade: "Arraial d'Ajuda",   data: '2026-08-25' },
   { cidade: 'Caldas Novas',      data: '2026-09-03' },
   { cidade: 'Juiz de Fora',      data: '2026-09-10' },
-  { cidade: 'Diamantina',        data: '2026-09-17' },
-  { cidade: 'Sete Lagoas',       ref: '2026-09-24', previsao: 'Previsto para a semana seguinte à Diamantina' },
-  { cidade: 'Porto de Galinhas', ref: '2026-09-30', previsao: 'Previsto para o fim de setembro / início de outubro' },
+  { cidade: 'Diamantina',        data: '2026-09-24' },
+  { cidade: 'Sete Lagoas',       ref: '2026-10-01', previsao: 'Previsto para a semana seguinte à Diamantina' },
+  { cidade: 'Porto de Galinhas', ref: '2026-10-05', previsao: 'Previsto para o fim de setembro / início de outubro' },
   { cidade: 'Natal',             ref: '2026-10-15', previsao: 'Previsto para outubro' },
 ];
 
@@ -38,14 +41,31 @@ function ingDiasAte(dt) {
   return Math.round((dt - ingHoje()) / 86400000);
 }
 
-function init_inauguracoes() {
+// { list: [...], sha: null|string } — lista carregada do backend (ou do seed
+// enquanto nada foi carregado ainda) + sha do arquivo pra permitir salvar.
+let ingState = null;
+let ingEditing = false;
+
+async function init_inauguracoes() {
+  if (!ingState) {
+    try {
+      const r = await storeGet('inauguracoes');
+      ingState = { list: (r.data && r.data.length) ? r.data : INAUGURACOES_SEED, sha: r.sha || null };
+    } catch (e) {
+      ingState = { list: INAUGURACOES_SEED, sha: null };
+    }
+  }
+  ingRender();
+}
+
+function ingRender() {
   const hoje = ingHoje();
 
   // Enriquece cada item com data resolvida + dias restantes
-  const itens = INAUGURACOES.map(u => {
+  const itens = ingState.list.map((u, idx) => {
     const confirmada = !!u.data;
     const dt = ingParse(u.data || u.ref);
-    return { ...u, confirmada, dt, dias: ingDiasAte(dt) };
+    return { ...u, idx, confirmada, dt, dias: ingDiasAte(dt) };
   }).sort((a, b) => a.dt - b.dt);
 
   // A "próxima" é a primeira confirmada que ainda não aconteceu
@@ -69,6 +89,14 @@ function init_inauguracoes() {
       <div class="st-lbl">${s.lbl}</div>
     </div>`).join('');
 
+  if (ingEditing) { ingRenderEdit(); return; }
+
+  const editBtn = document.getElementById('ing-edit-toggle');
+  if (editBtn) editBtn.textContent = '✏️ Editar inaugurações';
+  document.getElementById('ing-edit-panel').innerHTML = '';
+  document.getElementById('ing-edit-panel').style.display = 'none';
+  document.getElementById('ing-list').style.display = '';
+
   // ── Agrupamento: confirmadas por mês, previsões no fim ──
   const grupos = [];
   const porMes = new Map();
@@ -83,6 +111,13 @@ function init_inauguracoes() {
   });
   const previsoes = itens.filter(u => !u.confirmada);
   if (previsoes.length) grupos.push({ titulo: 'Datas a confirmar', itens: previsoes });
+
+  if (!itens.length) {
+    document.getElementById('ing-list').innerHTML = `
+      <div class="ing-empty">Nenhuma inauguração cadastrada ainda. Clique em
+      "Editar inaugurações" para adicionar a primeira.</div>`;
+    return;
+  }
 
   document.getElementById('ing-list').innerHTML = grupos.map(g => `
     <div class="ing-month">
@@ -133,4 +168,98 @@ function ingCard(u, ehProxima, i) {
       </div>
       <div class="${contCls}">${contagem}</div>
     </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Edição — botão "Editar inaugurações" abre um formulário simples, direto
+// na própria aba, pra adicionar/editar/remover cidades. Salvar grava em
+// data/inauguracoes.json via api/store.js (mesmo mecanismo dos boletos).
+// ─────────────────────────────────────────────────────────────────────────
+
+function ingToggleEdit() {
+  ingEditing = !ingEditing;
+  const editBtn = document.getElementById('ing-edit-toggle');
+  if (editBtn) editBtn.textContent = ingEditing ? '✕ Fechar edição' : '✏️ Editar inaugurações';
+  ingRender();
+}
+
+function ingRenderEdit() {
+  document.getElementById('ing-list').style.display = 'none';
+  const panel = document.getElementById('ing-edit-panel');
+  panel.style.display = '';
+
+  const rows = ingState.list.map((u, idx) => `
+    <div class="ing-erow" data-idx="${idx}">
+      <input class="ing-ein cidade" type="text" placeholder="Cidade / unidade" value="${(u.cidade || '').replace(/"/g,'&quot;')}">
+      <div class="ing-efield">
+        <label>Data confirmada</label>
+        <input class="ing-ein data" type="date" value="${u.data || ''}">
+      </div>
+      <div class="ing-efield">
+        <label>Previsão (texto)</label>
+        <input class="ing-ein previsao" type="text" placeholder="Ex.: previsto para outubro" value="${(u.previsao || '').replace(/"/g,'&quot;')}">
+      </div>
+      <div class="ing-efield">
+        <label>Ref. p/ ordenar</label>
+        <input class="ing-ein ref" type="date" value="${u.ref || ''}">
+      </div>
+      <button class="ing-erm" title="Remover" onclick="ingRemoveRow(${idx})">🗑️</button>
+    </div>`).join('');
+
+  panel.innerHTML = `
+    <div class="ing-eform">
+      <div class="ing-ehead">
+        <span>Cidade</span><span>Data confirmada</span><span>Previsão</span><span>Ref. p/ ordenar</span><span></span>
+      </div>
+      ${rows || '<div class="ing-empty">Nenhuma inauguração cadastrada. Clique em "+ Adicionar" abaixo.</div>'}
+      <div class="ing-eactions">
+        <button class="ing-ebtn ghost" onclick="ingAddRow()">+ Adicionar inauguração</button>
+        <div class="ing-eactions-right">
+          <button class="ing-ebtn ghost" onclick="ingToggleEdit()">Cancelar</button>
+          <button class="ing-ebtn primary" id="ing-save-btn" onclick="ingSaveEdits()">Salvar</button>
+        </div>
+      </div>
+      <div class="ing-ehint">Preencha <strong>Data confirmada</strong> quando já houver data fechada, ou
+      <strong>Previsão</strong> (texto livre) + <strong>Ref.</strong> (data aproximada, só pra ordenar) quando ainda não tiver data.</div>
+    </div>`;
+}
+
+function ingAddRow() {
+  ingState.list.push({ cidade: '', data: '', previsao: '', ref: '' });
+  ingRenderEdit();
+}
+
+function ingRemoveRow(idx) {
+  ingState.list.splice(idx, 1);
+  ingRenderEdit();
+}
+
+function ingCollectRows() {
+  return [...document.querySelectorAll('.ing-erow')].map(row => {
+    const cidade   = row.querySelector('.cidade').value.trim();
+    const data     = row.querySelector('.data').value.trim();
+    const previsao = row.querySelector('.previsao').value.trim();
+    const ref      = row.querySelector('.ref').value.trim();
+    const item = { cidade };
+    if (data) item.data = data;
+    if (!data && ref) item.ref = ref;
+    if (previsao) item.previsao = previsao;
+    return item;
+  }).filter(u => u.cidade && (u.data || u.ref));
+}
+
+async function ingSaveEdits() {
+  const list = ingCollectRows();
+  const btn = document.getElementById('ing-save-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
+  try {
+    const r = await storeSet('inauguracoes', list, ingState.sha);
+    if (r.error) throw new Error(r.error);
+    ingState = { list, sha: r.sha || ingState.sha };
+    ingEditing = false;
+    ingRender();
+  } catch (e) {
+    alert('Não foi possível salvar: ' + e.message);
+    if (btn) { btn.disabled = false; btn.textContent = 'Salvar'; }
+  }
 }

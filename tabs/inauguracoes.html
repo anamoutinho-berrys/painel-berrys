@@ -166,6 +166,65 @@
     .ing-footer .f-txt{font-family:var(--font-display);font-weight:500;font-size:15.5px;color:var(--ry);}
     .ing-footer .f-txt strong{font-weight:600;}
     .ing-disclaimer{text-align:center;font-size:11px;color:var(--muted);font-weight:700;margin-top:16px;}
+
+    /* Botão editar (no hero) */
+    .ing-edit-btn{
+      position:relative;z-index:1;align-self:flex-start;flex-shrink:0;
+      background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;
+      font-size:12.5px;font-weight:800;padding:9px 16px;border-radius:var(--r-pill);
+      cursor:pointer;transition:background var(--t);white-space:nowrap;
+    }
+    .ing-edit-btn:hover{background:rgba(255,255,255,.22);}
+    @media(max-width:760px){ .ing-edit-btn{align-self:center;order:-1;} }
+
+    .ing-empty{
+      text-align:center;color:var(--muted);font-weight:700;font-size:13px;
+      background:#fff;border:1px dashed var(--ry-bd);border-radius:var(--r-xl);
+      padding:30px 20px;
+    }
+
+    /* Formulário de edição */
+    .ing-eform{background:#fff;border:1px solid var(--ry-bd);border-radius:var(--r-xl);
+      padding:20px;box-shadow:0 6px 20px rgba(20,110,153,.10);}
+    .ing-ehead{
+      display:grid;grid-template-columns:1.3fr 1.1fr 1.6fr 1.1fr 34px;gap:10px;
+      font-size:10px;font-weight:900;color:var(--ry-2);text-transform:uppercase;
+      letter-spacing:.6px;padding:0 2px 8px;
+    }
+    .ing-erow{
+      display:grid;grid-template-columns:1.3fr 1.1fr 1.6fr 1.1fr 34px;gap:10px;
+      align-items:start;padding:8px 2px;border-top:1px solid var(--line);
+    }
+    .ing-erow:first-of-type{border-top:none;}
+    .ing-efield label{display:none;}
+    .ing-ein{
+      width:100%;font:inherit;font-size:13px;color:var(--ry-navy);
+      border:1px solid var(--ry-bd);border-radius:var(--r-sm);padding:8px 10px;background:#F9FCFE;
+    }
+    .ing-ein:focus{outline:2px solid var(--b-300);outline-offset:1px;}
+    .ing-erm{
+      background:none;border:none;cursor:pointer;font-size:15px;padding:6px;
+      border-radius:var(--r-sm);opacity:.75;
+    }
+    .ing-erm:hover{opacity:1;background:#FBEAEA;}
+    .ing-eactions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;flex-wrap:wrap;}
+    .ing-eactions-right{display:flex;gap:10px;}
+    .ing-ebtn{
+      font:inherit;font-size:13px;font-weight:800;border-radius:var(--r-pill);
+      padding:9px 18px;cursor:pointer;border:1px solid transparent;
+    }
+    .ing-ebtn.ghost{background:#fff;border-color:var(--ry-bd);color:var(--ry);}
+    .ing-ebtn.ghost:hover{background:var(--b-50);}
+    .ing-ebtn.primary{background:var(--b-500);color:var(--ry-navy);}
+    .ing-ebtn.primary:hover{background:var(--b-400);}
+    .ing-ebtn:disabled{opacity:.6;cursor:default;}
+    .ing-ehint{font-size:11.5px;color:var(--muted);font-weight:600;margin-top:14px;line-height:1.5;}
+    @media(max-width:760px){
+      .ing-ehead{display:none;}
+      .ing-erow{grid-template-columns:1fr;gap:8px;position:relative;padding:14px 2px;}
+      .ing-efield label{display:block;font-size:9.5px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px;}
+      .ing-erm{position:absolute;top:10px;right:2px;}
+    }
   </style>
 
   <div class="ing-hero">
@@ -178,12 +237,14 @@
       </div>
       <div class="ing-hero-stats" id="ing-stats"></div>
     </div>
+    <button class="ing-edit-btn" id="ing-edit-toggle" onclick="ingToggleEdit()">✏️ Editar inaugurações</button>
     <img class="ing-hero-mascot" src="assets/img/mascote-festa.png"
          alt="Mascote Berry's comemorando">
   </div>
 
   <div class="ing-wrap">
     <div id="ing-list"></div>
+    <div id="ing-edit-panel" style="display:none"></div>
 
     <div class="ing-footer">
       <div class="f-ico">🍦</div>
