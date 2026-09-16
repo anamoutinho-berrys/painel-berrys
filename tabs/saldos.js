@@ -5,10 +5,12 @@
 
 let sortState = { col: null, dir: 1 };
 
-// Linhas sem valor de investimento/saldo (cartão, sem conta, erro ou pós-pago)
-// sempre vão para o fim da lista, em qualquer ordenação escolhida.
+// Linhas sem valor de investimento/saldo (sem conta, erro ou pós-pago)
+// sempre vão para o fim da lista, em qualquer ordenação escolhida. Contas no
+// cartão (acc.card) puxam spend/saldo normalmente igual às demais — só não
+// entram no controle de boleto, que não existe pra pagamento por cartão.
 function isIncomplete(acc, d) {
-  return !!acc.card || !acc.id || !!d.spendErr || !!d.balErr || !!d.postpaid;
+  return !acc.id || !!d.spendErr || !!d.balErr || !!d.postpaid;
 }
 
 function sortedAccounts() {
@@ -80,7 +82,7 @@ const SALDO_CONFORTAVEL = 500;
 
 function motivosPendencia(acc, d) {
   if (!boletoLog) return [];                          // histórico ainda carregando
-  if (!acc.id || acc.card || d.postpaid) return [];   // conta sem boleto
+  if (!acc.id || d.postpaid) return [];               // conta sem boleto (pós-paga/cartão)
   if (d.loading) return [];                           // ainda buscando: não classifica
   if (d.balance !== undefined && d.balance > SALDO_CONFORTAVEL) return [];
   const m = [];
@@ -264,7 +266,6 @@ function paintSpend(td, acc, d) {
 }
 
 function paintBalance(td, acc, d) {
-  if (acc.card) { td.innerHTML='<span class="pill pill-card">cartão</span>'; return; }
   if (!acc.id)  { td.innerHTML='<span class="cell-na">—</span>'; return; }
   if (d.loading){ td.innerHTML='<div class="cell-load"><span class="spin"></span></div>'; return; }
   if (d.balErr) {
@@ -470,7 +471,7 @@ function onDateChange() {
 
 async function fetchAll() {
   const preset = document.getElementById('date-preset').value;
-  const valid  = ACCOUNTS.filter(a=>a.id&&!a.card);
+  const valid  = ACCOUNTS.filter(a=>a.id);
   valid.forEach(a => { fetchedData[a.id]={loading:true}; });
   renderSaldos();
   const pw=document.getElementById('prog-wrap'), pf=document.getElementById('prog-fill'), pl=document.getElementById('prog-lbl');
