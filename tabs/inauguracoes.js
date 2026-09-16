@@ -11,11 +11,9 @@
 // data: 'AAAA-MM-DD' quando confirmada. Sem data → usar previsao (texto livre).
 // ref:  data aproximada, só para ordenar as previsões entre si.
 const INAUGURACOES_SEED = [
-  { cidade: "Arraial d'Ajuda",   data: '2026-08-25' },
-  { cidade: 'Caldas Novas',      data: '2026-09-03' },
-  { cidade: 'Juiz de Fora',      data: '2026-09-10' },
-  { cidade: 'Diamantina',        data: '2026-09-24' },
-  { cidade: 'Sete Lagoas',       ref: '2026-10-01', previsao: 'Previsto para a semana seguinte à Diamantina' },
+  { cidade: 'Sete Lagoas',       data: '2026-09-24' },
+  { cidade: 'Porteirinha',       data: '2026-10-01' },
+  { cidade: 'Diamantina',        data: '2026-10-08' },
   { cidade: 'Porto de Galinhas', ref: '2026-10-05', previsao: 'Previsto para o fim de setembro / início de outubro' },
   { cidade: 'Natal',             ref: '2026-10-15', previsao: 'Previsto para outubro' },
 ];

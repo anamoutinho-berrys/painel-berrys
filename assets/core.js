@@ -43,7 +43,13 @@ const ACCOUNTS = [
   { name:"Berry's Shopping Tacaruna",       id:"", mensal:1000 },
   { name:"Berry's Capim Dourado Shopping",  id:"", mensal:1000 },
   { name:"Berry's RibeirãoShopping",        id:"", mensal:1000 },
-  { name:"Berry's Divinópolis",             id:"" },
+  { name:"Berry's Divinópolis",             id:"1482029193728114",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1482029193728114", mensal:1000 },
+  { name:"Berry's Arraial d'Ajuda",         id:"1549741276693032",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1549741276693032", mensal:1000 },
+  { name:"Berry's Caldas Novas",            id:"27746459988357300", mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=27746459988357300", mensal:1000 }, // pagou 2x o boleto
+  { name:"Berry's Juiz de Fora",            id:"979389858495936",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=979389858495936", mensal:1000 },
+  { name:"Berry's Diamantina",              id:"1566311618134890",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1566311618134890", mensal:1000 },
+  { name:"Berry's Sete Lagoas",             id:"894150533369622",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=894150533369622", mensal:1000 },
+  { name:"Berry's Porteirinha",             id:"1647812710293068",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1647812710293068" },
 ];
 
 
