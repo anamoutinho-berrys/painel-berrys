@@ -1,7 +1,7 @@
 {
   "980007099641939": {
-    "lastBalance": 3016.43,
-    "lastCheckedDate": "2026-09-17",
+    "lastBalance": 2855.87,
+    "lastCheckedDate": "2026-09-18",
     "payments": [
       {
         "date": "2026-09-05",
@@ -17,7 +17,7 @@
   },
   "26769229962779082": {
     "lastBalance": 936.45,
-    "lastCheckedDate": "2026-09-17",
+    "lastCheckedDate": "2026-09-18",
     "payments": [
       {
         "date": "2026-09-05",
@@ -33,7 +33,7 @@
   },
   "1572310324316523": {
     "lastBalance": 973.49,
-    "lastCheckedDate": "2026-09-17",
+    "lastCheckedDate": "2026-09-18",
     "payments": [
       {
         "date": "2026-09-16",
@@ -48,8 +48,8 @@
     ]
   },
   "3413870375457406": {
-    "lastBalance": 691.38,
-    "lastCheckedDate": "2026-09-17",
+    "lastBalance": 663.78,
+    "lastCheckedDate": "2026-09-18",
     "payments": [
       {
         "date": "2026-09-05",
@@ -65,12 +65,12 @@
   },
   "3407509682745878": {
     "lastBalance": 0,
-    "lastCheckedDate": "2026-09-17",
+    "lastCheckedDate": "2026-09-18",
     "payments": []
   },
   "1302436505232971": {
-    "lastBalance": 757.44,
-    "lastCheckedDate": "2026-09-17",
+    "lastBalance": 743.04,
+    "lastCheckedDate": "2026-09-18",
     "payments": [
       {
         "date": "2026-09-04",
@@ -85,8 +85,8 @@
     ]
   },
   "1945459296360552": {
-    "lastBalance": 1078.65,
-    "lastCheckedDate": "2026-09-17",
+    "lastBalance": 1052.59,
+    "lastCheckedDate": "2026-09-18",
     "payments": [
       {
         "date": "2026-09-09",
@@ -106,8 +106,8 @@
     ]
   },
   "815737430504184": {
-    "lastBalance": 560.72,
-    "lastCheckedDate": "2026-09-17",
+    "lastBalance": 537.07,
+    "lastCheckedDate": "2026-09-18",
     "payments": [
       {
         "date": "2026-09-05",
@@ -123,7 +123,7 @@
   },
   "898087053113777": {
     "lastBalance": 0,
-    "lastCheckedDate": "2026-09-17",
+    "lastCheckedDate": "2026-09-18",
     "payments": [
       {
         "date": "2026-08-06",
@@ -133,8 +133,8 @@
     ]
   },
   "1185830483132999": {
-    "lastBalance": 457.12,
-    "lastCheckedDate": "2026-09-17",
+    "lastBalance": 448.61,
+    "lastCheckedDate": "2026-09-18",
     "payments": [
       {
         "date": "2026-09-09",
@@ -149,8 +149,8 @@
     ]
   },
   "855614106933266": {
-    "lastBalance": 570.24,
-    "lastCheckedDate": "2026-09-17",
+    "lastBalance": 539.09,
+    "lastCheckedDate": "2026-09-18",
     "payments": [
       {
         "date": "2026-08-12",
@@ -160,9 +160,14 @@
     ]
   },
   "1675046163715555": {
-    "lastBalance": 0,
-    "lastCheckedDate": "2026-09-17",
+    "lastBalance": 1000,
+    "lastCheckedDate": "2026-09-18",
     "payments": [
+      {
+        "date": "2026-09-18",
+        "from": 0,
+        "to": 1000
+      },
       {
         "date": "2026-08-07",
         "from": 417.28,
@@ -171,8 +176,8 @@
     ]
   },
   "1512851600567325": {
-    "lastBalance": 1138.43,
-    "lastCheckedDate": "2026-09-17",
+    "lastBalance": 1110.89,
+    "lastCheckedDate": "2026-09-18",
     "payments": [
       {
         "date": "2026-09-03",
@@ -188,7 +193,7 @@
   },
   "988118436916274": {
     "lastBalance": 510.18,
-    "lastCheckedDate": "2026-09-17",
+    "lastCheckedDate": "2026-09-18",
     "payments": [
       {
         "date": "2026-09-14",
@@ -198,8 +203,8 @@
     ]
   },
   "3794589237361601": {
-    "lastBalance": 473.63,
-    "lastCheckedDate": "2026-09-17",
+    "lastBalance": 445.04,
+    "lastCheckedDate": "2026-09-18",
     "payments": [
       {
         "date": "2026-09-03",
@@ -209,8 +214,8 @@
     ]
   },
   "547206184401772": {
-    "lastBalance": 1154.19,
-    "lastCheckedDate": "2026-09-17",
+    "lastBalance": 1143.2,
+    "lastCheckedDate": "2026-09-18",
     "payments": [
       {
         "date": "2026-09-05",
@@ -225,8 +230,8 @@
     ]
   },
   "718790137924927": {
-    "lastBalance": 996.15,
-    "lastCheckedDate": "2026-09-17",
+    "lastBalance": 980.01,
+    "lastCheckedDate": "2026-09-18",
     "payments": [
       {
         "date": "2026-09-16",
@@ -241,8 +246,8 @@
     ]
   },
   "1715718849282094": {
-    "lastBalance": 883.38,
-    "lastCheckedDate": "2026-09-17",
+    "lastBalance": 849.68,
+    "lastCheckedDate": "2026-09-18",
     "payments": [
       {
         "date": "2026-09-16",
@@ -257,8 +262,8 @@
     ]
   },
   "505755245757325": {
-    "lastBalance": 208.56,
-    "lastCheckedDate": "2026-09-17",
+    "lastBalance": 187.93,
+    "lastCheckedDate": "2026-09-18",
     "payments": [
       {
         "date": "2026-08-25",
@@ -269,12 +274,12 @@
   },
   "930248282851717": {
     "lastBalance": 0,
-    "lastCheckedDate": "2026-09-17",
+    "lastCheckedDate": "2026-09-18",
     "payments": []
   },
   "1228370282243542": {
-    "lastBalance": 1057.13,
-    "lastCheckedDate": "2026-09-17",
+    "lastBalance": 988.51,
+    "lastCheckedDate": "2026-09-18",
     "payments": [
       {
         "date": "2026-08-06",
@@ -296,7 +301,7 @@
   },
   "477466964832908": {
     "lastBalance": 194.06,
-    "lastCheckedDate": "2026-09-17",
+    "lastCheckedDate": "2026-09-18",
     "payments": [
       {
         "date": "2026-09-16",
@@ -307,12 +312,12 @@
   },
   "2571185629974578": {
     "lastBalance": 0,
-    "lastCheckedDate": "2026-09-16",
+    "lastCheckedDate": "2026-09-18",
     "payments": []
   },
   "973653235719636": {
-    "lastBalance": 1062.06,
-    "lastCheckedDate": "2026-09-16",
+    "lastBalance": 1005.27,
+    "lastCheckedDate": "2026-09-18",
     "payments": [
       {
         "date": "2026-09-16",
@@ -332,8 +337,8 @@
     ]
   },
   "1665359047899564": {
-    "lastBalance": 1970.92,
-    "lastCheckedDate": "2026-09-16",
+    "lastBalance": 1955.9,
+    "lastCheckedDate": "2026-09-18",
     "payments": [
       {
         "date": "2026-09-04",
@@ -348,8 +353,8 @@
     ]
   },
   "807970628972520": {
-    "lastBalance": 1101.65,
-    "lastCheckedDate": "2026-09-16",
+    "lastBalance": 968.17,
+    "lastCheckedDate": "2026-09-18",
     "payments": [
       {
         "date": "2026-09-16",
@@ -365,17 +370,17 @@
   },
   "1462162855666666": {
     "lastBalance": 0,
-    "lastCheckedDate": "2026-09-16",
+    "lastCheckedDate": "2026-09-18",
     "payments": []
   },
   "1299333372282697": {
     "lastBalance": 0,
-    "lastCheckedDate": "2026-09-16",
+    "lastCheckedDate": "2026-09-18",
     "payments": []
   },
   "2056137371779479": {
     "lastBalance": 913.89,
-    "lastCheckedDate": "2026-09-16",
+    "lastCheckedDate": "2026-09-18",
     "payments": [
       {
         "date": "2026-09-09",
@@ -390,38 +395,38 @@
     ]
   },
   "1482029193728114": {
-    "lastBalance": 256.73,
-    "lastCheckedDate": "2026-09-16",
+    "lastBalance": 126.77,
+    "lastCheckedDate": "2026-09-18",
     "payments": []
   },
   "1549741276693032": {
-    "lastBalance": 438.09,
-    "lastCheckedDate": "2026-09-16",
+    "lastBalance": 276.96,
+    "lastCheckedDate": "2026-09-18",
     "payments": []
   },
   "27746459988357300": {
-    "lastBalance": 1539.36,
-    "lastCheckedDate": "2026-09-16",
+    "lastBalance": 1492.65,
+    "lastCheckedDate": "2026-09-18",
     "payments": []
   },
   "979389858495936": {
-    "lastBalance": 518.45,
-    "lastCheckedDate": "2026-09-16",
+    "lastBalance": 298.13,
+    "lastCheckedDate": "2026-09-18",
     "payments": []
   },
   "1566311618134890": {
     "lastBalance": 2000,
-    "lastCheckedDate": "2026-09-16",
+    "lastCheckedDate": "2026-09-18",
     "payments": []
   },
   "894150533369622": {
     "lastBalance": 0,
-    "lastCheckedDate": "2026-09-16",
+    "lastCheckedDate": "2026-09-18",
     "payments": []
   },
   "1647812710293068": {
     "lastBalance": 2000,
-    "lastCheckedDate": "2026-09-16",
+    "lastCheckedDate": "2026-09-18",
     "payments": []
   }
 }
