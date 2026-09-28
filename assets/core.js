@@ -153,4 +153,83 @@ async function fetchAccountData(id, preset, fields=[]) {
   return out;
 }
 
+// ============================================================================
+// Modo demonstração ("olhinho") — oculta a marca "Berry's" na tela inteira,
+// mantendo os nomes de cidade/unidade visíveis (ex.: "Berry's Recife" vira
+// só "Recife"). É genérico e roda em cima do TEXTO já renderizado, via
+// MutationObserver, pra funcionar em qualquer aba sem precisar mexer no
+// código de renderização de cada dash (relatorio.js, brasil.js, etc.) —
+// evita duplicar essa lógica nos vários `*RenderUnit` de tabs/brasil.js.
+// ============================================================================
+
+const PRIVACY_STORAGE_KEY = 'painel_privacy_mode';
+const BRAND_RE = /berry['’ʼ`]?s\s*/gi;
+const privacyOriginalText = new WeakMap();
+let privacyMode = false;
+
+function privacyMaskNode(tn) {
+  const pillEl = tn.parentElement && tn.parentElement.closest('.bm-pill');
+  if (pillEl) {
+    if (tn.nodeValue.trim() === '' || tn.nodeValue === 'PAINEL') return;
+    if (!privacyOriginalText.has(tn)) privacyOriginalText.set(tn, tn.nodeValue);
+    tn.nodeValue = 'PAINEL';
+    return;
+  }
+  BRAND_RE.lastIndex = 0;
+  if (!BRAND_RE.test(tn.nodeValue)) return;
+  if (!privacyOriginalText.has(tn)) privacyOriginalText.set(tn, tn.nodeValue);
+  BRAND_RE.lastIndex = 0;
+  tn.nodeValue = tn.nodeValue.replace(BRAND_RE, '').replace(/[ \t]+/g, ' ').trim();
+}
+
+function privacyUnmaskNode(tn) {
+  if (privacyOriginalText.has(tn)) {
+    tn.nodeValue = privacyOriginalText.get(tn);
+    privacyOriginalText.delete(tn);
+  }
+}
+
+function privacyWalkTextNodes(root, fn) {
+  if (root.nodeType === Node.TEXT_NODE) { fn(root); return; }
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  let tn;
+  while ((tn = walker.nextNode())) fn(tn);
+}
+
+function privacyApplyToTree(root) {
+  privacyWalkTextNodes(root, privacyMode ? privacyMaskNode : privacyUnmaskNode);
+}
+
+const privacyObserver = new MutationObserver(muts => {
+  if (!privacyMode) return;
+  for (const m of muts) {
+    if (m.type === 'characterData') {
+      privacyMaskNode(m.target);
+    } else {
+      m.addedNodes.forEach(n => privacyWalkTextNodes(n, privacyMaskNode));
+    }
+  }
+});
+privacyObserver.observe(document.documentElement, { childList: true, subtree: true, characterData: true });
+
+function togglePrivacyMode() {
+  privacyMode = !privacyMode;
+  privacyApplyToTree(document.body);
+  document.title = privacyMode ? document.title.replace(BRAND_RE, '').trim() : "Berry's – Painel Interno";
+  const btn = document.getElementById('privacy-toggle');
+  if (btn) {
+    btn.classList.toggle('active', privacyMode);
+    btn.setAttribute('aria-pressed', privacyMode ? 'true' : 'false');
+    btn.textContent = privacyMode ? '🙈' : '👁️';
+    btn.title = privacyMode ? 'Mostrar nome da marca' : 'Ocultar nome da marca (modo demonstração)';
+  }
+  try { localStorage.setItem(PRIVACY_STORAGE_KEY, privacyMode ? '1' : '0'); } catch(e) {}
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  let saved = false;
+  try { saved = localStorage.getItem(PRIVACY_STORAGE_KEY) === '1'; } catch(e) {}
+  if (saved) togglePrivacyMode();
+});
+
 
