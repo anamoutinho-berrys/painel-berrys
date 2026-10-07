@@ -11,11 +11,14 @@
 // data: 'AAAA-MM-DD' quando confirmada. Sem data → usar previsao (texto livre).
 // ref:  data aproximada, só para ordenar as previsões entre si.
 const INAUGURACOES_SEED = [
-  { cidade: 'Sete Lagoas',       data: '2026-09-24' },
-  { cidade: 'Porteirinha',       data: '2026-10-01' },
   { cidade: 'Diamantina',        data: '2026-10-08' },
-  { cidade: 'Porto de Galinhas', ref: '2026-10-05', previsao: 'Previsto para o fim de setembro / início de outubro' },
-  { cidade: 'Natal',             ref: '2026-10-15', previsao: 'Previsto para outubro' },
+  { cidade: 'Porto de Galinhas', data: '2026-10-28' },
+  { cidade: 'Natal',             data: '2026-10-29' },
+  { cidade: 'Limeira',           ref: '2026-10-31', previsao: 'Previsto para o fim de outubro (data a confirmar)' },
+  { cidade: 'João Pessoa',       ref: '2026-11-15', previsao: 'Previsto para novembro' },
+  { cidade: 'Jaíba',             ref: '2026-11-16', previsao: 'Previsto para novembro' },
+  { cidade: 'Betim',             ref: '2026-12-15', previsao: 'Previsto para dezembro' },
+  { cidade: 'Várzea Grande',     ref: '2026-12-16', previsao: 'Previsto para dezembro' },
 ];
 
 const ING_MESES = ['janeiro','fevereiro','março','abril','maio','junho',
