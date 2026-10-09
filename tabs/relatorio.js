@@ -352,9 +352,79 @@ const REL_COLS = [
   { key: 'active',    label: 'Campanhas ativas',  fmt: v => v, noSort: true },
 ];
 
-// visitas ao perfil do Instagram: a Meta devolve como uma ação com
-// "profile_visit" no nome (o prefixo varia). Pega a maior entre as variações
-// de cada campanha para não contar a mesma visita duas vezes.
+// ── Visitas ao perfil do Instagram ───────────────────────────────────────
+// A métrica NÃO existe nos insights de anúncios da Meta — só nos Insights da
+// própria conta do Instagram (profile_views, orgânico + anúncios). Por isso:
+// 1) descobre o Instagram ligado à conta de anúncios (igual ao Cronograma IG,
+//    sem business_discovery) e 2) soma profile_views no período, em janelas
+// de até 30 dias (limite da API). Exige instagram_manage_insights no token.
+const relIgCache = new Map();   // id da conta de anúncios -> id do Instagram (ou null)
+
+async function relResolveIg(adAccountId) {
+  if (relIgCache.has(adAccountId)) return relIgCache.get(adAccountId);
+  let ig = null;
+  try {
+    const j = await apiFetch(adAccountId, 'connected_instagram_accounts', { fields: 'id,username' });
+    ig = (j.data || [])[0]?.id || null;
+  } catch (e) { /* tenta pelas páginas */ }
+  for (const edge of ig ? [] : ['promote_pages', 'assigned_pages']) {
+    try {
+      const j = await apiFetch(adAccountId, edge, { fields: 'id,instagram_business_account{id}', limit: 25 });
+      const page = (j.data || []).find(pg => pg.instagram_business_account);
+      if (page) { ig = page.instagram_business_account.id; break; }
+    } catch (e) { /* próximo edge */ }
+  }
+  relIgCache.set(adAccountId, ig);
+  return ig;
+}
+
+const relYmd = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const relAddDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+
+// intervalo [since, until] (datas inclusivas) do período escolhido; null quando
+// não dá para calcular (ex.: "Máximo")
+function relDateRange(dp) {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  if (dp.time_range) {
+    const t = JSON.parse(dp.time_range);
+    return { since: new Date(t.since + 'T00:00:00'), until: new Date(t.until + 'T00:00:00') };
+  }
+  const y = today.getFullYear(), m = today.getMonth();
+  switch (dp.preset) {
+    case 'today':      return { since: today, until: today };
+    case 'yesterday':  return { since: relAddDays(today, -1), until: relAddDays(today, -1) };
+    case 'last_7d':    return { since: relAddDays(today, -7),  until: relAddDays(today, -1) };
+    case 'last_14d':   return { since: relAddDays(today, -14), until: relAddDays(today, -1) };
+    case 'last_30d':   return { since: relAddDays(today, -30), until: relAddDays(today, -1) };
+    case 'this_month': return { since: new Date(y, m, 1), until: today };
+    case 'last_month': return { since: new Date(y, m - 1, 1), until: new Date(y, m, 0) };
+    case 'this_year':  return { since: new Date(y, 0, 1), until: today };
+    default:           return null;
+  }
+}
+
+// total de visitas ao perfil no período; null = indisponível (erro no throw)
+async function fetchRelProfileVisits(adAccountId, dateParams) {
+  const range = relDateRange(dateParams);
+  if (!range) return null;
+  const ig = await relResolveIg(adAccountId);
+  if (!ig) throw new Error('nenhuma conta de Instagram vinculada');
+  const windows = [];
+  for (let s = range.since; s <= range.until && windows.length < 12; s = relAddDays(s, 30)) {
+    const e = new Date(Math.min(relAddDays(s, 29), range.until));
+    windows.push([s, e]);
+  }
+  const parts = await Promise.all(windows.map(async ([s, e]) => {
+    const j = await apiFetch(adAccountId, '', {
+      node: ig + '/insights', metric: 'profile_views', metric_type: 'total_value', period: 'day',
+      since: relYmd(s), until: relYmd(relAddDays(e, 1)),   // until é exclusivo
+    });
+    return parseFloat(j.data?.[0]?.total_value?.value) || 0;
+  }));
+  return parts.reduce((t, v) => t + v, 0);
+}
+
+// plano B: algumas contas trazem a ação de visita ao perfil nos próprios anúncios
 function relProfileVisits(ins) {
   if (!Array.isArray(ins?.actions)) return 0;
   return Math.max(0, ...ins.actions
@@ -362,18 +432,24 @@ function relProfileVisits(ins) {
     .map(a => parseFloat(a.value) || 0));
 }
 
-// campanhas ativas agora (status ACTIVE na conta), só os nomes
+// campanhas ativas (status ACTIVE) que tiveram mais de 1 impressão no período
+// escolhido, só os nomes. Se a Meta não devolveu impressões para a campanha
+// (conjunto de campos reduzido), cai para "teve investimento".
 function relActiveCampaigns(campaigns) {
-  return campaigns.filter(c => c.status === 'ACTIVE').map(c => c.name).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  return campaigns.filter(c => {
+    if (c.status !== 'ACTIVE') return false;
+    const ins = c.insights?.data?.[0];
+    if (ins && ins.impressions != null) return (parseInt(ins.impressions) || 0) > 1;
+    return parseFloat(ins?.spend || 0) > 0;
+  }).map(c => c.name).sort((a, b) => a.localeCompare(b, 'pt-BR'));
 }
 
-// números da linha: compras / ROAS / cliques / visitas só existem para as
-// unidades que têm campanha daquele objetivo (null → mostra "—")
-function relRowSummary(ins, groups, purchases, campaigns) {
+// números da linha: compras / ROAS / cliques só existem para as unidades que
+// têm campanha daquele objetivo; visitas vêm do Instagram (null → mostra "—")
+function relRowSummary(ins, groups, purchases, campaigns, igVisits) {
   const g = groups;
   const spent = campaigns.filter(c => parseFloat(c.insights?.data?.[0]?.spend || 0) > 0);
-  const visits = spent.reduce((t, c) => t + relProfileVisits(c.insights?.data?.[0]), 0);
-  const hasVisitCamp = spent.some(c => /perfil/i.test(c.name));
+  const adVisits = spent.reduce((t, c) => t + relProfileVisits(c.insights?.data?.[0]), 0);
   const active = relActiveCampaigns(campaigns);
   return {
     spend:     ins.spend || 0,
@@ -381,7 +457,7 @@ function relRowSummary(ins, groups, purchases, campaigns) {
     purchases: (g.vendas || purchases > 0) ? purchases : null,
     roas:      g.vendas ? g.vendas.roas : null,
     clicks:    g.trafego ? (g.trafego.linkClicks || g.trafego.clicks) : null,
-    visits:    (visits > 0 || hasVisitCamp) ? visits : null,
+    visits:    igVisits != null ? igVisits : (adVisits > 0 ? adVisits : null),
     active,
   };
 }
@@ -488,6 +564,7 @@ async function relFetch() {
   let totalSpend = 0, totalReach = 0, totalPurch = 0, totalConvVal = 0;
   let done = 0;
   const relErrors = [];
+  const igErrors = [];
   const errEl = document.getElementById('rel-err-banner');
   if (errEl) { errEl.style.display = 'none'; errEl.innerHTML = ''; }
 
@@ -498,11 +575,15 @@ async function relFetch() {
       const results = await Promise.allSettled([
         fetchRelInsights(acc.id, dateParams),
         fetchRelTopAds(acc.id, dateParams),
-        fetchRelCampaigns(acc.id, dateParams)
+        fetchRelCampaigns(acc.id, dateParams),
+        fetchRelProfileVisits(acc.id, dateParams)
       ]);
       if (results[0].status === 'fulfilled') ins = results[0].value; else unitErr = results[0].reason?.message || 'erro na API';
       if (results[1].status === 'fulfilled') topAds = results[1].value;
       if (results[2].status === 'fulfilled') campaigns = results[2].value;
+      let igVisits = null;
+      if (results[3].status === 'fulfilled') igVisits = results[3].value;
+      else { igErrors.push(acc.name + ': ' + (results[3].reason?.message || 'erro')); console.warn('[rel visitas ao perfil]', acc.name, results[3].reason); }
       if (topAds.length) networkAdsData.push({ accName: acc.name, ads: topAds });
 
       const hasData = ins.spend > 0 || ins.impressions > 0;
@@ -525,7 +606,7 @@ async function relFetch() {
         hasData,
         err: unitErr,
         platforms: detectDeliveryPlatforms(campaigns),
-        s: relRowSummary(ins, groups, unitPurch, campaigns),
+        s: relRowSummary(ins, groups, unitPurch, campaigns, igVisits),
         card: renderRelUnit(acc, ins, topAds, campaigns, hasData, unitErr),
       };
       renderRelTable();
@@ -549,6 +630,16 @@ async function relFetch() {
   if (relErrors.length && errEl) {
     errEl.style.display = 'block';
     errEl.innerHTML = '<strong>⚠️ ' + relErrors.length + ' unidade(s) com erro na API</strong> — abra o console (F12) para detalhes.<br><span style="font-weight:600;font-size:11px;">' + relErrors.slice(0,5).join(' · ') + (relErrors.length>5?' · …':'') + '</span>';
+  }
+  // visitas ao perfil vêm de outra API (Instagram); se falhar, mostra o motivo
+  // real da Meta em vez de deixar a coluna vazia sem explicação
+  const visitsEl = document.getElementById('rel-visits-note');
+  if (visitsEl) {
+    const noRange = !relDateRange(dateParams);
+    if (noRange) visitsEl.textContent = 'Visitas ao perfil não estão disponíveis para o período "Máximo" — escolha um período específico.';
+    else if (igErrors.length) visitsEl.textContent = 'Visitas ao perfil indisponíveis em ' + igErrors.length + ' unidade(s). Ex.: ' + igErrors[0];
+    else visitsEl.textContent = '';
+    visitsEl.style.display = visitsEl.textContent ? 'block' : 'none';
   }
   const sel = document.getElementById('rel-preset');
   document.getElementById('rel-period-sub').textContent = sel.options[sel.selectedIndex].text.toLowerCase();
