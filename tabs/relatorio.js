@@ -348,20 +348,41 @@ const REL_COLS = [
   { key: 'purchases', label: 'Compras',   fmt: v => fmtN(Math.round(v)) },
   { key: 'roas',      label: 'ROAS',      fmt: v => fmtRoas(v) },
   { key: 'clicks',    label: 'Cliques',   fmt: v => fmtN(v) },
-  { key: 'follows',   label: 'Seguidores',fmt: v => fmtN(v) },
+  { key: 'visits',    label: 'Visitas ao perfil', fmt: v => fmtN(v) },
+  { key: 'active',    label: 'Campanhas ativas',  fmt: v => v, noSort: true },
 ];
 
-// números da linha: compras / ROAS / cliques / seguidores só existem para as
+// visitas ao perfil do Instagram: a Meta devolve como uma ação com
+// "profile_visit" no nome (o prefixo varia). Pega a maior entre as variações
+// de cada campanha para não contar a mesma visita duas vezes.
+function relProfileVisits(ins) {
+  if (!Array.isArray(ins?.actions)) return 0;
+  return Math.max(0, ...ins.actions
+    .filter(a => /profile_visit/i.test(a.action_type))
+    .map(a => parseFloat(a.value) || 0));
+}
+
+// campanhas ativas agora (status ACTIVE na conta), só os nomes
+function relActiveCampaigns(campaigns) {
+  return campaigns.filter(c => c.status === 'ACTIVE').map(c => c.name).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+}
+
+// números da linha: compras / ROAS / cliques / visitas só existem para as
 // unidades que têm campanha daquele objetivo (null → mostra "—")
-function relRowSummary(ins, groups, purchases) {
+function relRowSummary(ins, groups, purchases, campaigns) {
   const g = groups;
+  const spent = campaigns.filter(c => parseFloat(c.insights?.data?.[0]?.spend || 0) > 0);
+  const visits = spent.reduce((t, c) => t + relProfileVisits(c.insights?.data?.[0]), 0);
+  const hasVisitCamp = spent.some(c => /perfil/i.test(c.name));
+  const active = relActiveCampaigns(campaigns);
   return {
     spend:     ins.spend || 0,
     reach:     ins.reach || 0,
     purchases: (g.vendas || purchases > 0) ? purchases : null,
     roas:      g.vendas ? g.vendas.roas : null,
     clicks:    g.trafego ? (g.trafego.linkClicks || g.trafego.clicks) : null,
-    follows:   g.engaj && g.engaj.follows > 0 ? g.engaj.follows : null,
+    visits:    (visits > 0 || hasVisitCamp) ? visits : null,
+    active,
   };
 }
 
@@ -395,7 +416,7 @@ function renderRelTable() {
 
   const arrow = k => relSort.key === k ? (relSort.dir < 0 ? ' ▼' : ' ▲') : '';
   const thead = `<thead><tr>${REL_COLS.map(c =>
-    `<th class="${c.key === 'name' ? 'l' : 'n'}${relSort.key === c.key ? ' sorted' : ''}" onclick="relSortBy('${c.key}')">${c.label}${arrow(c.key)}</th>`
+    `<th class="${c.key === 'name' || c.key === 'active' ? 'l' : 'n'}${relSort.key === c.key ? ' sorted' : ''}${c.noSort ? ' nosort' : ''}" ${c.noSort ? '' : `onclick="relSortBy('${c.key}')"`}>${c.label}${c.noSort ? '' : arrow(c.key)}</th>`
   ).join('')}</tr></thead>`;
 
   const tbody = document.createElement('tbody');
@@ -414,6 +435,12 @@ function renderRelTable() {
       `<span class="du-badge" style="background:${p.color};" title="Anunciando em ${p.label}">${p.icon} ${p.label}</span>`).join('');
     const bar = maxSpend > 0 ? `<div class="du-bar"><i style="width:${Math.max(2, (r.s.spend / maxSpend) * 100)}%"></i></div>` : '';
     const cells = REL_COLS.slice(1).map(c => {
+      if (c.key === 'active') {
+        const list = r.s.active;
+        return `<td class="l du-active">${list.length
+          ? list.map(n => `<div class="du-camp" title="${n}"><i></i>${n}</div>`).join('')
+          : '<span class="du-none">—</span>'}</td>`;
+      }
       const v = r.s[c.key];
       const empty = v == null || (!r.hasData);
       return `<td class="n${c.key === 'spend' ? ' spend' : ''}${empty ? ' empty' : ''}">${empty ? '—' : c.fmt(v)}${c.key === 'spend' && !empty ? bar : ''}</td>`;
@@ -498,7 +525,7 @@ async function relFetch() {
         hasData,
         err: unitErr,
         platforms: detectDeliveryPlatforms(campaigns),
-        s: relRowSummary(ins, groups, unitPurch),
+        s: relRowSummary(ins, groups, unitPurch, campaigns),
         card: renderRelUnit(acc, ins, topAds, campaigns, hasData, unitErr),
       };
       renderRelTable();
