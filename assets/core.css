@@ -668,6 +668,69 @@ tbody tr:hover td{background:var(--b-50);}
 footer{background:var(--b-900);color:rgba(255,255,255,.45);text-align:center;padding:16px 28px;font-size:12px;font-weight:700;}
 footer span{color:var(--b-400);}
 
+/* ═══════════ 10b. DASH UNIDADES — visão enxuta (só #tab-relatorio) ═══════════
+   Tabela de uma linha por unidade + top 5 criativos, pensada para ser lida
+   com a tela compartilhada. Classes du-* são exclusivas do Dash Unidades;
+   o Dash Franqueadora continua usando os cards rel-* acima.                 */
+#tab-relatorio .du-kpis{grid-template-columns:repeat(4,1fr);gap:16px;}
+#tab-relatorio .du-kpis .card .lbl{font-size:13px;}
+#tab-relatorio .du-kpis .card .val{font-size:40px;}
+#tab-relatorio .du-kpis .card .sub{font-size:13px;}
+
+.du-wrap{padding:14px 28px 32px;}
+.du-table-scroll{overflow-x:auto;background:#fff;border:1px solid var(--ry-bd);border-radius:var(--r-xl);box-shadow:0 6px 20px rgba(20,110,153,.10);}
+.du-table{width:100%;border-collapse:collapse;font-size:17px;}
+.du-table th{
+  position:sticky;top:0;background:var(--b-50);color:var(--ry);font-size:13px;font-weight:900;
+  text-transform:uppercase;letter-spacing:.8px;padding:14px 16px;border-bottom:2px solid var(--ry-bd);
+  cursor:pointer;user-select:none;white-space:nowrap;
+}
+.du-table th:hover,.du-table th.sorted{background:var(--b-100);}
+.du-table th.l,.du-table td.l{text-align:left;}
+.du-table th.n,.du-table td.n{text-align:right;}
+.du-table td{padding:10px 16px;border-bottom:1px solid var(--line);color:var(--ry-navy);font-weight:800;white-space:nowrap;}
+.du-row{cursor:pointer;transition:background .15s;}
+.du-row:hover{background:var(--b-50);}
+.du-row.open{background:var(--b-50);}
+.du-row.open td{border-bottom-color:transparent;}
+.du-chev{display:inline-block;width:18px;color:var(--ry-2);font-size:13px;transition:transform .15s;}
+.du-row.open .du-chev{transform:rotate(90deg);}
+.du-name{font-family:var(--font-display);font-weight:600;font-size:19px;color:var(--ry);}
+.du-badge{display:inline-block;margin-left:10px;color:#fff;font-size:11px;font-weight:900;letter-spacing:.4px;text-transform:uppercase;padding:3px 10px;border-radius:var(--r-pill);vertical-align:middle;}
+.du-err{margin-left:8px;}
+.du-table td.n{font-family:var(--font-display);font-weight:600;font-size:19px;}
+.du-table td.empty{color:#b8d2e4;}
+.du-table td.spend{min-width:150px;}
+.du-bar{height:5px;background:var(--b-100);border-radius:3px;margin-top:6px;overflow:hidden;}
+.du-bar i{display:block;height:100%;background:var(--b-400);border-radius:3px;}
+.du-loading{color:var(--muted);font-size:14px;font-weight:800;}
+.du-detail-row>td{padding:0 !important;background:var(--b-50);}
+.du-detail{white-space:normal;font-weight:400;padding:6px 14px 16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:0 18px;align-items:start;}
+.du-detail>*{grid-column:1/-1;}
+.du-detail>.rel-obj-block{grid-column:auto;}
+.du-detail-top{padding:6px 4px 2px;}
+.du-detail .rel-nodata{padding:14px;}
+
+.du-creatives{display:flex;flex-direction:column;background:#fff;border:1px solid var(--ry-bd);border-radius:var(--r-xl);box-shadow:0 6px 20px rgba(20,110,153,.10);overflow:hidden;}
+.du-cr-row{display:flex;align-items:center;gap:16px;padding:12px 20px;border-bottom:1px solid var(--line);}
+.du-cr-row:last-child{border-bottom:none;}
+.du-cr-rank{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#fff;flex-shrink:0;}
+.du-cr-rank.r1{background:var(--orange);} .du-cr-rank.r2{background:#9FB3BF;} .du-cr-rank.r3{background:#CD7F32;} .du-cr-rank.rn{background:var(--ry-2);}
+.du-cr-thumb{width:56px;height:56px;object-fit:cover;border-radius:var(--r-sm);flex-shrink:0;background:var(--b-100);border:1px solid var(--ry-bd);}
+.du-cr-info{flex:1;min-width:0;}
+.du-cr-name{font-family:var(--font-display);font-weight:600;font-size:19px;color:var(--ry-navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.du-cr-metrics{font-size:14px;color:var(--muted);font-weight:800;margin-top:3px;}
+.du-cr-units{font-size:14px;font-weight:800;color:var(--ry-2);white-space:nowrap;}
+.du-cr-units strong{font-family:var(--font-display);font-size:22px;color:var(--ry);margin-right:3px;}
+
+@media(max-width:920px){#tab-relatorio .du-kpis{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:768px){
+  .du-wrap{padding-left:14px;padding-right:14px;}
+  .du-table{font-size:15px;}
+  #tab-relatorio .du-kpis .card .val{font-size:30px;}
+  .du-cr-units{display:none;}
+}
+
 /* ───────────────────────── 12. RESPONSIVO ───────────────────────── */
 @media(max-width:920px){.rel-units-wrap{grid-template-columns:1fr;}}
 @media(max-width:768px){

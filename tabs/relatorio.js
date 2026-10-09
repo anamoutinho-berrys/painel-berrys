@@ -119,14 +119,6 @@ function buildResumo(displayName, groups) {
   return `<div class="rel-resumo"><span class="r-chip">Resumo:</span><p>${parts.join(' ')}</p></div>`;
 }
 
-function unitIcon(name) {
-  const n = name.toLowerCase();
-  if (n.includes('moc')) return '🏪';
-  if (n.includes('aracaju') || n.includes('recife') || n.includes('maceió') || n.includes('maceio') || n.includes('salvador')) return '🌴';
-  if (n.includes('savassi') || n.includes('contagem') || n.includes('uberaba') || n.includes('anápolis') || n.includes('anapolis')) return '🏙️';
-  return '🍦';
-}
-
 // plataforma(s) de delivery em que a unidade está anunciando no período —
 // usa deliveryPlatformFor() (objectives.js): delivery com campanha de
 // vendas/conversão é Anota Aí, delivery com campanha de tráfego é iFood
@@ -140,43 +132,19 @@ function detectDeliveryPlatforms(campaigns) {
   return [...found.values()].map(p => ({ key: p.key, icon: p.icon, label: p.name, color: p.color }));
 }
 
+// Conteúdo que abre ao clicar numa linha da tabela. O nome, o investimento e o
+// alcance já estão na linha, então aqui não repete cabeçalho — só o link do
+// Gerenciador e o detalhamento por objetivo / campanhas / anúncios.
 function renderRelUnit(acc, insights, topAds, campaigns, hasData, unitErr) {
   const card = document.createElement('div');
-  card.className = 'rel-unit-card';
+  card.className = 'du-detail';
   const displayName = acc.name.replace(/berry's\s*/i, '').trim().toUpperCase();
   const groups = aggregateByObjective(campaigns);
   const groupKeys = Object.keys(groups).sort((x,y) => OBJ_GROUPS[x].order - OBJ_GROUPS[y].order);
 
-  const objBadges = groupKeys.length
-    ? `<div class="rel-obj-badges">${groupKeys.map((k,i) =>
-        `<span class="rel-obj-badge${i>0?' alt':''}">${OBJ_GROUPS[k].icon} ${OBJ_GROUPS[k].label}</span>`).join('')}</div>`
+  const header = acc.mgr
+    ? `<div class="du-detail-top"><a class="rel-card-mgr" href="${acc.mgr}" target="_blank">↗ Abrir no Gerenciador</a></div>`
     : '';
-
-  const deliveryPlatforms = detectDeliveryPlatforms(campaigns);
-  const deliveryBadges = deliveryPlatforms.length
-    ? `<div class="rel-delivery-badges">${deliveryPlatforms.map(p =>
-        `<span class="rel-delivery-badge" style="background:${p.color};">${p.icon} ${p.label}</span>`).join('')}</div>`
-    : '';
-
-  const headKpis = hasData ? `<div class="rel-head-kpis">
-    <div class="rel-head-kpi"><span class="k-ico">💰</span><span><div class="k-lbl">Investimento total</div><div class="k-val">${fmt(insights.spend)}</div></span></div>
-    <div class="rel-head-kpi"><span class="k-ico">👥</span><span><div class="k-lbl">Alcance da conta</div><div class="k-val">${fmtN(insights.reach)}</div></span></div>
-  </div>` : '';
-
-  const header = `<div class="rel-card-header">
-    <div class="rel-card-icon-wrap">${unitIcon(acc.name)}</div>
-    <div class="rel-card-title">${displayName}</div>
-    ${acc.mgr ? `<a class="rel-card-mgr" href="${acc.mgr}" target="_blank">↗ Gerenciador</a>` : ''}
-    ${deliveryBadges}
-    ${headKpis}
-    ${objBadges}
-  </div>`;
-
-  // chave p/ agrupar unidades com mix de campanhas parecido
-  card.dataset.sig   = groupKeys.length ? groupKeys.join('|') : 'zz-none';
-  card.dataset.nobj  = groupKeys.length;
-  card.dataset.spend = insights.spend || 0;
-  if (deliveryPlatforms.length) card.dataset.delivery = deliveryPlatforms.map(p => p.key).join('|');
 
   if (!hasData) {
     const msg = unitErr
@@ -315,7 +283,7 @@ function computeNetworkTopCreatives(unitsAds) {
       seenThemes.add(c.theme);
     }
     result.push(c);
-    if (result.length >= 10) break;
+    if (result.length >= 5) break;
   }
   return result;
 }
@@ -325,19 +293,23 @@ function unitDisplayName(accName) {
   return accName.replace(/berry's\s*/i, '').trim();
 }
 
-// linha de métricas do card de criativo da rede. Criativo de campanha de
-// vendas (tem valor de conversão rastreado) mostra ROAS e valor em compras
-// no lugar de cliques; os demais mantêm cliques.
+// linha de métricas do criativo da rede. Criativo de campanha de vendas (tem
+// valor de conversão rastreado) mostra ROAS; os demais mostram o alcance.
 function netCreativeMetrics(c) {
-  const base = `${fmt(c.spend)} · ${fmtN(c.reach)} alcance`;
+  const base = fmt(c.spend, 0);
   if (c.convValue > 0) {
     const roas = c.spend > 0 ? c.convValue / c.spend : 0;
-    const roasTxt = roas > 0 ? ` · ROAS ${roas.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '';
-    return `${base}${roasTxt} · ${fmt(c.convValue)} em compras${c.purchases > 0 ? ` · 🛍️ ${fmtN(c.purchases)} compras` : ''}`;
+    return `${base} · ROAS ${fmtRoas(roas)}${c.purchases > 0 ? ` · ${fmtN(c.purchases)} compras` : ''}`;
   }
-  return `${base} · ${fmtN(c.clicks)} cliques${c.purchases > 0 ? ` · 🛍️ ${fmtN(c.purchases)} compras` : ''}`;
+  return `${base} · ${fmtN(c.reach)} alcance`;
 }
 
+function fmtRoas(v) {
+  return v == null || isNaN(v) ? '—' : v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+// Top 5 enxuto: uma linha por criativo (posição, miniatura, nome, em quantas
+// unidades se destacou e o resultado). Os nomes das unidades ficam no tooltip.
 function renderNetworkTopCreatives(list) {
   const wrap = document.getElementById('rel-top-creatives');
   if (!wrap) return;
@@ -347,26 +319,128 @@ function renderNetworkTopCreatives(list) {
   }
   const rankCls = ['r1', 'r2', 'r3'];
   wrap.innerHTML = list.map((c, i) => {
-    // nome de cada unidade em que ESTE criativo específico foi destaque,
-    // estilo selo do app do iFood — em cima do card, não uma lista genérica
-    const unitBadges = [...c.units].sort().map(u => {
-      const name = unitDisplayName(u);
-      return `<span class="rel-net-creative-unit-badge" title="${name}"><span class="u-ico">${name.slice(0, 2).toUpperCase()}</span>${name}</span>`;
-    }).join('');
+    const units = [...c.units].sort().map(unitDisplayName);
     return `
-    <div class="rel-net-creative-card">
-      <div class="rel-net-creative-units-row">${unitBadges}</div>
-      <div class="rel-net-creative-thumb-wrap">
-        <div class="rel-net-creative-rank ${rankCls[i] || 'rn'}">${i + 1}</div>
-        ${c.thumb ? `<img class="rel-net-creative-thumb" src="${c.thumb}" onerror="this.style.display='none'" loading="lazy"/>` : ''}
+    <div class="du-cr-row">
+      <div class="du-cr-rank ${rankCls[i] || 'rn'}">${i + 1}</div>
+      ${c.thumb ? `<img class="du-cr-thumb" src="${c.thumb}" onerror="this.style.display='none'" loading="lazy"/>` : `<div class="du-cr-thumb"></div>`}
+      <div class="du-cr-info">
+        <div class="du-cr-name" title="${c.name}">${c.theme || c.name}</div>
+        <div class="du-cr-metrics">${netCreativeMetrics(c)}</div>
       </div>
-      <div class="rel-net-creative-body">
-        <div class="rel-net-creative-name" title="${c.name}">${c.name}</div>
-        <div class="rel-net-creative-metrics">${netCreativeMetrics(c)}</div>
-      </div>
-    </div>
-  `;
+      <div class="du-cr-units" title="${units.join(', ')}"><strong>${units.length}</strong> unidades</div>
+    </div>`;
   }).join('');
+}
+
+/* ── tabela de unidades ──────────────────────────────────────────────────
+   Uma linha por unidade, ordenável. Clicar na linha abre o detalhe (o card
+   gerado por renderRelUnit). relRows guarda o estado de cada unidade. */
+
+let relRows = [];
+let relSort = { key: 'spend', dir: -1 };
+const relOpen = new Set();
+
+const REL_COLS = [
+  { key: 'name',      label: 'Unidade',   fmt: v => v },
+  { key: 'spend',     label: 'Investido', fmt: v => fmt(v, 0) },
+  { key: 'reach',     label: 'Alcance',   fmt: v => fmtN(v) },
+  { key: 'purchases', label: 'Compras',   fmt: v => fmtN(Math.round(v)) },
+  { key: 'roas',      label: 'ROAS',      fmt: v => fmtRoas(v) },
+  { key: 'clicks',    label: 'Cliques',   fmt: v => fmtN(v) },
+  { key: 'follows',   label: 'Seguidores',fmt: v => fmtN(v) },
+];
+
+// números da linha: compras / ROAS / cliques / seguidores só existem para as
+// unidades que têm campanha daquele objetivo (null → mostra "—")
+function relRowSummary(ins, groups, purchases) {
+  const g = groups;
+  return {
+    spend:     ins.spend || 0,
+    reach:     ins.reach || 0,
+    purchases: (g.vendas || purchases > 0) ? purchases : null,
+    roas:      g.vendas ? g.vendas.roas : null,
+    clicks:    g.trafego ? (g.trafego.linkClicks || g.trafego.clicks) : null,
+    follows:   g.engaj && g.engaj.follows > 0 ? g.engaj.follows : null,
+  };
+}
+
+function relCompare(a, b) {
+  const { key, dir } = relSort;
+  // unidades ainda carregando vão para o fim
+  if (a.loading !== b.loading) return a.loading ? 1 : -1;
+  if (key === 'name') return dir * a.name.localeCompare(b.name, 'pt-BR');
+  const va = a.s?.[key], vb = b.s?.[key];
+  if (va == null && vb == null) return a.name.localeCompare(b.name, 'pt-BR');
+  if (va == null) return 1;   // "—" sempre embaixo, qualquer que seja a direção
+  if (vb == null) return -1;
+  return dir * (va - vb) || a.name.localeCompare(b.name, 'pt-BR');
+}
+
+function relSortBy(key) {
+  relSort = relSort.key === key ? { key, dir: -relSort.dir } : { key, dir: key === 'name' ? 1 : -1 };
+  renderRelTable();
+}
+
+function relToggleRow(name) {
+  if (relOpen.has(name)) relOpen.delete(name); else relOpen.add(name);
+  renderRelTable();
+}
+
+function renderRelTable() {
+  const wrap = document.getElementById('rel-units-wrap');
+  if (!wrap) return;
+  const rows = [...relRows].sort(relCompare);
+  const maxSpend = Math.max(0, ...rows.map(r => r.s?.spend || 0));
+
+  const arrow = k => relSort.key === k ? (relSort.dir < 0 ? ' ▼' : ' ▲') : '';
+  const thead = `<thead><tr>${REL_COLS.map(c =>
+    `<th class="${c.key === 'name' ? 'l' : 'n'}${relSort.key === c.key ? ' sorted' : ''}" onclick="relSortBy('${c.key}')">${c.label}${arrow(c.key)}</th>`
+  ).join('')}</tr></thead>`;
+
+  const tbody = document.createElement('tbody');
+  rows.forEach(r => {
+    const open = relOpen.has(r.name);
+    const tr = document.createElement('tr');
+    tr.className = 'du-row' + (open ? ' open' : '');
+    if (r.loading) {
+      tr.innerHTML = `<td class="l"><span class="du-chev"></span><span class="du-name">${r.name}</span></td>
+        <td colspan="${REL_COLS.length - 1}" class="du-loading"><span class="spin"></span> Carregando…</td>`;
+      tbody.appendChild(tr);
+      return;
+    }
+    tr.onclick = () => relToggleRow(r.name);
+    const badges = (r.platforms || []).map(p =>
+      `<span class="du-badge" style="background:${p.color};" title="Anunciando em ${p.label}">${p.icon} ${p.label}</span>`).join('');
+    const bar = maxSpend > 0 ? `<div class="du-bar"><i style="width:${Math.max(2, (r.s.spend / maxSpend) * 100)}%"></i></div>` : '';
+    const cells = REL_COLS.slice(1).map(c => {
+      const v = r.s[c.key];
+      const empty = v == null || (!r.hasData);
+      return `<td class="n${c.key === 'spend' ? ' spend' : ''}${empty ? ' empty' : ''}">${empty ? '—' : c.fmt(v)}${c.key === 'spend' && !empty ? bar : ''}</td>`;
+    }).join('');
+    tr.innerHTML = `<td class="l"><span class="du-chev">▸</span><span class="du-name">${r.name}</span>${badges}${r.err ? '<span class="du-err" title="Erro na API — abra o detalhe">⚠️</span>' : ''}</td>${cells}`;
+    tbody.appendChild(tr);
+
+    if (open) {
+      const dr = document.createElement('tr');
+      dr.className = 'du-detail-row';
+      const td = document.createElement('td');
+      td.colSpan = REL_COLS.length;
+      td.appendChild(r.card);
+      dr.appendChild(td);
+      tbody.appendChild(dr);
+    }
+  });
+
+  const table = document.createElement('table');
+  table.className = 'du-table';
+  table.innerHTML = thead;
+  table.appendChild(tbody);
+  const scroller = document.createElement('div');
+  scroller.className = 'du-table-scroll';
+  scroller.appendChild(table);
+  wrap.innerHTML = '';
+  wrap.appendChild(scroller);
 }
 
 async function relFetch() {
@@ -374,9 +448,9 @@ async function relFetch() {
   if (!dateParams) { alert('Preencha as datas de início e fim.'); return; }
 
   const valid = ACCOUNTS.filter(a => a.id && !a.card);
-  const wrap  = document.getElementById('rel-units-wrap');
-  wrap.innerHTML = '';
   const networkAdsData = [];
+  relRows = valid.map(acc => ({ name: unitDisplayName(acc.name).toUpperCase(), loading: true, s: null }));
+  renderRelTable();
 
   const pw = document.getElementById('rel-prog-wrap');
   const pf = document.getElementById('rel-prog-fill');
@@ -384,20 +458,15 @@ async function relFetch() {
   pw.classList.add('show');
   pf.style.width = '0%';
 
-  let totalSpend = 0, totalReach = 0, totalImpr = 0, totalClicks = 0, totalPurch = 0, totalConvVal = 0;
+  let totalSpend = 0, totalReach = 0, totalPurch = 0, totalConvVal = 0;
   let done = 0;
   const relErrors = [];
   const errEl = document.getElementById('rel-err-banner');
   if (errEl) { errEl.style.display = 'none'; errEl.innerHTML = ''; }
 
   for (let i = 0; i < valid.length; i += 3) {
-    await Promise.all(valid.slice(i, i + 3).map(async acc => {
-      const placeholder = document.createElement('div');
-      placeholder.className = 'rel-unit-card';
-      placeholder.innerHTML = `<div class="rel-card-header"><div class="rel-card-icon-wrap">🍦</div><div class="rel-card-title">${acc.name.replace(/berry's\s*/i,'').trim().toUpperCase()}</div></div>
-        <div class="rel-unit-loading"><span class="spin"></span> Carregando…</div>`;
-      wrap.appendChild(placeholder);
-
+    await Promise.all(valid.slice(i, i + 3).map(async (acc, j) => {
+      const idx = i + j;
       let ins = {}, topAds = [], campaigns = [], unitErr = null;
       const results = await Promise.allSettled([
         fetchRelInsights(acc.id, dateParams),
@@ -413,17 +482,26 @@ async function relFetch() {
       if (unitErr) relErrors.push(acc.name + ': ' + unitErr);
       totalSpend  += ins.spend  || 0;
       totalReach  += ins.reach  || 0;
-      totalImpr   += ins.impressions || 0;
-      totalClicks += ins.clicks || 0;
+      let unitPurch = 0;
       campaigns.forEach(c => {
         const ci = c.insights?.data?.[0];
         if (!ci) return;
-        totalPurch   += getAct(ci.actions, A_PURCHASE);
+        unitPurch    += getAct(ci.actions, A_PURCHASE);
         totalConvVal += getAct(ci.action_values, A_PURCHASE);
       });
+      totalPurch += unitPurch;
 
-      const card = renderRelUnit(acc, ins, topAds, campaigns, hasData, unitErr);
-      wrap.replaceChild(card, placeholder);
+      const groups = aggregateByObjective(campaigns);
+      relRows[idx] = {
+        name: unitDisplayName(acc.name).toUpperCase(),
+        loading: false,
+        hasData,
+        err: unitErr,
+        platforms: detectDeliveryPlatforms(campaigns),
+        s: relRowSummary(ins, groups, unitPurch),
+        card: renderRelUnit(acc, ins, topAds, campaigns, hasData, unitErr),
+      };
+      renderRelTable();
 
       done++;
       pf.style.width = (done / valid.length * 100) + '%';
@@ -431,25 +509,13 @@ async function relFetch() {
 
       document.getElementById('rel-total-spend').textContent   = fmt(totalSpend);
       document.getElementById('rel-total-reach').textContent   = fmtN(totalReach);
-      document.getElementById('rel-total-impr').textContent    = fmtN(totalImpr);
-      document.getElementById('rel-total-clicks').textContent  = fmtN(totalClicks);
       document.getElementById('rel-total-purch').textContent   = fmtN(Math.round(totalPurch));
       document.getElementById('rel-total-convval').textContent = fmt(totalConvVal);
+      document.getElementById('rel-total-roas').textContent    = totalSpend > 0 && totalConvVal > 0 ? `ROAS ${fmtRoas(totalConvVal / totalSpend)}` : 'retorno gerado';
     }));
   }
 
   pw.classList.remove('show');
-
-  // agrupa unidades com o mesmo mix de objetivos; dentro do grupo, maior investimento primeiro
-  const cards = [...wrap.querySelectorAll('.rel-unit-card')];
-  cards.sort((a, b) => {
-    const na = +(b.dataset.nobj||0) - (+(a.dataset.nobj||0));   // mais objetivos primeiro
-    if (na) return na;
-    const sig = (a.dataset.sig||'').localeCompare(b.dataset.sig||''); // mesmo mix junto
-    if (sig) return sig;
-    return (+(b.dataset.spend||0)) - (+(a.dataset.spend||0));   // maior investimento primeiro
-  });
-  cards.forEach(c => wrap.appendChild(c));
 
   renderNetworkTopCreatives(computeNetworkTopCreatives(networkAdsData));
 
