@@ -49,6 +49,9 @@ const ACCOUNTS = [
   { name:"Berry's Diamantina",              id:"1566311618134890",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1566311618134890", mensal:1000 },
   { name:"Berry's Sete Lagoas",             id:"894150533369622",   mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=894150533369622", mensal:1000 },
   { name:"Berry's Porteirinha",             id:"1647812710293068",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1647812710293068", mensal:1000 },
+  { name:"Berry's Porto de Galinhas",       id:"3159021090974481",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=3159021090974481", mensal:1000 },
+  { name:"Berry's Natal",                   id:"1970811886924193",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1970811886924193", mensal:1000 },
+  { name:"Berry's Limeira",                 id:"1086582307340008",  mgr:"https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1086582307340008", mensal:1000 },
 ];
 
 

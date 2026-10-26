@@ -13,8 +13,8 @@
 const INAUGURACOES_SEED = [
   { cidade: 'Diamantina',        data: '2026-10-08' },
   { cidade: 'Porto de Galinhas', data: '2026-10-28' },
-  { cidade: 'Natal',             data: '2026-10-29' },
-  { cidade: 'Limeira',           ref: '2026-10-31', previsao: 'Previsto para o fim de outubro (data a confirmar)' },
+  { cidade: 'Natal',             data: '2026-11-12' },
+  { cidade: 'Limeira',           ref: '2026-11-05', previsao: 'Previsto para 05/11 (data a confirmar)' },
   { cidade: 'João Pessoa',       ref: '2026-11-15', previsao: 'Previsto para novembro' },
   { cidade: 'Jaíba',             ref: '2026-11-16', previsao: 'Previsto para novembro' },
   { cidade: 'Betim',             ref: '2026-12-15', previsao: 'Previsto para dezembro' },
